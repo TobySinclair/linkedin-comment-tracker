@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LinkedIn Engagement — Candidate Tracker</title>
+<title>Comment queue</title>
 <style>
   :root {
     --bg: #fafaf8;
@@ -43,10 +43,17 @@
     margin: 0 auto;
     padding: 48px 32px 80px;
   }
-  h1 {
-    font-size: 28px;
-    margin: 0 0 16px;
-    letter-spacing: -0.01em;
+  @media (max-width: 700px) {
+    .wrap { padding: 24px 16px 96px; }
+    h2 { font-size: 18px; margin: 32px 0 16px; }
+    .day { margin-top: 28px; }
+    .card { padding: 18px; }
+    .actions .btn {
+      min-height: 44px;
+      padding: 10px 14px;
+      font-size: 14px;
+    }
+    .chip { min-height: 40px; padding: 8px 14px; }
   }
   h2 {
     font-size: 22px;
@@ -56,15 +63,24 @@
     display: inline-block;
   }
   p { margin: 0 0 14px; }
-  .intro { color: var(--muted); max-width: 760px; }
-  .intro strong { color: var(--text); }
+  .app-header { margin: 0 0 4px; }
+  .app-header h1 {
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin: 0;
+    line-height: 1.2;
+  }
+  @media (min-width: 700px) {
+    .app-header h1 { font-size: 28px; }
+  }
   .toolbar {
     position: sticky;
     top: 0;
     z-index: 20;
     background: var(--bg);
     padding: 14px 0 12px;
-    margin: 20px 0 0;
+    margin: 12px 0 0;
     border-bottom: 1px solid var(--border);
     display: flex;
     flex-wrap: wrap;
@@ -97,7 +113,57 @@
     opacity: 0.75;
     font-variant-numeric: tabular-nums;
   }
-  .toolbar-right { margin-left: auto; display: flex; gap: 8px; }
+  .queue-status {
+    width: 100%;
+    flex-basis: 100%;
+    order: 10;
+    font-size: 14px;
+    color: var(--text);
+    font-weight: 600;
+    margin: 0;
+    padding: 2px 0 0;
+  }
+  @media (min-width: 900px) {
+    .queue-status {
+      width: auto;
+      flex-basis: auto;
+      order: 0;
+      margin-left: 12px;
+      padding: 0;
+    }
+  }
+  .day-addressed-divider {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin: 28px 0 16px;
+  }
+  .day-addressed-divider::before,
+  .day-addressed-divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  .day-todo-count {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--muted);
+  }
+  .card.card--addressed {
+    box-shadow: none;
+    background: #fafbfa;
+  }
+  .card.card--addressed .card-head .who h3 { font-size: 16px; }
+  .card[data-status="comment-only"],
+  .card[data-status="comment-and-connect"],
+  .card[data-status="skip"] { opacity: 1; }
+  .toolbar-right { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; }
   .btn {
     border: 1px solid var(--border);
     background: var(--surface);
@@ -118,9 +184,6 @@
     box-shadow: 0 1px 2px rgba(0,0,0,0.03);
     transition: opacity 200ms, transform 200ms;
   }
-  .card[data-status="comment-only"] { opacity: 0.78; }
-  .card[data-status="comment-and-connect"] { opacity: 0.62; }
-  .card[data-status="skip"] { opacity: 0.48; }
   .card.hidden { display: none; }
   .card-head {
     display: flex;
@@ -225,22 +288,6 @@
     letter-spacing: 0.05em;
     margin-bottom: 6px;
   }
-  .run-notes {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 20px 24px;
-    margin-top: 24px;
-  }
-  .run-notes h3 {
-    margin: 0 0 12px;
-    font-size: 15px;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--muted);
-  }
-  .run-notes ul { margin: 0; padding-left: 20px; }
-  .run-notes li { margin-bottom: 8px; color: var(--text); }
   .flag { font-style: italic; color: var(--muted); font-size: 13px; }
   code {
     background: #f0efeb;
@@ -251,7 +298,7 @@
   }
   .toast {
     position: fixed;
-    bottom: 24px;
+    bottom: max(24px, env(safe-area-inset-bottom, 0px));
     left: 50%;
     transform: translateX(-50%) translateY(20px);
     background: #1a1a1a;
@@ -265,28 +312,39 @@
     z-index: 50;
   }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  @media (max-width: 700px) {
+    .toast {
+      left: 16px;
+      right: 16px;
+      transform: translateY(20px);
+      max-width: none;
+      text-align: center;
+    }
+    .toast.show { transform: translateY(0); }
+  }
 </style>
 </head>
 <body>
 <div class="wrap">
 
-  <h1>LinkedIn Engagement — Candidate Tracker</h1>
-  <p class="intro">Daily scan of LinkedIn across three audiences: <strong>CHROs &amp; senior HR buyers</strong>, <strong>Compliance ICP practitioners</strong>, and <strong>influencers / vendors / consultants</strong>. Draft comments in Toby Sinclair's voice for manual review and posting.</p>
-  <p class="intro"><strong>How this file works:</strong> each run prepends a new dated section below. Filter by audience, click Done or Skip on each card to track progress — your progress is saved in this browser.</p>
+  <header class="app-header">
+    <h1>Comment queue</h1>
+  </header>
 
-  <div class="toolbar" role="toolbar" aria-label="Filters and actions">
-    <span class="chip active" data-filter="all">All <span class="count" data-count="all">0</span></span>
-    <span class="chip" data-filter="chro">CHROs / HR buyers <span class="count" data-count="chro">0</span></span>
+  <div class="toolbar" role="toolbar" aria-label="Queue">
+    <p class="queue-status" id="queue-status" aria-live="polite"></p>
+    <span class="chip active" data-filter="todo">Queue <span class="count" data-count="todo">0</span></span>
+    <span class="chip" data-filter="all">All <span class="count" data-count="all">0</span></span>
+    <span class="chip" data-filter="chro">CHROs / HR <span class="count" data-count="chro">0</span></span>
     <span class="chip" data-filter="icp">Compliance ICP <span class="count" data-count="icp">0</span></span>
     <span class="chip" data-filter="influencer">Influencers <span class="count" data-count="influencer">0</span></span>
-    <span class="chip" data-filter="todo">Only TODO <span class="count" data-count="todo">0</span></span>
     <div class="toolbar-right">
-      <button class="btn" id="copy-done">Copy commented IDs</button>
-      <button class="btn" id="reset-all">Reset all</button>
+      <button class="btn" type="button" id="copy-done" title="Copy line-separated IDs (commented items)">Copy IDs</button>
+      <button class="btn" type="button" id="reset-all" title="Clear all statuses">Reset all</button>
     </div>
   </div>
 
-  <!-- NEWEST-DAY-INSERT-BELOW -->
+  <!-- NEWEST-DAY-INSERT-BELOW (prepend new <section class="day">; no run-notes) -->
 
 <section class="day" data-date="2026-04-25">
   <h2>2026-04-25</h2>
@@ -501,18 +559,6 @@
     </div>
   </div>
 
-  <div class="run-notes">
-    <h3>Run notes &mdash; 2026-04-25</h3>
-    <ul>
-      <li>7 candidates surfaced (3 CHRO, 1 ICP, 3 Influencer) &mdash; on target for the 6&ndash;9 budget. CHRO bucket is unusually strong this run on the back of a real corporate manager-development launch (Network Plus / Raise the Bar) and a Path 3 solution-aware UK practitioner publicly using AI roleplay (Caroline Reid &middot; Bodyswaps).</li>
-      <li>ICP came in lighter than usual at 1 &mdash; SMCR-reform week is dominating the FS feed but the practitioner-language searches mostly returned recruitment ads (&ldquo;head of compliance,&rdquo; &ldquo;ER casework,&rdquo; &ldquo;grievance investigation&rdquo; were almost entirely job posts). Frank Brown was the strongest direct ICP voice &mdash; NED, on the day&rsquo;s NFM/whistleblowing intersection. Path 2 of the discovery model (consultants in the comments of regulation-name posts) wasn&rsquo;t worked aggressively this run; flag for next session.</li>
-      <li>&ldquo;COCON OR Conduct Rule 7&rdquo; search returned French real-estate ads (cocon = cocoon). Substituted &ldquo;Senior Managers Certification OR SMCR culture,&rdquo; which yielded the David Allison / MGAA / Birketts cluster on this week&rsquo;s PS26/6 SM&amp;CR Phase 1 reforms &mdash; useful context but vendor-side, so not picked.</li>
-      <li>&ldquo;Knowing-doing gap,&rdquo; &ldquo;first-time manager + freeze,&rdquo; &ldquo;tick box compliance training,&rdquo; &ldquo;compliance training doesn&rsquo;t work,&rdquo; &ldquo;CIPD research harassment OR conduct,&rdquo; and &ldquo;Personnel Today / People Management harassment&rdquo; all returned weak or off-geo results. Skipped without forcing weak picks.</li>
-      <li>Strongest stage of the run is Dieter Veldsman / AIHR (128 reactions, 13 reposts) &mdash; squarely on Real Talk Studio&rsquo;s territory of manager capability vs process. Strongest direct CHRO opportunity is the Network Plus Aspire programme launch (165 reactions, 7 reposts) &mdash; the post itself is the buying signal; commenting on Will Pedigrew&rsquo;s profile is the route in.</li>
-      <li>No duplicates with the 2026-04-21 to 2026-04-24 sections. Toby&rsquo;s own post on the McDonald&rsquo;s Worker Protection Act framing is in this week&rsquo;s feed &mdash; ignored as expected.</li>
-      <li>Browser automation: javascript_tool and screenshot continue to error with &ldquo;Cannot access a chrome-extension:// URL&rdquo; on LinkedIn tabs (known limitation). Used navigate &middot; get_page_text loops throughout. People-search URLs used as default for all link fields per the skill&rsquo;s post-link guidance.</li>
-    </ul>
-  </div>
 </section>
 
 <section class="day" data-date="2026-04-24">
@@ -728,22 +774,6 @@
     </div>
   </div>
 
-  <div class="run-notes">
-    <h3>Run notes &mdash; 2026-04-24</h3>
-    <ul>
-      <li><strong>Yield:</strong> 7 candidates (1 CHRO &middot; 1 ICP &middot; 5 Influencer). Mid-range of the 6&ndash;9 target. CHRO practitioner pool remained thin this run &mdash; flagged honestly rather than padded.</li>
-      <li><strong>Strongest pick:</strong> Lewis Silkin &ldquo;The Working Times&rdquo; roundup &mdash; 110 reactions is the strongest stage of the run by a wide margin, and the NDA-reform angle lands directly in the preventative-harassment conversation we want to be in. Clear line for Toby: NDA reform closes the quiet-management route and spotlights front-line manager behaviour in the first 48 hours.</li>
-      <li><strong>CHRO bucket &mdash; thin again:</strong> Path 1 (Compliance/Risk) and Path 2 (L&amp;D) dominated by US content, recruiter job ads, and already-known fractional consultants. Phillip Warren (healthcare / CQC crossover) kept as the one CHRO pick because the sector-specific angle &mdash; well-led domain plus ERA preventative duty &mdash; is an honest fit; the rest of the pool was padded with vendor event promos. Consistent two-run pattern &mdash; CHRO practitioner posting volume is genuinely low right now; keyword coverage isn&rsquo;t the constraint.</li>
-      <li><strong>ICP bucket:</strong> Sandy McGregor (SimplyBiz, Director of Policy) is the ICP pick &mdash; 2nd-degree, FCA-authorised network, directly on the 1 Sept 2026 Conduct Rule 7 / NFM deadline. Competing ICP candidates this run were mostly already-posted voices (Cosegic, Browne Jacobson re-surfacing from yesterday) or vendor webinar promos.</li>
-      <li><strong>Influencer bucket:</strong> Strong run. Lewis Silkin, Chartered Institute of Internal Auditors (&pound;1bn fines report), Sicsic Advisory (FCA Work Programme 2026/27 webinar), Neil Makwana (Leaman Crellin Consumer Duty Year 2 board-report gaps), and Jess Rad (WomenHood &mdash; explicitly pitches CPO/CHRO/L&amp;D). Jess Rad&rsquo;s buyer-targeting is notable: a post that literally names our ICP in the framing.</li>
-      <li><strong>Dedup:</strong> Kelvin Irikefe re-surfaced on AML-training search &mdash; already posted 2026-04-23, skipped. Cosegic, Browne Jacobson re-surfaced &mdash; skipped. Rifat Sheikh (ReachLaw COLP/COFA AI governance) skipped &mdash; SRA angle rather than FCA; not close enough to ICP this run.</li>
-      <li><strong>Watchlist additions:</strong> Lewis Silkin LLP &ldquo;The Working Times&rdquo; (weekly employment-law roundup, high engagement, reliable Influencer source); Chartered Institute of Internal Auditors (UK &amp; Ireland; three-lines-of-defence framing aligns directly with NFM / Conduct Rules narrative); Sicsic Advisory (ex-FCA seniors; FS regulatory commentary); Leaman Crellin Compliance Consulting / Neil Makwana (practitioner-voice consultancy, Consumer Duty fluent); WomenHood Ltd / Jess Rad (pitches exact ICP &mdash; watch for future CPO/CHRO-aimed content).</li>
-      <li><strong>Near-threshold flags:</strong> Neil Makwana (8 reactions), Sicsic Advisory (9), Chartered IIA (9) all below the 25-reaction Influencer bar but kept because content is squarely on 2026 FCA priorities and Toby has a distinct behavioural perspective to add. Chartered IIA in particular: small audience, high signal.</li>
-      <li><strong>Path 3 (solution-aware):</strong> Rotated in &ldquo;manager effectiveness data&rdquo; and &ldquo;deliberate practice&rdquo; this run &mdash; both dry. &ldquo;Conversation simulation&rdquo; still not tried; rotate in next session.</li>
-      <li><strong>Searches that yielded nothing:</strong> CHRO Path 2 (&ldquo;knowing-doing gap,&rdquo; &ldquo;manager effectiveness data&rdquo;) mostly wellness / civic-leadership / US HR voices. &ldquo;Accidental manager&rdquo; continues to be dry. &ldquo;AI roleplay&rdquo; dominated by Sandler franchisee content; &ldquo;deliberate practice&rdquo; returned sports-coaching posts.</li>
-      <li><strong>No LinkedIn login / automation issues this run.</strong></li>
-    </ul>
-  </div>
 </section>
 
 <section class="day" data-date="2026-04-23">
@@ -1065,24 +1095,6 @@
     </div>
   </div>
 
-  <div class="run-notes">
-    <h3>Run notes &mdash; 2026-04-23</h3>
-    <ul>
-      <li><strong>Yield:</strong> 6 candidates (0 CHRO &middot; 2 ICP &middot; 4 Influencer). At the lower end of the 6&ndash;9 target. CHRO bucket returned nothing meeting the bar this session &mdash; flagged honestly rather than forcing a weak pick.</li>
-      <li><strong>Strongest pick:</strong> Kelvin Irikefe &mdash; small engagement (5 reactions, 5h old) but the post reads like a direct brief for Real Talk Studio: &ldquo;measure what people can do, not what they&rsquo;ve clicked,&rdquo; scenario-based training, FCA thematic review as the yardstick. Practitioner voice, UK FS, exactly the conversation we want to be in.</li>
-      <li><strong>CHRO bucket &mdash; zero yield:</strong> Ran Paths 1&ndash;4 searches across all four cluster types. Dominant result types: recruiter job adverts (ER Manager, People Advisor), consultants (Sue Lappin &mdash; already-known fractional HRD, routes to Audience C not A), US-based content (Shannon Hughes Swayney, Tracie Edwards, Phyllis Leon), and ICP-adjacent speakers on Path 3 / 4 terms. &ldquo;AI roleplay&rdquo; heavily skewed to Sandler sales-training franchisees (competitor-adjacent, skipped). &ldquo;Knowing-doing gap&rdquo; surfaced a wellness coach and a civic-leadership post &mdash; not ICP. &ldquo;Accidental manager,&rdquo; &ldquo;leader as coach&rdquo; &mdash; dry this week. Conclusion: practitioner HR-side posting volume was low across the clusters; keyword set not the constraint.</li>
-      <li><strong>ICP bucket:</strong> PS25/23 / NFM is still the dominant driver (Cosegic, Browne Jacobson, Melanie Stancliffe / Freeths, Claire Cummings / Cummings Pepperdine all posted in the last 24h). Kelvin Irikefe on AML training is the standout practitioner-voice post. Joe Simpson (Walker Crips) brings TR24/1 back into scope &mdash; adjacent ICP, useful for showing Consumer Duty / outcomes fluency.</li>
-      <li><strong>Influencer bucket:</strong> Nic Elliott is the strongest stage of the run &mdash; HR Most Influential 2025, growing thread, timely ERA2025 content. Gordons LLP (Mike Patterson) is a new name to add to the watchlist &mdash; anchored a strong Employment-Rights-Act post with the McDonald&rsquo;s / EHRC hook.</li>
-      <li><strong>Dedup:</strong> Sophia Rahman (Dentons) re-surfaced &mdash; already in 2026-04-22 section, skipped. Sue Lappin re-surfaced on two searches &mdash; low engagement, skipped for today but worth noting for watchlist. Compliance Compass UK (vendor) posted twice &mdash; skipped both.</li>
-      <li><strong>Watchlist additions:</strong> Gordons LLP (new), Browne Jacobson Financial Services &amp; Insurance (reinforced), Cosegic (reinforced), Freeths FS team (Sushil Kuner, Melanie Stancliffe, Nicola Wallbank &mdash; active on NFM / fintech). Add to seed list for named-account watchlist next run.</li>
-      <li><strong>Near-threshold flags:</strong> Mike Patterson (7 reactions) and Joe Simpson (14 reactions) both below the 25 Influencer bar but kept because content is squarely ICP-relevant and Toby has a genuine perspective to add. Reassess if their engagement baseline stays low across future posts.</li>
-      <li><strong>Path 3 (solution-aware):</strong> &ldquo;AI roleplay&rdquo; / &ldquo;AI role-play&rdquo; still heavily sales-training noise. &ldquo;Conversation simulation&rdquo; and &ldquo;deliberate practice&rdquo; not tried this run &mdash; rotate in next session.</li>
-      <li><strong>No LinkedIn login / automation issues this run.</strong></li>
-      <li><strong>Second-bucket top-up (afternoon):</strong> +4 candidates (#7&ndash;#10). Fresh terms rotated in: <em>&ldquo;conduct risk&rdquo; culture financial services</em> surfaced James Walker (NED/Audit, 1st-degree); <em>&ldquo;Consumer Duty&rdquo; board evidence</em> surfaced Ali Crotch-Harvey (1st-degree, whistleblowing/vulnerable customers champion &mdash; post message is a near-perfect match: &ldquo;2026 is about evidence, not intent&rdquo;); <em>&ldquo;SMCR&rdquo; senior manager accountability</em> surfaced Saima Sabir (Board-level Risk &amp; Governance, 2nd-degree) responding to the Phase 1 reforms finalised 22 April; <em>&ldquo;sexual harassment&rdquo; &ldquo;preventative duty&rdquo; employer</em> surfaced Chris Syder (Employment Law Partner, CEDR Mediator) on ERA2025 franchise HR with the &ldquo;evidence&hellip; not intentions&rdquo; framing. Running yield for the day: 10 candidates (0 CHRO &middot; 3 ICP &middot; 7 Influencer). Strongest top-up pick: Ali Crotch-Harvey &mdash; 1st-degree, exact message overlap.</li>
-      <li><strong>Second-bucket searches that yielded nothing:</strong> &ldquo;board reporting&rdquo; compliance culture (vendors/recruiters); &ldquo;speak up&rdquo; culture compliance (HSE/marketing/solar PV, off-ICP); &ldquo;Consumer Duty&rdquo; year three (off-topic); &ldquo;non-financial misconduct&rdquo; FCA (all vendor/law-firm event promos &mdash; Clyde &amp; Co, Smarsh, Freeths); &ldquo;vulnerable customers&rdquo; FCA outcomes (Compliance Consultant playbook posts &times; 2, Huntswood BNPL &mdash; vendor); &ldquo;audit readiness&rdquo; compliance (global/cyber off-ICP); &ldquo;compliance officer&rdquo; board FCA (PayPal SMF2 job ad, mortgage broker); &ldquo;Conduct Rules&rdquo; training certified staff (thin, moved on).</li>
-      <li><strong>Second-bucket watchlist:</strong> Ali Crotch-Harvey (1st-degree; add to Toby&rsquo;s direct-engagement seed list &mdash; whistleblowing/vulnerable customer frame lines up directly with Real Talk Studio scenarios). Saima Sabir (Board-level Risk &amp; Governance; watch for follow-up SMCR Phase 2 commentary). Clyde &amp; Co (Heidi Watson) NFM breakfast seminar 6 May &mdash; attendees/commenters worth watching as Track 2 source closer to the date.</li>
-    </ul>
-  </div>
 </section>
 
 <section class="day" data-date="2026-04-22">
@@ -1268,21 +1280,6 @@
     </div>
   </div>
 
-  <div class="run-notes">
-    <h3>Run notes &mdash; 2026-04-22</h3>
-    <ul>
-      <li><strong>Yield:</strong> 6 candidates (1 CHRO &middot; 1 ICP &middot; 4 Influencer). Lower end of the 6&ndash;9 target; quality prioritised over forcing weak CHRO picks.</li>
-      <li><strong>Strongest pick:</strong> Parul Anand &mdash; 392 reactions / 49 comments / 54 reposts on Three Lines of Defence. One of the highest-engagement ICP-topic posts the scan has seen; excellent stage for Toby&rsquo;s comment and rich comment section to mine next run for practitioner leads.</li>
-      <li><strong>CHRO yield thin:</strong> Path 1 (regulation-name searches) skewed vendor-heavy as expected; practitioner-language searches (casework, workplace investigation, psychosocial) surfaced mostly Australian / NZ content or recruiter posts. Chantel Dos Santos Maidwell was the only strong UK HR-Director practitioner voice in the week &mdash; low engagement (1 reaction) but 1st-degree and a direct fit on the Worker Protection Act readiness theme.</li>
-      <li><strong>Path 3 (solution-aware):</strong> &ldquo;AI roleplay&rdquo; surfaced Yoodli (direct competitor, 128+ reactions, skipped) and Degreed (36 reactions, skipped &mdash; category-vendor). No practitioner posts worth routing this session.</li>
-      <li><strong>Path 4 (status-quo challenge):</strong> &ldquo;tick box compliance training&rdquo; surfaced Rebecca Fairlamb (ex-JPM, excellent fit). &ldquo;compliance training doesn&rsquo;t work&rdquo; returned low-signal AI-music-video pitches &mdash; skip cluster next time.</li>
-      <li><strong>Dedup:</strong> Valerie Familusi and Julie Darmudas re-surfaced in the COCON / Consumer Duty searches &mdash; already in 2026-04-21-b section, skipped.</li>
-      <li><strong>Watchlist:</strong> Sarah Jackman (Dentons) reacted to Sophia Rahman&rsquo;s Dentons post &mdash; signal that the Dentons employment / regulatory team is a productive cluster to watch.</li>
-      <li><strong>Blocker at start:</strong> Chrome MCP couldn&rsquo;t initialise a tab group because the frontmost Chrome window was Incognito (Chrome blocks tab groups in Incognito). Resolved after opening a regular window. Noting in case it recurs on future runs.</li>
-      <li><strong>Near-threshold flag:</strong> Chantel Dos Santos Maidwell only has 1 reaction &mdash; kept because the fit is strong; re-evaluate if CHRO yield stays thin across multiple runs.</li>
-      <li><strong>Second pass &mdash; expanded keywords (A + B), zero net adds:</strong> After the initial yield came in light on CHRO and ICP, ran ~13 additional queries specifically targeting those buckets. ICP: &ldquo;SMF16&rdquo;, &ldquo;SMF17&rdquo;, &ldquo;consumer duty culture&rdquo;, &ldquo;non-financial misconduct&rdquo;, &ldquo;conduct risk FCA&rdquo;, &ldquo;Head of Compliance FCA culture&rdquo;, &ldquo;Chief Compliance Officer FCA&rdquo;, &ldquo;PS25/23&rdquo;. CHRO: &ldquo;psychological safety workplace UK&rdquo;, &ldquo;Worker Protection Act harassment&rdquo;, &ldquo;HR Director manager capability UK&rdquo;, &ldquo;speak up culture UK&rdquo;, &ldquo;leadership development UK manager&rdquo;, &ldquo;Chief People Officer UK&rdquo;, &ldquo;learning and development rollout UK&rdquo;. Dominant result types across all: vendors, consultants, recruiters, law firms, training companies, dedup hits. Near-threshold candidates surfaced (Matthias Bauer-Langgartner 27 reactions &mdash; conference announcement not substantive; Shaun Gill / Larisa Janman / Ann Barker &mdash; all below engagement bar or wrong bucket). Conclusion: the constraint is the practitioner posting pool for the past week, not the keyword set. 6-candidate yield accepted as the honest output for today.</li>
-    </ul>
-  </div>
 </section>
 
 <section class="day" data-date="2026-04-21-b">
@@ -1378,17 +1375,6 @@
     </div>
   </div>
 
-  <div class="run-notes">
-    <h3>Run notes &mdash; 2026-04-21 (supplemental)</h3>
-    <ul>
-      <li><strong>Second run of the scheduled task on the same day.</strong> The earlier run (section below) already captured 7 candidates. Deliberately kept this supplemental section short and avoided duplicating any of those <code>data-id</code>s (Siâna Grygelaitiene, Julie Darmudas, Adedoyin Adesina, Valerie Familusi, Jo Morgan, Victoria Hall, Tom Durkin &mdash; all re-surfaced in today's searches and skipped as duplicates). Gave the section a disambiguating <code>data-date="2026-04-21-b"</code> and an "&mdash; Supplemental run" suffix in the heading so the two sections read cleanly.</li>
-      <li><strong>CHRO / HR buyer: zero new practitioner candidates.</strong> Searched "Worker Protection Act all reasonable steps", "sexual harassment prevention employer UK", "Chief People Officer UK", "HR Director Employment Rights Act", "People Director OR Head of People", "psychosocial risk employer", "speak up culture", "difficult conversations manager OR leader". The first four surfaced only consultants, law firms and vendors (which belong in Influencer). The latter three returned noise or non-UK content. Confirms the earlier run's finding that the CHRO pipeline is genuinely thin on LinkedIn content search this week &mdash; this audience is better reached via comments on big vendor/law-firm posts, not direct practitioner-authored content.</li>
-      <li><strong>Compliance ICP: zero new practitioner candidates.</strong> Ran "PS25/23 non-financial misconduct", "non-financial misconduct COCON OR FCA", "conduct risk culture financial services", "Consumer Duty outcomes evidence", "SMCR culture", "Head of Compliance FCA culture", "Chief Compliance Officer UK", "MLRO OR Director of Compliance UK", "compliance training tick box". The only practitioner-level hits were Julie Darmudas, Adedoyin Adesina and Valerie Familusi &mdash; all already logged earlier today. Track-2 (comment-mining on 50+ reaction vendor posts) not executed &mdash; Sarah Jackman at 36 was the biggest eligible vendor post on ICP topics and only had 0 comments, so no practitioner ICP comments to mine from it.</li>
-      <li><strong>Influencer: one strong pick plus two flagged picks.</strong> Sarah Jackman (Dentons Employment Counsel) clears 25+ cleanly at 36 reactions with on-message NFM/COCON content. Jessie Jones (Forvis Mazars) and Sue Saunders (Executive Search) sit below the 25+ bar (10 and 13 respectively) but their content is aggressively on-point for Real Talk Studio's framing &mdash; evidencing outcomes and the strategic CCO. Kept both and flagged the engagement in-card.</li>
-      <li>Direct post URLs could not be extracted (same automation constraint as the earlier run). Used people-search URLs per SKILL.md default.</li>
-      <li>No injection-suspicious content encountered. No comments posted.</li>
-    </ul>
-  </div>
 </section>
 
 <section class="day" data-date="2026-04-21">
@@ -1604,19 +1590,6 @@
     </div>
   </div>
 
-  <div class="run-notes">
-    <h3>Run notes — 2026-04-21</h3>
-    <ul>
-      <li>First run — no prior day sections, no duplicate risk. File recreated from seed was not required: existing seed file at candidates.html had only the toolbar and insert marker; day section inserted immediately below the marker.</li>
-      <li>Persistent path mount succeeded: <code>~/Documents/Claude/Scheduled/linkedin-influencer-posts</code> mounted via <code>request_cowork_directory</code>. Wrote directly to <code>candidates.html</code>.</li>
-      <li>Direct post URLs could not be extracted: LinkedIn's search-in-tab disallows <code>javascript_tool</code> (Chrome extension context) and timestamps render as generic elements rather than anchors for non-owner viewers. As a last resort per SKILL.md, used each poster's <code>/recent-activity/all/</code> profile URL. Recommend manual deep-link when reviewing — the post will be at or near the top.</li>
-      <li><strong>CHRO pipeline was thin this week.</strong> Searches on "Worker Protection Act", "sexual harassment prevention employer UK", "Employment Rights Act employer", "non-financial misconduct HR OR people", "Chief People Officer UK harassment", "feedback culture leader", "difficult conversations manager" returned mostly consultants/vendors/law firms — which belong in Audience C. Only one practitioner-level hit (Siâna Grygelaitiene, HR Manager) and she's mid-level, not CHRO. Topic likely stronger on LinkedIn company-page posts by CHROs at FTSE employers; content search is weak for this audience.</li>
-      <li><strong>Compliance ICP was the strongest track.</strong> Three solid practitioner candidates — two 1st-degree connections (Adedoyin Adesina, Valerie Familusi) — plus Julie Darmudas's Consumer Duty post, which is aggressively on-message for Real Talk Studio's "evidence vs assert" framing.</li>
-      <li><strong>Influencer bucket: below threshold on engagement.</strong> Most vendor posts on ICP topics this week sat at 1–10 reactions. Tom Durkin's FCA roundup (17) and Jo Morgan's "all reasonable steps" content (typical ~20) are the strongest available but neither cleanly clears the 25+ bar. Kept both as stages; flagged in card.</li>
-      <li>Track-2 (comment mining on high-engagement vendor posts) not executed this run — no single vendor post cleared 50+ reactions on the scanned searches. Worth revisiting when a big PS25/23 or Worker Protection Act moment drops.</li>
-      <li>No injection-suspicious content encountered. No comments posted.</li>
-    </ul>
-  </div>
 </section>
 
 </div>
@@ -1629,6 +1602,26 @@
   var TRACKER_KEY = "summer";
 
   var FILTER_KEY = "rts-linkedin-filter-v1";
+  var FILTER_KEY_V2 = "rts-linkedin-filter-v2";
+
+  function getSavedFilter() {
+    try {
+      var v2 = localStorage.getItem(FILTER_KEY_V2);
+      if (v2) return v2;
+      var v1 = localStorage.getItem(FILTER_KEY);
+      if (v1) {
+        localStorage.setItem(FILTER_KEY_V2, v1);
+        return v1;
+      }
+    } catch (e) {}
+    return "todo";
+  }
+  function persistFilter(filter) {
+    try {
+      localStorage.setItem(FILTER_KEY_V2, filter);
+      localStorage.setItem(FILTER_KEY, filter);
+    } catch (e) {}
+  }
 
   var STATUS_LABELS = {
     "todo": "TODO",
@@ -1640,6 +1633,7 @@
 
   function setStatus(card, status) {
     card.dataset.status = status;
+    card.classList.toggle("card--addressed", status !== "todo");
     var pill = card.querySelector(".status");
     if (pill) {
       pill.classList.remove("todo", "done", "skip", "comment-only", "comment-and-connect");
@@ -1669,6 +1663,78 @@
     return fetch(apiPath(path), { credentials: "same-origin", headers: headers, method: options.method || "GET", body: options.body });
   }
 
+  function reorderCardsInDays() {
+    document.querySelectorAll("section.day").forEach(function (day) {
+      var runNotes = day.querySelector(".run-notes");
+      var cards = [].slice.call(day.querySelectorAll(".card[data-id]"));
+      if (!cards.length) return;
+      var oldDivider = day.querySelector(".day-addressed-divider");
+      if (oldDivider) oldDivider.remove();
+      var todos = cards.filter(function (c) { return c.dataset.status === "todo"; });
+      var addressed = cards.filter(function (c) { return c.dataset.status !== "todo"; });
+      var anchor = runNotes || null;
+      var frag = document.createDocumentFragment();
+      todos.forEach(function (c) { frag.appendChild(c); });
+      if (addressed.length && todos.length) {
+        var div = document.createElement("div");
+        div.className = "day-addressed-divider";
+        div.setAttribute("role", "separator");
+        div.textContent = "Done";
+        frag.appendChild(div);
+      }
+      addressed.forEach(function (c) { frag.appendChild(c); });
+      if (anchor) {
+        day.insertBefore(frag, anchor);
+      } else {
+        day.appendChild(frag);
+      }
+    });
+  }
+
+  function updateQueueStatusLine() {
+    var cards = document.querySelectorAll(".card[data-id]");
+    var total = 0;
+    var todo = 0;
+    cards.forEach(function (c) {
+      total++;
+      if (c.dataset.status === "todo") todo++;
+    });
+    var el = document.getElementById("queue-status");
+    if (!el) return;
+    if (total === 0) {
+      el.textContent = "";
+      return;
+    }
+    if (todo === 0) {
+      el.textContent = "Queue clear.";
+    } else {
+      el.textContent = todo + " open" + (todo === 1 ? "" : " items");
+    }
+  }
+
+  function updateDayProgressLabels() {
+    document.querySelectorAll("section.day").forEach(function (day) {
+      var open = 0;
+      day.querySelectorAll(".card[data-id]").forEach(function (c) {
+        if (c.dataset.status === "todo") open++;
+      });
+      var h2 = day.querySelector("h2");
+      if (!h2) return;
+      var badge = h2.querySelector(".day-todo-count");
+      if (open > 0) {
+        if (!badge) {
+          badge = document.createElement("span");
+          badge.className = "day-todo-count";
+          h2.appendChild(document.createTextNode(" "));
+          h2.appendChild(badge);
+        }
+        badge.textContent = "· " + open + " open";
+      } else {
+        if (badge) badge.remove();
+      }
+    });
+  }
+
   function updateCounts() {
     var cards = document.querySelectorAll(".card[data-id]");
     var counts = { all: 0, chro: 0, icp: 0, influencer: 0, todo: 0 };
@@ -1682,6 +1748,9 @@
       var el = document.querySelector('[data-count="' + k + '"]');
       if (el) el.textContent = counts[k];
     });
+    reorderCardsInDays();
+    updateQueueStatusLine();
+    updateDayProgressLabels();
   }
 
   function applyStatusMapRemote(map) {
@@ -1708,7 +1777,7 @@
     document.querySelectorAll(".chip[data-filter]").forEach(function (chip) {
       chip.classList.toggle("active", chip.dataset.filter === filter);
     });
-    try { localStorage.setItem(FILTER_KEY, filter); } catch (e) {}
+    persistFilter(filter);
   }
 
   function toast(msg) {
@@ -1759,7 +1828,7 @@
           if (!r.ok) throw new Error("HTTP " + r.status);
           return r.json();
         })
-        .then(function () { toast(msg); updateCounts(); })
+        .then(function () { toast(msg); updateCounts(); maybeScrollToNextInQueue(); })
         .catch(function () {
           setStatus(card, prev);
           updateCounts();
@@ -1830,9 +1899,19 @@
   var resetBtn = document.getElementById("reset-all");
   if (resetBtn) resetBtn.addEventListener("click", resetAll);
 
-  var savedFilter = "all";
-  try { savedFilter = localStorage.getItem(FILTER_KEY) || "all"; } catch (e) {}
-  applyFilter(savedFilter);
+  applyFilter(getSavedFilter());
+  updateCounts();
+
+  function maybeScrollToNextInQueue() {
+    var onQueue = document.querySelector('.chip.active[data-filter="todo"]');
+    if (!onQueue) return;
+    var next = document.querySelector(".card[data-id][data-status=\"todo\"]:not(.hidden)");
+    if (next) {
+      setTimeout(function () {
+        next.scrollIntoView({ block: "center", behavior: "smooth" });
+      }, 120);
+    }
+  }
 
   apiFetch("api/statuses", { method: "GET" })
     .then(function (r) {
