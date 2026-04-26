@@ -9,7 +9,7 @@ Static `index.html` card feed with a small same-origin API under `/api/statuses`
 1. `npm create cloudflare@latest linkedin-tracker` → “Pages” → “static site” → “no framework” (or clone this folder into a new repo and skip the scaffold).
 2. Push to a private GitHub repository.
 3. Cloudflare dashboard → **Workers & Pages** → **Create** → **Pages** → connect the repo, production branch `main`, auto-deploy on push.
-4. Build settings: **Build command** empty, **Build output directory** `/` (root of the repo where `index.html` lives).
+4. Build settings: **Build command** empty, **Build output directory** `/` (root of the repo where `index.html` lives). Do **not** set the build command to `wrangler deploy`—that is for Workers only and will fail on a Pages static site. Pages already picks up the `functions/` directory as [Pages Functions](https://developers.cloudflare.com/pages/functions/) on deploy.
 5. Create the D1 database: `npx wrangler d1 create linkedin-tracker` and copy the `database_id` into `wrangler.toml` under `[[d1_databases]]` (optional for local `wrangler pages dev` / CI; the dashboard binding is what production uses if you do not use wrangler to deploy).
 6. Apply the schema:  
    `npx wrangler d1 execute linkedin-tracker --remote --file=schema.sql`
