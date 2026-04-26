@@ -97,7 +97,37 @@
     margin-bottom: -1px; background: none;
     font-family: inherit;
   }
+  .tab[data-view] { cursor: pointer; }
   .tab.tab-current { color: var(--ink); font-weight: 500; border-bottom-color: var(--ink); }
+  .tab:disabled, .tab.tab-disabled {
+    cursor: default; pointer-events: none; opacity: 0.45;
+  }
+  .view-panel[hidden] { display: none !important; }
+  .contacts-table .contacts-thead, .contact-row {
+    display: grid;
+    grid-template-columns: minmax(120px, 1fr) minmax(0, 2.2fr) minmax(140px, 1.1fr);
+    gap: 14px; padding: 0 16px; align-items: start;
+  }
+  .contacts-table .contacts-thead {
+    height: 36px; align-items: center; background: var(--surface-soft);
+    border-bottom: 1px solid var(--border);
+    font-size: 11px; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 500;
+  }
+  .contact-row {
+    min-height: 48px; padding-top: 12px; padding-bottom: 12px;
+    border-bottom: 1px solid var(--border); font-size: 13.5px;
+  }
+  .contact-row:last-child { border-bottom: 0; }
+  .contact-name { font-weight: 500; color: var(--ink); }
+  .contact-title { color: var(--ink-2); line-height: 1.4; }
+  .contact-link { font-size: 12.5px; word-break: break-all; }
+  .contact-link a { font-weight: 500; }
+  .contacts-empty { padding: 24px 16px; color: var(--ink-3); font-size: 13.5px; }
+  @media (max-width: 700px) {
+    .contacts-table .contacts-thead { display: none; }
+    .contact-row { grid-template-columns: 1fr; padding: 12px; gap: 4px; }
+    .contact-link { grid-column: 1; }
+  }
   .tab-count {
     font-family: var(--mono); font-size: 11px; color: var(--ink-4);
     margin-left: 6px; padding: 1px 6px; background: var(--surface-soft);
@@ -278,10 +308,10 @@
   </div>
 </nav>
 <div class="tabs" role="tablist" aria-label="Main views">
-  <div class="tab tab-current" role="tab" aria-selected="true" aria-label="Current queue">Queue <span class="tab-count" id="tab-today-count">0</span></div>
-  <div class="tab" role="tab" aria-hidden="true" style="pointer-events: none; opacity: 0.45">Library <span class="tab-count" style="visibility: hidden">0</span></div>
-  <div class="tab" role="tab" aria-hidden="true" style="pointer-events: none; opacity: 0.45">Reports</div>
-  <div class="tab" role="tab" aria-hidden="true" style="pointer-events: none; opacity: 0.45">Settings</div>
+  <button type="button" class="tab tab-current" id="tab-queue" role="tab" aria-selected="true" aria-controls="view-queue" data-view="queue">Queue <span class="tab-count" id="tab-today-count">0</span></button>
+  <button type="button" class="tab" id="tab-contacts" role="tab" aria-selected="false" aria-controls="view-contacts" data-view="contacts">Contacts <span class="tab-count" id="tab-contacts-count">0</span></button>
+  <div class="tab tab-disabled" role="tab" aria-hidden="true" aria-disabled="true">Reports</div>
+  <div class="tab tab-disabled" role="tab" aria-hidden="true" aria-disabled="true">Settings</div>
   </div>
 <main class="page">
   <div class="page-head">
@@ -295,6 +325,8 @@
       <time id="page-meta-time" datetime="">—</time>
     </div>
   </div>
+
+  <div id="view-queue" class="view-panel" role="tabpanel" aria-labelledby="tab-queue">
 
   <div class="kpis" id="kpi-block" aria-label="Queue summary">
     <div class="kpi">
@@ -1977,6 +2009,19 @@
 </section>
   </div>
   </div>
+
+  </div>
+
+  <div id="view-contacts" class="view-panel" role="tabpanel" aria-labelledby="tab-contacts" hidden>
+    <div class="table contacts-table" id="contacts-table-wrap" aria-label="Contacts from discovery">
+      <div class="contacts-thead" role="row">
+        <div>Name</div>
+        <div>Job title</div>
+        <div>LinkedIn</div>
+      </div>
+      <div id="contacts-list" class="contacts-list"></div>
+    </div>
+  </div>
 </main>
 
 <div class="backdrop" id="app-backdrop" aria-hidden="true"></div>
@@ -2065,6 +2110,129 @@
       }
     }
     return "";
+  }
+  function getLinkHrefFromCard(card) {
+    var body = card.querySelector(".card-body dl.meta");
+    if (!body) return "";
+    var dts = body.querySelectorAll("dt");
+    for (var i = 0; i < dts.length; i++) {
+      if (dts[i].textContent.trim() === "Link") {
+        var dd = dts[i].nextElementSibling;
+        if (!dd) return "";
+        var a = dd.querySelector("a[href]");
+        if (a) return String(a.getAttribute("href") || "").trim();
+        var t = dd.textContent.trim();
+        if (/^https?:\/\//i.test(t)) return t;
+        return "";
+      }
+    }
+    return "";
+  }
+  function getPersonNameFromCard(card) {
+    var a = card.querySelector(".trow-cells .author, .author-cell .author, .name-stack .author");
+    if (a) return a.textContent.trim();
+    var h3 = card.querySelector(".card-head .who h3");
+    if (h3) return stripLeadingNumber(h3.textContent.trim());
+    return "";
+  }
+  function normalizeUrlKey(href) {
+    if (!href) return "";
+    try {
+      var u = new URL(href, window.location.origin);
+      if (u.hostname.indexOf("linkedin.com") === -1) return href.toLowerCase();
+      return (u.origin + u.pathname).replace(/\/$/, "").toLowerCase();
+    } catch (e) {
+      return String(href).toLowerCase();
+    }
+  }
+  function contactDedupKey(name, href) {
+    var u = normalizeUrlKey(href);
+    if (u) return "url:" + u;
+    return "name:" + String(name).toLowerCase().replace(/\s+/g, " ").trim();
+  }
+  function buildContactsList() {
+    var list = document.getElementById("contacts-list");
+    var nEl = document.getElementById("tab-contacts-count");
+    if (!list) return;
+    list.innerHTML = "";
+    var seen = Object.create(null);
+    var out = [];
+    document.querySelectorAll("#queue-list .card[data-id]").forEach(function (card) {
+      var name = getPersonNameFromCard(card) || "—";
+      var title = getMetaValue(card, "Role");
+      if (!title) title = "—";
+      var href = getLinkHrefFromCard(card);
+      var key = contactDedupKey(name, href);
+      if (seen[key]) return;
+      seen[key] = true;
+      out.push({ name: name, title: title, href: href });
+    });
+    out.sort(function (a, b) {
+      return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+    });
+    if (!out.length) {
+      var empty = document.createElement("div");
+      empty.className = "contacts-empty";
+      empty.textContent = "No contacts found. Add discovery cards in index.html; each card’s Link meta field supplies the LinkedIn URL.";
+      list.appendChild(empty);
+    } else {
+      out.forEach(function (row) {
+        var line = document.createElement("div");
+        line.className = "contact-row";
+        var n = document.createElement("div");
+        n.className = "contact-name";
+        n.textContent = row.name;
+        var t = document.createElement("div");
+        t.className = "contact-title";
+        t.textContent = row.title;
+        var l = document.createElement("div");
+        l.className = "contact-link";
+        if (row.href) {
+          var a = document.createElement("a");
+          a.href = row.href;
+          a.target = "_blank";
+          a.rel = "noopener";
+          a.textContent = "Open";
+          a.setAttribute("title", row.href);
+          l.appendChild(a);
+        } else {
+          l.textContent = "—";
+          l.style.color = "var(--ink-3)";
+        }
+        line.appendChild(n);
+        line.appendChild(t);
+        line.appendChild(l);
+        list.appendChild(line);
+      });
+    }
+    if (nEl) nEl.textContent = String(out.length);
+  }
+  function setMainView(view) {
+    var vq = document.getElementById("view-queue");
+    var vc = document.getElementById("view-contacts");
+    var tq = document.getElementById("tab-queue");
+    var tc = document.getElementById("tab-contacts");
+    var pt = document.getElementById("page-title");
+    var ps = document.getElementById("page-sub");
+    if (view === "contacts") {
+      if (vq) vq.hidden = true;
+      if (vc) vc.removeAttribute("hidden");
+      if (tq) { tq.classList.remove("tab-current"); tq.setAttribute("aria-selected", "false"); }
+      if (tc) { tc.classList.add("tab-current"); tc.setAttribute("aria-selected", "true"); }
+      if (pt) pt.textContent = "Contacts";
+      if (ps) {
+        ps.textContent = "Unique people in your discovery feed. Rows dedupe on LinkedIn URL when present, otherwise on name. Job titles are taken from the Role field on each card.";
+      }
+    } else {
+      if (vq) vq.removeAttribute("hidden");
+      if (vc) vc.hidden = true;
+      if (tc) { tc.classList.remove("tab-current"); tc.setAttribute("aria-selected", "false"); }
+      if (tq) { tq.classList.add("tab-current"); tq.setAttribute("aria-selected", "true"); }
+      if (pt) pt.textContent = "Today";
+      if (ps) {
+        ps.textContent = "Open items below. Mark progress as you comment on LinkedIn.";
+      }
+    }
   }
   function escapeHtml(s) {
     return String(s)
@@ -2731,9 +2899,16 @@
   tickClock();
   setInterval(tickClock, 30000);
 
+  document.querySelectorAll(".tabs [data-view]").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      setMainView(btn.getAttribute("data-view") || "queue");
+    });
+  });
+
   flattenSectionsToQueueList();
   enhanceCardsForTaskList();
   layoutAllCardsAsTable();
+  buildContactsList();
   buildDateFilterChips();
   migrateFilterKeysOnce();
   applyFiltersFromState();
