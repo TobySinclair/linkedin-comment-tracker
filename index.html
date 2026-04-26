@@ -47,7 +47,6 @@
     .wrap { padding: 24px 16px 96px; }
     h2 { font-size: 18px; margin: 32px 0 16px; }
     .day { margin-top: 28px; }
-    .card { padding: 18px; }
     .actions .btn {
       min-height: 44px;
       padding: 10px 14px;
@@ -84,9 +83,47 @@
     border-bottom: 1px solid var(--border);
     display: flex;
     flex-wrap: wrap;
-    align-items: center;
+    align-items: flex-start;
     gap: 10px;
   }
+  .filter-section {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 8px;
+    width: 100%;
+  }
+  .filter-section .filter-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    margin-right: 4px;
+    width: 100%;
+  }
+  @media (min-width: 700px) {
+    .filter-section .filter-label { width: auto; min-width: 52px; }
+  }
+  .filter-dates {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    flex: 1;
+    min-width: 0;
+    max-width: 100%;
+  }
+  @media (max-width: 699px) {
+    .filter-dates {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 4px;
+      max-width: calc(100vw - 32px);
+    }
+    .filter-dates .chip { flex-shrink: 0; }
+  }
+  .queue-list { margin-top: 8px; }
   .chip {
     display: inline-flex;
     align-items: center;
@@ -116,21 +153,17 @@
   .queue-status {
     width: 100%;
     flex-basis: 100%;
-    order: 10;
     font-size: 14px;
     color: var(--text);
     font-weight: 600;
-    margin: 0;
-    padding: 2px 0 0;
+    margin: 0 0 6px 0;
+    padding: 0;
   }
-  @media (min-width: 900px) {
-    .queue-status {
-      width: auto;
-      flex-basis: auto;
-      order: 0;
-      margin-left: 12px;
-      padding: 0;
-    }
+  .toolbar .toolbar-right {
+    margin-left: auto;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
   }
   .day-addressed-divider {
     display: flex;
@@ -150,6 +183,7 @@
     height: 1px;
     background: var(--border);
   }
+  .queue-addressed-divider.is-hidden { display: none; }
   .day-todo-count {
     font-size: 14px;
     font-weight: 600;
@@ -163,7 +197,6 @@
   .card[data-status="comment-only"],
   .card[data-status="comment-and-connect"],
   .card[data-status="skip"] { opacity: 1; }
-  .toolbar-right { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; }
   .btn {
     border: 1px solid var(--border);
     background: var(--surface);
@@ -174,35 +207,119 @@
     color: var(--text);
   }
   .btn:hover { border-color: var(--accent); color: var(--accent); }
-  .day { margin-top: 40px; }
+  .day { margin-top: 0; }
+  .day > h2 { display: none; }
   .card {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 24px 28px;
-    margin-bottom: 20px;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
-    transition: opacity 200ms, transform 200ms;
+    border-radius: 8px;
+    padding: 0;
+    margin-bottom: 6px;
+    box-shadow: 0 1px 0 rgba(0,0,0,0.04);
+    transition: box-shadow 0.2s, background 0.2s;
+  }
+  .card.is-open {
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
   }
   .card.hidden { display: none; }
   .card-head {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 16px;
-    flex-wrap: wrap;
-    margin-bottom: 12px;
+    display: grid;
+    grid-template-columns: 36px minmax(0, 1fr) minmax(72px, auto) auto;
+    align-items: start;
+    gap: 2px 10px;
+    padding: 10px 12px 10px 4px;
+    margin: 0;
+    border-radius: 8px 8px 0 0;
+    -webkit-tap-highlight-color: transparent;
+    cursor: pointer;
   }
+  .card:not(.is-open) .card-head { border-radius: 8px; }
+  .card-expand {
+    all: unset;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    min-height: 36px;
+    margin-top: 2px;
+    border-radius: 6px;
+    cursor: pointer;
+    color: var(--muted);
+    flex-shrink: 0;
+    align-self: start;
+  }
+  .card-expand::before {
+    content: "";
+    display: block;
+    width: 6px;
+    height: 6px;
+    border: solid var(--muted);
+    border-width: 0 2px 2px 0;
+    transform: translateX(2px) rotate(-45deg);
+    transition: transform 0.2s;
+  }
+  .card.is-open .card-expand::before {
+    transform: translateY(-1px) rotate(45deg);
+  }
+  .card-expand:hover,
+  .card-expand:focus {
+    color: var(--accent);
+    background: var(--accent-soft);
+    box-shadow: 0 0 0 2px rgba(10, 102, 194, 0.2);
+  }
+  .card-head .who { min-width: 0; }
+  .card-date-wrap {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    text-align: right;
+    white-space: nowrap;
+    padding-top: 2px;
+    min-width: 0;
+  }
+  .card-date {
+    font-variant-numeric: tabular-nums;
+  }
+  .card-head .badges { justify-self: end; }
   .card-head .who h3 {
-    margin: 0 0 4px;
-    font-size: 17px;
+    margin: 0 0 2px;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+  .card:not(.is-open) .card-head .who h3 {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .card-head .topic {
     color: var(--accent);
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.04em;
+    line-height: 1.35;
+  }
+  .card:not(.is-open) .card-head .topic {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .card-body {
+    display: none;
+    border-top: 1px solid var(--border);
+    padding: 12px 14px 16px 16px;
+    background: #f9f9f6;
+  }
+  .card.is-open .card-body { display: block; }
+  .card-body .meta { margin-top: 0; }
+  .card-body .comment { margin-top: 12px; }
+  @media (max-width: 700px) {
+    .card-head {
+      padding: 8px 10px 8px 2px;
+      grid-template-columns: 32px minmax(0, 1fr) minmax(64px, auto) auto;
+    }
   }
   .badges { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
   .badge {
@@ -331,20 +448,36 @@
     <h1>Comment queue</h1>
   </header>
 
-  <div class="toolbar" role="toolbar" aria-label="Queue">
+  <div class="toolbar" role="toolbar" aria-label="Filters">
     <p class="queue-status" id="queue-status" aria-live="polite"></p>
-    <span class="chip active" data-filter="todo">Queue <span class="count" data-count="todo">0</span></span>
-    <span class="chip" data-filter="all">All <span class="count" data-count="all">0</span></span>
-    <span class="chip" data-filter="chro">CHROs / HR <span class="count" data-count="chro">0</span></span>
-    <span class="chip" data-filter="icp">Compliance ICP <span class="count" data-count="icp">0</span></span>
-    <span class="chip" data-filter="influencer">Influencers <span class="count" data-count="influencer">0</span></span>
+    <div class="filter-section">
+      <span class="filter-label">Status</span>
+      <span class="chip" data-f-status="all">All <span class="count" data-count="all">0</span></span>
+      <span class="chip" data-f-status="todo">To do <span class="count" data-count="todo">0</span></span>
+      <span class="chip" data-f-status="comment-only">Comment</span>
+      <span class="chip" data-f-status="comment-and-connect">+ Connect</span>
+      <span class="chip" data-f-status="skip">Skip</span>
+    </div>
+    <div class="filter-section">
+      <span class="filter-label">Date</span>
+      <div class="filter-dates" id="filter-dates"></div>
+    </div>
+    <div class="filter-section">
+      <span class="filter-label">Audience</span>
+      <span class="chip" data-f-audience="all">All</span>
+      <span class="chip" data-f-audience="chro">CHRO <span class="count" data-count="chro">0</span></span>
+      <span class="chip" data-f-audience="icp">ICP <span class="count" data-count="icp">0</span></span>
+      <span class="chip" data-f-audience="influencer">Infl. <span class="count" data-count="influencer">0</span></span>
+    </div>
     <div class="toolbar-right">
       <button class="btn" type="button" id="copy-done" title="Copy line-separated IDs (commented items)">Copy IDs</button>
       <button class="btn" type="button" id="reset-all" title="Clear all statuses">Reset all</button>
     </div>
   </div>
 
-  <!-- NEWEST-DAY-INSERT-BELOW (prepend new <section class="day">; no run-notes) -->
+  <div id="queue-list" class="queue-list"></div>
+
+  <!-- NEWEST-DAY-INSERT: prepend <section class="day" data-date="YYYY-MM-DD"> with <h2> (hidden) + cards. Each card: .card-head, dl.meta, optional .post-content, .comment, .actions. Page flattens into #queue-list and shows date on each row. -->
 
 <section class="day" data-date="2026-04-25">
   <h2>2026-04-25</h2>
@@ -1604,23 +1737,212 @@
   var FILTER_KEY = "rts-linkedin-filter-v1";
   var FILTER_KEY_V2 = "rts-linkedin-filter-v2";
 
-  function getSavedFilter() {
+  var filterState = { status: "todo", date: "all", audience: "all" };
+  var LS_F3 = { status: "rts-f3-status", date: "rts-f3-date", audience: "rts-f3-audience" };
+
+  function readFilterState() {
     try {
-      var v2 = localStorage.getItem(FILTER_KEY_V2);
-      if (v2) return v2;
-      var v1 = localStorage.getItem(FILTER_KEY);
-      if (v1) {
-        localStorage.setItem(FILTER_KEY_V2, v1);
-        return v1;
-      }
+      filterState.status = localStorage.getItem(LS_F3.status) || "todo";
+      filterState.date = localStorage.getItem(LS_F3.date) || "all";
+      filterState.audience = localStorage.getItem(LS_F3.audience) || "all";
     } catch (e) {}
-    return "todo";
   }
-  function persistFilter(filter) {
+  function writeFilterState() {
     try {
-      localStorage.setItem(FILTER_KEY_V2, filter);
-      localStorage.setItem(FILTER_KEY, filter);
+      localStorage.setItem(LS_F3.status, filterState.status);
+      localStorage.setItem(LS_F3.date, filterState.date);
+      localStorage.setItem(LS_F3.audience, filterState.audience);
     } catch (e) {}
+  }
+  function migrateFilterKeysOnce() {
+    try {
+      if (localStorage.getItem("rts-f3-migrated") === "1") {
+        readFilterState();
+        return;
+      }
+      var o = localStorage.getItem(FILTER_KEY_V2) || localStorage.getItem(FILTER_KEY);
+      if (o === "all") filterState = { status: "all", date: "all", audience: "all" };
+      else if (o === "todo") filterState = { status: "todo", date: "all", audience: "all" };
+      else if (o === "chro" || o === "icp" || o === "influencer") {
+        filterState = { status: "all", date: "all", audience: o };
+      } else {
+        readFilterState();
+      }
+      writeFilterState();
+      localStorage.setItem("rts-f3-migrated", "1");
+    } catch (e) {
+      readFilterState();
+    }
+  }
+
+  function formatDateLabel(raw) {
+    if (!raw) return "—";
+    var m = String(raw).match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (!m) return raw;
+    var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    return parseInt(m[3], 10) + " " + months[parseInt(m[2], 10) - 1] + " " + m[1];
+  }
+  function flattenSectionsToQueueList() {
+    var list = document.getElementById("queue-list");
+    var wrap = document.querySelector(".wrap");
+    if (!list || !wrap) return;
+    [].forEach.call(wrap.querySelectorAll("section.day"), function (sec) {
+      var d = sec.getAttribute("data-date") || "";
+      [].forEach.call(sec.querySelectorAll(".card[data-id]"), function (card) {
+        if (d) {
+          card.setAttribute("data-date", d);
+        } else {
+          var id = card.getAttribute("data-id") || "";
+          var m = id.match(/^(\d{4}-\d{2}-\d{2})/);
+          if (m) card.setAttribute("data-date", m[1]);
+        }
+        list.appendChild(card);
+      });
+      if (sec.parentNode) sec.parentNode.removeChild(sec);
+    });
+  }
+  function addCardDateLabels() {
+    document.querySelectorAll("#queue-list .card[data-id]").forEach(function (card) {
+      if (card.querySelector(".card-date-wrap")) return;
+      var head = card.querySelector(".card-head");
+      var badges = head && head.querySelector(".badges");
+      if (!head || !badges) return;
+      var d = card.getAttribute("data-date") || "";
+      var wrap = document.createElement("div");
+      wrap.className = "card-date-wrap";
+      var t = document.createElement("time");
+      t.className = "card-date";
+      t.setAttribute("datetime", d);
+      t.textContent = formatDateLabel(d);
+      wrap.appendChild(t);
+      head.insertBefore(wrap, badges);
+    });
+  }
+  function buildDateFilterChips() {
+    var el = document.getElementById("filter-dates");
+    if (!el) return;
+    el.innerHTML = "";
+    var seen = {};
+    var dates = [];
+    document.querySelectorAll(".card[data-id][data-date]").forEach(function (c) {
+      var d = c.getAttribute("data-date");
+      if (d && !seen[d]) {
+        seen[d] = true;
+        dates.push(d);
+      }
+    });
+    dates.sort().reverse();
+    var all = document.createElement("span");
+    all.className = "chip";
+    all.setAttribute("data-f-date", "all");
+    all.textContent = "All";
+    el.appendChild(all);
+    dates.forEach(function (d) {
+      var c = document.createElement("span");
+      c.className = "chip";
+      c.setAttribute("data-f-date", d);
+      c.textContent = formatDateLabel(d);
+      c.title = d;
+      el.appendChild(c);
+    });
+  }
+  function reorderQueueList() {
+    var list = document.getElementById("queue-list");
+    if (!list) return;
+    var oldD = list.querySelector(".queue-addressed-divider");
+    if (oldD) oldD.remove();
+    var cards = [].slice.call(list.querySelectorAll(".card[data-id]"));
+    if (!cards.length) return;
+    function key(c) {
+      return c.getAttribute("data-date") || c.dataset.id || "";
+    }
+    function cmpDateDesc(a, b) {
+      var da = key(a);
+      var db = key(b);
+      if (da !== db) return da < db ? 1 : da > db ? -1 : 0;
+      return (a.dataset.id < b.dataset.id) ? -1 : (a.dataset.id > b.dataset.id) ? 1 : 0;
+    }
+    var todos = cards.filter(function (c) { return c.dataset.status === "todo"; });
+    var addressed = cards.filter(function (c) { return c.dataset.status !== "todo"; });
+    todos.sort(cmpDateDesc);
+    addressed.sort(cmpDateDesc);
+    var frag = document.createDocumentFragment();
+    todos.forEach(function (c) { frag.appendChild(c); });
+    if (todos.length && addressed.length) {
+      var div = document.createElement("div");
+      div.className = "day-addressed-divider queue-addressed-divider";
+      div.setAttribute("role", "separator");
+      div.textContent = "Done";
+      frag.appendChild(div);
+    }
+    addressed.forEach(function (c) { frag.appendChild(c); });
+    list.appendChild(frag);
+  }
+  function syncFilterChipActives() {
+    document.querySelectorAll(".chip[data-f-status]").forEach(function (ch) {
+      ch.classList.toggle("active", ch.getAttribute("data-f-status") === filterState.status);
+    });
+    document.querySelectorAll(".chip[data-f-date]").forEach(function (ch) {
+      ch.classList.toggle("active", ch.getAttribute("data-f-date") === filterState.date);
+    });
+    document.querySelectorAll(".chip[data-f-audience]").forEach(function (ch) {
+      ch.classList.toggle("active", ch.getAttribute("data-f-audience") === filterState.audience);
+    });
+  }
+  function applyFilterVisibilityOnly() {
+    document.querySelectorAll(".card[data-id]").forEach(function (card) {
+      var show = true;
+      if (filterState.date !== "all" && (card.getAttribute("data-date") || "") !== filterState.date) show = false;
+      if (show && filterState.status !== "all") {
+        var st = card.dataset.status;
+        if (filterState.status === "todo" && st !== "todo") show = false;
+        else if (filterState.status !== "todo" && st !== filterState.status) show = false;
+      }
+      if (show && filterState.audience !== "all" && card.dataset.audience !== filterState.audience) show = false;
+      card.classList.toggle("hidden", !show);
+    });
+  }
+  function applyFiltersFromState() {
+    readFilterState();
+    applyFilterVisibilityOnly();
+    syncFilterChipActives();
+  }
+  function updateDoneDividerVisibility() {
+    var d = document.querySelector(".queue-addressed-divider");
+    if (!d) return;
+    d.classList.toggle("is-hidden", filterState.status === "todo");
+  }
+
+  function onFilterChipClick(e) {
+    var a = e.target.closest(".chip[data-f-status]");
+    if (a) {
+      filterState.status = a.getAttribute("data-f-status");
+      writeFilterState();
+      applyFilterVisibilityOnly();
+      syncFilterChipActives();
+      updateQueueStatusLine();
+      updateDoneDividerVisibility();
+      return;
+    }
+    var b = e.target.closest(".chip[data-f-date]");
+    if (b) {
+      filterState.date = b.getAttribute("data-f-date");
+      writeFilterState();
+      applyFilterVisibilityOnly();
+      syncFilterChipActives();
+      updateQueueStatusLine();
+      updateDoneDividerVisibility();
+      return;
+    }
+    var c = e.target.closest(".chip[data-f-audience]");
+    if (c) {
+      filterState.audience = c.getAttribute("data-f-audience");
+      writeFilterState();
+      applyFilterVisibilityOnly();
+      syncFilterChipActives();
+      updateQueueStatusLine();
+      updateDoneDividerVisibility();
+    }
   }
 
   var STATUS_LABELS = {
@@ -1631,9 +1953,48 @@
   };
   var STORED_STATUSES = ["comment-only", "comment-and-connect", "skip", "done"];
 
+  function enhanceCardsForTaskList() {
+    document.querySelectorAll(".card[data-id]").forEach(function (card) {
+      if (card.querySelector(".card-body")) return;
+      var head = card.querySelector(".card-head");
+      if (!head) return;
+      var exp = document.createElement("button");
+      exp.type = "button";
+      exp.className = "card-expand";
+      exp.setAttribute("aria-label", "Expand details");
+      exp.setAttribute("aria-expanded", "false");
+      head.insertBefore(exp, head.firstChild);
+      var body = document.createElement("div");
+      body.className = "card-body";
+      var el = head.nextElementSibling;
+      while (el) {
+        var next = el.nextElementSibling;
+        body.appendChild(el);
+        el = next;
+      }
+      card.appendChild(body);
+    });
+  }
+  function setCardOpen(card, open) {
+    if (!card) return;
+    card.classList.toggle("is-open", !!open);
+    var exp = card.querySelector(".card-expand");
+    if (exp) {
+      exp.setAttribute("aria-expanded", open ? "true" : "false");
+      exp.setAttribute("aria-label", open ? "Collapse details" : "Expand details");
+    }
+  }
+  function toggleCard(card) {
+    if (!card) return;
+    setCardOpen(card, !card.classList.contains("is-open"));
+  }
+
   function setStatus(card, status) {
     card.dataset.status = status;
     card.classList.toggle("card--addressed", status !== "todo");
+    if (status !== "todo") {
+      setCardOpen(card, false);
+    }
     var pill = card.querySelector(".status");
     if (pill) {
       pill.classList.remove("todo", "done", "skip", "comment-only", "comment-and-connect");
@@ -1663,76 +2024,25 @@
     return fetch(apiPath(path), { credentials: "same-origin", headers: headers, method: options.method || "GET", body: options.body });
   }
 
-  function reorderCardsInDays() {
-    document.querySelectorAll("section.day").forEach(function (day) {
-      var runNotes = day.querySelector(".run-notes");
-      var cards = [].slice.call(day.querySelectorAll(".card[data-id]"));
-      if (!cards.length) return;
-      var oldDivider = day.querySelector(".day-addressed-divider");
-      if (oldDivider) oldDivider.remove();
-      var todos = cards.filter(function (c) { return c.dataset.status === "todo"; });
-      var addressed = cards.filter(function (c) { return c.dataset.status !== "todo"; });
-      var anchor = runNotes || null;
-      var frag = document.createDocumentFragment();
-      todos.forEach(function (c) { frag.appendChild(c); });
-      if (addressed.length && todos.length) {
-        var div = document.createElement("div");
-        div.className = "day-addressed-divider";
-        div.setAttribute("role", "separator");
-        div.textContent = "Done";
-        frag.appendChild(div);
-      }
-      addressed.forEach(function (c) { frag.appendChild(c); });
-      if (anchor) {
-        day.insertBefore(frag, anchor);
-      } else {
-        day.appendChild(frag);
-      }
-    });
-  }
-
   function updateQueueStatusLine() {
-    var cards = document.querySelectorAll(".card[data-id]");
-    var total = 0;
-    var todo = 0;
-    cards.forEach(function (c) {
-      total++;
-      if (c.dataset.status === "todo") todo++;
-    });
+    var openVis = document.querySelectorAll('.card[data-id][data-status="todo"]:not(.hidden)').length;
+    var openAll = document.querySelectorAll('.card[data-id][data-status="todo"]').length;
+    var total = document.querySelectorAll(".card[data-id]").length;
     var el = document.getElementById("queue-status");
     if (!el) return;
     if (total === 0) {
       el.textContent = "";
       return;
     }
-    if (todo === 0) {
+    if (openAll === 0) {
       el.textContent = "Queue clear.";
-    } else {
-      el.textContent = todo + " open" + (todo === 1 ? "" : " items");
+      return;
     }
-  }
-
-  function updateDayProgressLabels() {
-    document.querySelectorAll("section.day").forEach(function (day) {
-      var open = 0;
-      day.querySelectorAll(".card[data-id]").forEach(function (c) {
-        if (c.dataset.status === "todo") open++;
-      });
-      var h2 = day.querySelector("h2");
-      if (!h2) return;
-      var badge = h2.querySelector(".day-todo-count");
-      if (open > 0) {
-        if (!badge) {
-          badge = document.createElement("span");
-          badge.className = "day-todo-count";
-          h2.appendChild(document.createTextNode(" "));
-          h2.appendChild(badge);
-        }
-        badge.textContent = "· " + open + " open";
-      } else {
-        if (badge) badge.remove();
-      }
-    });
+    if (openVis === 0) {
+      el.textContent = "No matches — " + openAll + " open in list";
+      return;
+    }
+    el.textContent = openVis + " open" + (openVis === 1 ? "" : " items");
   }
 
   function updateCounts() {
@@ -1748,9 +2058,10 @@
       var el = document.querySelector('[data-count="' + k + '"]');
       if (el) el.textContent = counts[k];
     });
-    reorderCardsInDays();
+    reorderQueueList();
+    applyFilterVisibilityOnly();
     updateQueueStatusLine();
-    updateDayProgressLabels();
+    updateDoneDividerVisibility();
   }
 
   function applyStatusMapRemote(map) {
@@ -1764,20 +2075,6 @@
         setStatus(card, "todo");
       }
     });
-  }
-
-  function applyFilter(filter) {
-    document.querySelectorAll(".card[data-id]").forEach(function (card) {
-      var show;
-      if (filter === "all") show = true;
-      else if (filter === "todo") show = card.dataset.status === "todo";
-      else show = card.dataset.audience === filter;
-      card.classList.toggle("hidden", !show);
-    });
-    document.querySelectorAll(".chip[data-filter]").forEach(function (chip) {
-      chip.classList.toggle("active", chip.dataset.filter === filter);
-    });
-    persistFilter(filter);
   }
 
   function toast(msg) {
@@ -1837,12 +2134,6 @@
     }
   }
 
-  function onChipClick(e) {
-    var chip = e.target.closest(".chip[data-filter]");
-    if (!chip) return;
-    applyFilter(chip.dataset.filter);
-  }
-
   function copyCommentedIds() {
     var rows = [];
     document.querySelectorAll(".card[data-id]").forEach(function (card) {
@@ -1890,23 +2181,46 @@
     });
   }
 
+  function onCardHeadToggle(e) {
+    if (e.target.closest(".actions")) return;
+    if (e.target.closest(".chip[data-f-status]") || e.target.closest(".chip[data-f-date]") || e.target.closest(".chip[data-f-audience]")) return;
+    var head = e.target.closest(".card-head");
+    if (!head) return;
+    var card = head.closest(".card[data-id]");
+    if (!card) return;
+    if (e.target.closest("a") && e.target.closest(".card-body")) return;
+    toggleCard(card);
+  }
+  document.addEventListener("keydown", function (e) {
+    if (e.key !== "Enter" && e.key !== " ") return;
+    var b = e.target.closest(".card-expand");
+    if (!b) return;
+    e.preventDefault();
+    var c = b.closest(".card[data-id]");
+    if (c) toggleCard(c);
+  });
   document.addEventListener("click", function (e) {
     onActionClick(e);
-    onChipClick(e);
+    onFilterChipClick(e);
+    onCardHeadToggle(e);
   });
   var copyBtn = document.getElementById("copy-done");
   if (copyBtn) copyBtn.addEventListener("click", copyCommentedIds);
   var resetBtn = document.getElementById("reset-all");
   if (resetBtn) resetBtn.addEventListener("click", resetAll);
 
-  applyFilter(getSavedFilter());
+  flattenSectionsToQueueList();
+  enhanceCardsForTaskList();
+  addCardDateLabels();
+  buildDateFilterChips();
+  migrateFilterKeysOnce();
+  applyFiltersFromState();
   updateCounts();
 
   function maybeScrollToNextInQueue() {
-    var onQueue = document.querySelector('.chip.active[data-filter="todo"]');
-    if (!onQueue) return;
-    var next = document.querySelector(".card[data-id][data-status=\"todo\"]:not(.hidden)");
+    var next = document.querySelector('.card[data-id][data-status="todo"]:not(.hidden)');
     if (next) {
+      setCardOpen(next, true);
       setTimeout(function () {
         next.scrollIntoView({ block: "center", behavior: "smooth" });
       }, 120);
