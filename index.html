@@ -137,7 +137,7 @@
   .page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin-bottom: 20px; flex-wrap: wrap; }
   .page-title { font-size: 22px; font-weight: 600; letter-spacing: -0.02em; color: var(--ink); margin: 0; }
   .page-sub { font-size: 13.5px; color: var(--ink-3); margin: 4px 0 0; }
-  .queue-status { font-size: 13.5px; color: var(--ink-2); font-weight: 500; margin: 8px 0 0; padding: 0; }
+  .queue-status { font-size: 15px; color: var(--ink); font-weight: 600; margin: 0; padding: 0; }
   .page-meta { display: flex; align-items: center; gap: 14px; font-family: var(--mono); font-size: 11.5px; color: var(--ink-3); }
   .page-meta .sep { color: var(--ink-5); }
   .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
@@ -175,27 +175,25 @@
   .thead, .trow-cells { display: grid; grid-template-columns: 36px 1.5fr 2fr 110px 120px 120px; gap: 12px; padding: 0 14px; align-items: center; }
   .thead { height: 36px; background: var(--surface-soft); border-bottom: 1px solid var(--border);
     font-size: 11px; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 500; }
-  .toolbar { position: static; z-index: auto; background: var(--surface-soft); border: 1px solid var(--border);
-    border-radius: 8px; padding: 12px 14px; margin: 0 0 20px; display: flex; flex-wrap: wrap; align-items: flex-start; gap: 10px; }
-  .filter-section { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; width: 100%; }
-  @media (min-width: 900px) { .filter-section { width: auto; flex: 1; } }
-  .filter-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-3); }
-  .filter-dates { display: flex; flex-wrap: wrap; gap: 6px; flex: 1; min-width: 0; max-width: 100%; }
-  @media (max-width: 699px) {
-    .filter-dates { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-    .filter-dates .chip { flex-shrink: 0; }
+  .filter-menu-bar { margin: 0 0 20px; display: flex; flex-direction: column; gap: 16px; }
+  .filter-menus { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 16px 28px; }
+  .filter-menu-field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .filter-menu-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-3); }
+  .filter-select {
+    min-width: 168px; max-width: 100%;
+    height: 34px; padding: 0 32px 0 10px;
+    font: inherit; font-size: 13px; color: var(--ink);
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px; cursor: pointer;
+    appearance: none; -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2371717a' d='M2.5 4.5L6 8l3.5-3.5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 10px center;
   }
+  .filter-select:hover { border-color: var(--border-mid); }
+  .filter-select:focus { outline: none; box-shadow: 0 0 0 2px var(--accent-soft); border-color: var(--accent); }
+  @media (max-width: 540px) { .filter-select { min-width: 0; width: 100%; } }
   .queue-list { margin: 0; }
-  .chip {
-    display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--border);
-    background: var(--surface); padding: 5px 10px; border-radius: 999px; font-size: 12.5px; font-weight: 500; color: var(--ink-2);
-    cursor: pointer; user-select: none; transition: background 0.12s, border-color 0.12s, color 0.12s;
-  }
-  .chip:hover { border-color: var(--accent); }
-  .chip.active { background: var(--accent); color: #fff; border-color: var(--accent); }
-  .chip .count { font-size: 11px; opacity: 0.85; font-family: var(--mono); }
-  .toolbar .queue-status { width: 100%; flex-basis: 100%; }
-  .toolbar .toolbar-right { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; }
   .day-addressed-divider { display: flex; align-items: center; gap: 10px; color: var(--ink-3); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; margin: 0; padding: 8px 14px; background: var(--surface-soft); border-bottom: 1px solid var(--border); }
   .day-addressed-divider::before, .day-addressed-divider::after { content: none; }
   .queue-addressed-divider.is-hidden { display: none; }
@@ -351,27 +349,32 @@
     </div>
   </div>
 
-  <p class="queue-status" id="queue-status" aria-live="polite"></p>
-
-  <div class="toolbar" role="toolbar" aria-label="Filters">
-    <div class="filter-section">
-      <span class="filter-label">Status</span>
-      <span class="chip" data-f-status="all">All <span class="count" data-count="all">0</span></span>
-      <span class="chip" data-f-status="todo">To do <span class="count" data-count="todo">0</span></span>
-      <span class="chip" data-f-status="comment-only">Comment</span>
-      <span class="chip" data-f-status="comment-and-connect">+ Connect</span>
-      <span class="chip" data-f-status="skip">Skip</span>
-    </div>
-    <div class="filter-section">
-      <span class="filter-label">Date</span>
-      <div class="filter-dates" id="filter-dates"></div>
-    </div>
-    <div class="filter-section">
-      <span class="filter-label">Audience</span>
-      <span class="chip" data-f-audience="all">All</span>
-      <span class="chip" data-f-audience="chro">CHRO <span class="count" data-count="chro">0</span></span>
-      <span class="chip" data-f-audience="icp">ICP <span class="count" data-count="icp">0</span></span>
-      <span class="chip" data-f-audience="influencer">Infl. <span class="count" data-count="influencer">0</span></span>
+  <div class="filter-menu-bar" role="group" aria-label="Queue summary and filters">
+    <p class="queue-status" id="queue-status" aria-live="polite"></p>
+    <div class="filter-menus" role="toolbar" aria-label="Filter queue">
+      <div class="filter-menu-field">
+        <label for="filter-status" class="filter-menu-label">Status</label>
+        <select id="filter-status" class="filter-select" aria-label="Status">
+          <option value="all">All</option>
+          <option value="todo">To do</option>
+          <option value="comment-only">Comment</option>
+          <option value="comment-and-connect">+ Connect</option>
+          <option value="skip">Skip</option>
+        </select>
+      </div>
+      <div class="filter-menu-field">
+        <label for="filter-date" class="filter-menu-label">Date</label>
+        <select id="filter-date" class="filter-select" aria-label="Date"></select>
+      </div>
+      <div class="filter-menu-field">
+        <label for="filter-audience" class="filter-menu-label">Audience</label>
+        <select id="filter-audience" class="filter-select" aria-label="Audience">
+          <option value="all">All</option>
+          <option value="chro">CHRO</option>
+          <option value="icp">ICP</option>
+          <option value="influencer">Infl.</option>
+        </select>
+      </div>
     </div>
   </div>
 
@@ -2484,10 +2487,15 @@
       if (sec.parentNode) sec.parentNode.removeChild(sec);
     });
   }
-  function buildDateFilterChips() {
-    var el = document.getElementById("filter-dates");
+  function buildDateFilterSelect() {
+    var el = document.getElementById("filter-date");
     if (!el) return;
+    var prev = filterState.date;
     el.innerHTML = "";
+    var all = document.createElement("option");
+    all.value = "all";
+    all.textContent = "All";
+    el.appendChild(all);
     var seen = {};
     var dates = [];
     document.querySelectorAll(".card[data-id][data-date]").forEach(function (c) {
@@ -2498,19 +2506,72 @@
       }
     });
     dates.sort().reverse();
-    var all = document.createElement("span");
-    all.className = "chip";
-    all.setAttribute("data-f-date", "all");
-    all.textContent = "All";
-    el.appendChild(all);
     dates.forEach(function (d) {
-      var c = document.createElement("span");
-      c.className = "chip";
-      c.setAttribute("data-f-date", d);
-      c.textContent = formatDateLabel(d);
-      c.title = d;
-      el.appendChild(c);
+      var o = document.createElement("option");
+      o.value = d;
+      o.textContent = formatDateLabel(d);
+      o.title = d;
+      el.appendChild(o);
     });
+    if (prev === "all" || seen[prev]) {
+      el.value = prev;
+    } else {
+      filterState.date = "all";
+      el.value = "all";
+      writeFilterState();
+    }
+  }
+  function setFilterOptionText(sel, value, text) {
+    if (!sel) return;
+    for (var i = 0; i < sel.options.length; i++) {
+      if (sel.options[i].value === value) {
+        sel.options[i].textContent = text;
+        return;
+      }
+    }
+  }
+  function updateFilterSelectLabels() {
+    var cards = [].slice.call(document.querySelectorAll(".card[data-id]"));
+    var n = cards.length, todo = 0, cOnly = 0, cConn = 0, skipC = 0, chro = 0, icp = 0, infl = 0;
+    var byDate = Object.create(null);
+    for (var i = 0; i < cards.length; i++) {
+      var card = cards[i];
+      if (card.dataset.status === "todo") todo++;
+      if (card.dataset.status === "comment-only") cOnly++;
+      if (card.dataset.status === "comment-and-connect") cConn++;
+      if (card.dataset.status === "skip") skipC++;
+      var a = card.dataset.audience;
+      if (a === "chro") chro++;
+      if (a === "icp") icp++;
+      if (a === "influencer") infl++;
+      var d = card.getAttribute("data-date");
+      if (d) byDate[d] = (byDate[d] || 0) + 1;
+    }
+    var fs = document.getElementById("filter-status");
+    if (fs) {
+      setFilterOptionText(fs, "all", "All (" + n + ")");
+      setFilterOptionText(fs, "todo", "To do (" + todo + ")");
+      setFilterOptionText(fs, "comment-only", "Comment (" + cOnly + ")");
+      setFilterOptionText(fs, "comment-and-connect", "+ Connect (" + cConn + ")");
+      setFilterOptionText(fs, "skip", "Skip (" + skipC + ")");
+    }
+    var fa = document.getElementById("filter-audience");
+    if (fa) {
+      setFilterOptionText(fa, "all", "All");
+      setFilterOptionText(fa, "chro", "CHRO (" + chro + ")");
+      setFilterOptionText(fa, "icp", "ICP (" + icp + ")");
+      setFilterOptionText(fa, "influencer", "Infl. (" + infl + ")");
+    }
+    var fd = document.getElementById("filter-date");
+    if (fd) {
+      [].forEach.call(fd.querySelectorAll("option"), function (o) {
+        if (o.value === "all") o.textContent = "All";
+        else {
+          var cnt = byDate[o.value];
+          o.textContent = (cnt !== undefined) ? (formatDateLabel(o.value) + " (" + cnt + ")") : formatDateLabel(o.value);
+        }
+      });
+    }
   }
   function reorderQueueList() {
     var list = document.getElementById("queue-list");
@@ -2544,16 +2605,23 @@
     addressed.forEach(function (c) { frag.appendChild(c); });
     list.appendChild(frag);
   }
-  function syncFilterChipActives() {
-    document.querySelectorAll(".chip[data-f-status]").forEach(function (ch) {
-      ch.classList.toggle("active", ch.getAttribute("data-f-status") === filterState.status);
-    });
-    document.querySelectorAll(".chip[data-f-date]").forEach(function (ch) {
-      ch.classList.toggle("active", ch.getAttribute("data-f-date") === filterState.date);
-    });
-    document.querySelectorAll(".chip[data-f-audience]").forEach(function (ch) {
-      ch.classList.toggle("active", ch.getAttribute("data-f-audience") === filterState.audience);
-    });
+  function syncFilterSelects() {
+    var s = document.getElementById("filter-status");
+    var d = document.getElementById("filter-date");
+    var a = document.getElementById("filter-audience");
+    if (s) s.value = filterState.status;
+    if (a) a.value = filterState.audience;
+    if (!d) return;
+    var i;
+    var ok = false;
+    for (i = 0; i < d.options.length; i++) {
+      if (d.options[i].value === filterState.date) { ok = true; break; }
+    }
+    if (ok) d.value = filterState.date;
+    else {
+      d.value = "all";
+      filterState.date = "all";
+    }
   }
   function applyFilterVisibilityOnly() {
     document.querySelectorAll(".card[data-id]").forEach(function (card) {
@@ -2571,7 +2639,7 @@
   function applyFiltersFromState() {
     readFilterState();
     applyFilterVisibilityOnly();
-    syncFilterChipActives();
+    syncFilterSelects();
   }
   function updateDoneDividerVisibility() {
     var d = document.querySelector(".queue-addressed-divider");
@@ -2579,36 +2647,17 @@
     d.classList.toggle("is-hidden", filterState.status === "todo");
   }
 
-  function onFilterChipClick(e) {
-    var a = e.target.closest(".chip[data-f-status]");
-    if (a) {
-      filterState.status = a.getAttribute("data-f-status");
-      writeFilterState();
-      applyFilterVisibilityOnly();
-      syncFilterChipActives();
-      updateQueueStatusLine();
-      updateDoneDividerVisibility();
-      return;
-    }
-    var b = e.target.closest(".chip[data-f-date]");
-    if (b) {
-      filterState.date = b.getAttribute("data-f-date");
-      writeFilterState();
-      applyFilterVisibilityOnly();
-      syncFilterChipActives();
-      updateQueueStatusLine();
-      updateDoneDividerVisibility();
-      return;
-    }
-    var c = e.target.closest(".chip[data-f-audience]");
-    if (c) {
-      filterState.audience = c.getAttribute("data-f-audience");
-      writeFilterState();
-      applyFilterVisibilityOnly();
-      syncFilterChipActives();
-      updateQueueStatusLine();
-      updateDoneDividerVisibility();
-    }
+  function onFilterSelectChange() {
+    var s = document.getElementById("filter-status");
+    var d = document.getElementById("filter-date");
+    var a = document.getElementById("filter-audience");
+    if (s) filterState.status = s.value;
+    if (d) filterState.date = d.value;
+    if (a) filterState.audience = a.value;
+    writeFilterState();
+    applyFilterVisibilityOnly();
+    updateQueueStatusLine();
+    updateDoneDividerVisibility();
   }
 
   var STATUS_LABELS = {
@@ -2709,24 +2758,14 @@
       el.textContent = "No matches — " + openAll + " open in list";
       return;
     }
-    el.textContent = openVis + " open" + (openVis === 1 ? "" : " items");
+    el.textContent = openVis + " open " + (openVis === 1 ? "item" : "items");
   }
 
   function updateCounts() {
-    var cards = document.querySelectorAll(".card[data-id]");
-    var counts = { all: 0, chro: 0, icp: 0, influencer: 0, todo: 0 };
-    cards.forEach(function (card) {
-      counts.all++;
-      var a = card.dataset.audience;
-      if (counts.hasOwnProperty(a)) counts[a]++;
-      if (card.dataset.status === "todo") counts.todo++;
-    });
-    Object.keys(counts).forEach(function (k) {
-      var el = document.querySelector('[data-count="' + k + '"]');
-      if (el) el.textContent = counts[k];
-    });
     reorderQueueList();
     applyFilterVisibilityOnly();
+    updateFilterSelectLabels();
+    syncFilterSelects();
     updateQueueStatusLine();
     updateDoneDividerVisibility();
     updateKPIAndChrome();
@@ -2852,7 +2891,7 @@
 
   function onCardHeadToggle(e) {
     if (e.target.closest(".actions")) return;
-    if (e.target.closest(".chip[data-f-status]") || e.target.closest(".chip[data-f-date]") || e.target.closest(".chip[data-f-audience]")) return;
+    if (e.target.closest(".filter-menus, .filter-select, .filter-menu-bar")) return;
     if (e.target.closest(".drawer-open-btn, .open-btn")) {
       e.preventDefault();
       var co = e.target.closest(".card[data-id]");
@@ -2876,8 +2915,11 @@
   });
   document.addEventListener("click", function (e) {
     onActionClick(e);
-    onFilterChipClick(e);
     onCardHeadToggle(e);
+  });
+  ;["filter-status", "filter-date", "filter-audience"].forEach(function (id) {
+    var f = document.getElementById(id);
+    if (f) f.addEventListener("change", onFilterSelectChange);
   });
   var copyBtn = document.getElementById("copy-done");
   if (copyBtn) copyBtn.addEventListener("click", copyCommentedIds);
@@ -2919,8 +2961,8 @@
   enhanceCardsForTaskList();
   layoutAllCardsAsTable();
   buildContactsList();
-  buildDateFilterChips();
   migrateFilterKeysOnce();
+  buildDateFilterSelect();
   applyFiltersFromState();
   updateCounts();
 
