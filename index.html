@@ -2135,20 +2135,30 @@
     if (h3) return stripLeadingNumber(h3.textContent.trim());
     return "";
   }
-  function normalizeUrlKey(href) {
+  /** Dedup key: profile /in/... URLs by path only; search & other links keep full URL so ?keywords= differs per person. */
+  function urlForContactDedup(href) {
     if (!href) return "";
     try {
       var u = new URL(href, window.location.origin);
-      if (u.hostname.indexOf("linkedin.com") === -1) return href.toLowerCase();
-      return (u.origin + u.pathname).replace(/\/$/, "").toLowerCase();
+      if (u.hostname.indexOf("linkedin.com") === -1) {
+        return u.href.split("#")[0].toLowerCase();
+      }
+      var p = u.pathname || "";
+      if (/\/in\/[^/]+\/?$/.test(p) || /^\/in\/[^/]+/i.test(p)) {
+        return (u.origin + p.replace(/\/$/, "")).toLowerCase();
+      }
+      return u.href.split("#")[0].toLowerCase();
     } catch (e) {
       return String(href).toLowerCase();
     }
   }
-  function contactDedupKey(name, href) {
-    var u = normalizeUrlKey(href);
+  function contactDedupKey(name, href, dataId) {
+    var u = urlForContactDedup(href);
     if (u) return "url:" + u;
-    return "name:" + String(name).toLowerCase().replace(/\s+/g, " ").trim();
+    var n = String(name).toLowerCase().replace(/\s+/g, " ").trim();
+    if (n && n !== "—") return "name:" + n;
+    if (dataId) return "id:" + dataId;
+    return "name:—";
   }
   function buildContactsList() {
     var list = document.getElementById("contacts-list");
@@ -2162,7 +2172,7 @@
       var title = getMetaValue(card, "Role");
       if (!title) title = "—";
       var href = getLinkHrefFromCard(card);
-      var key = contactDedupKey(name, href);
+      var key = contactDedupKey(name, href, card.getAttribute("data-id"));
       if (seen[key]) return;
       seen[key] = true;
       out.push({ name: name, title: title, href: href });
