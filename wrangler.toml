@@ -1,0 +1,9 @@
+# Pages project: bind D1 in the dashboard, or set database_id from `wrangler d1 create`.
+name = "linkedin-tracker"
+compatibility_date = "2024-12-20"
+pages_build_output_dir = "."
+
+[[d1_databases]]
+binding = "DB"
+database_name = "linkedin-tracker"
+database_id = "00000000-0000-0000-0000-000000000000"

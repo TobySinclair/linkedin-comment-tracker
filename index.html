@@ -1,0 +1,1851 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LinkedIn Engagement — Candidate Tracker</title>
+<style>
+  :root {
+    --bg: #fafaf8;
+    --surface: #ffffff;
+    --text: #1a1a1a;
+    --muted: #666;
+    --border: #e5e5e0;
+    --accent: #0a66c2;
+    --accent-soft: #eaf3fb;
+    --todo-bg: #fff5e6;
+    --todo-text: #8a5a00;
+    --comment-only-bg: #eaf3fb;
+    --comment-only-text: #0a5aa8;
+    --comment-connect-bg: #e6f4ea;
+    --comment-connect-text: #1e6b35;
+    --skip-bg: #f0f0f0;
+    --skip-text: #666;
+    --chro-bg: #ede7f6;
+    --chro-text: #4527a0;
+    --icp-bg: #e0f2f1;
+    --icp-text: #00695c;
+    --influencer-bg: #fff3e0;
+    --influencer-text: #b35900;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.55;
+  }
+  .wrap {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 48px 32px 80px;
+  }
+  h1 {
+    font-size: 28px;
+    margin: 0 0 16px;
+    letter-spacing: -0.01em;
+  }
+  h2 {
+    font-size: 22px;
+    margin: 48px 0 20px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--accent);
+    display: inline-block;
+  }
+  p { margin: 0 0 14px; }
+  .intro { color: var(--muted); max-width: 760px; }
+  .intro strong { color: var(--text); }
+  .toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: var(--bg);
+    padding: 14px 0 12px;
+    margin: 20px 0 0;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    cursor: pointer;
+    user-select: none;
+    transition: background 120ms, border-color 120ms, color 120ms;
+  }
+  .chip:hover { border-color: var(--accent); }
+  .chip.active {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+  .chip .count {
+    font-size: 12px;
+    opacity: 0.75;
+    font-variant-numeric: tabular-nums;
+  }
+  .toolbar-right { margin-left: auto; display: flex; gap: 8px; }
+  .btn {
+    border: 1px solid var(--border);
+    background: var(--surface);
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    cursor: pointer;
+    color: var(--text);
+  }
+  .btn:hover { border-color: var(--accent); color: var(--accent); }
+  .day { margin-top: 40px; }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    transition: opacity 200ms, transform 200ms;
+  }
+  .card[data-status="comment-only"] { opacity: 0.78; }
+  .card[data-status="comment-and-connect"] { opacity: 0.62; }
+  .card[data-status="skip"] { opacity: 0.48; }
+  .card.hidden { display: none; }
+  .card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+  .card-head .who h3 {
+    margin: 0 0 4px;
+    font-size: 17px;
+  }
+  .card-head .topic {
+    color: var(--accent);
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .badges { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 999px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .badge.chro { background: var(--chro-bg); color: var(--chro-text); }
+  .badge.icp { background: var(--icp-bg); color: var(--icp-text); }
+  .badge.influencer { background: var(--influencer-bg); color: var(--influencer-text); }
+  .status {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 999px;
+    letter-spacing: 0.03em;
+  }
+  .status.todo { background: var(--todo-bg); color: var(--todo-text); }
+  .status.comment-only { background: var(--comment-only-bg); color: var(--comment-only-text); }
+  .status.comment-and-connect { background: var(--comment-connect-bg); color: var(--comment-connect-text); }
+  .status.skip { background: var(--skip-bg); color: var(--skip-text); }
+  .meta {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 6px 16px;
+    font-size: 14px;
+    margin: 12px 0 16px;
+  }
+  .meta dt { color: var(--muted); font-weight: 500; }
+  .meta dd { margin: 0; color: var(--text); }
+  .meta a { color: var(--accent); text-decoration: none; }
+  .meta a:hover { text-decoration: underline; }
+  .comment {
+    background: var(--accent-soft);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 14px 18px;
+    margin-top: 14px;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+  .comment-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
+  }
+  .actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 14px;
+    flex-wrap: wrap;
+  }
+  .actions .btn[data-action="comment-only"]:hover { color: var(--comment-only-text); border-color: var(--comment-only-text); }
+  .actions .btn[data-action="comment-and-connect"]:hover { color: var(--comment-connect-text); border-color: var(--comment-connect-text); }
+  .actions .btn[data-action="skip"]:hover { color: var(--skip-text); border-color: var(--skip-text); }
+  .actions .btn.active[data-action="comment-only"] { background: var(--comment-only-bg); color: var(--comment-only-text); border-color: var(--comment-only-bg); }
+  .actions .btn.active[data-action="comment-and-connect"] { background: var(--comment-connect-bg); color: var(--comment-connect-text); border-color: var(--comment-connect-bg); }
+  .actions .btn.active[data-action="skip"] { background: var(--skip-bg); color: var(--skip-text); border-color: var(--skip-bg); }
+  .post-content {
+    background: #fafaf6;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-top: 14px;
+    font-size: 14px;
+    line-height: 1.55;
+    color: #333;
+    white-space: pre-wrap;
+  }
+  .post-content-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
+  }
+  .run-notes {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-top: 24px;
+  }
+  .run-notes h3 {
+    margin: 0 0 12px;
+    font-size: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+  }
+  .run-notes ul { margin: 0; padding-left: 20px; }
+  .run-notes li { margin-bottom: 8px; color: var(--text); }
+  .flag { font-style: italic; color: var(--muted); font-size: 13px; }
+  code {
+    background: #f0efeb;
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+  }
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: #1a1a1a;
+    color: #fff;
+    padding: 10px 18px;
+    border-radius: 999px;
+    font-size: 13px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 180ms, transform 180ms;
+    z-index: 50;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>LinkedIn Engagement — Candidate Tracker</h1>
+  <p class="intro">Daily scan of LinkedIn across three audiences: <strong>CHROs &amp; senior HR buyers</strong>, <strong>Compliance ICP practitioners</strong>, and <strong>influencers / vendors / consultants</strong>. Draft comments in Toby Sinclair's voice for manual review and posting.</p>
+  <p class="intro"><strong>How this file works:</strong> each run prepends a new dated section below. Filter by audience, click Done or Skip on each card to track progress — your progress is saved in this browser.</p>
+
+  <div class="toolbar" role="toolbar" aria-label="Filters and actions">
+    <span class="chip active" data-filter="all">All <span class="count" data-count="all">0</span></span>
+    <span class="chip" data-filter="chro">CHROs / HR buyers <span class="count" data-count="chro">0</span></span>
+    <span class="chip" data-filter="icp">Compliance ICP <span class="count" data-count="icp">0</span></span>
+    <span class="chip" data-filter="influencer">Influencers <span class="count" data-count="influencer">0</span></span>
+    <span class="chip" data-filter="todo">Only TODO <span class="count" data-count="todo">0</span></span>
+    <div class="toolbar-right">
+      <button class="btn" id="copy-done">Copy commented IDs</button>
+      <button class="btn" id="reset-all">Reset all</button>
+    </div>
+  </div>
+
+  <!-- NEWEST-DAY-INSERT-BELOW -->
+
+<section class="day" data-date="2026-04-25">
+  <h2>2026-04-25</h2>
+
+  <div class="card" data-id="2026-04-25-maxine-blake-vento-bands-tribunal-injury-to-feelings" data-audience="chro" data-status="todo">
+    <div class="card-head">
+      <div class="who">
+        <h3>1. Maxine Blake</h3>
+        <div class="topic">Vento bands April 2026 &middot; Injury to feelings awards &middot; Sharma v Portsmouth &middot; Tribunal cost of getting it wrong</div>
+      </div>
+      <div class="badges">
+        <span class="badge chro">CHRO</span>
+        <span class="status todo">TODO</span>
+      </div>
+    </div>
+    <dl class="meta">
+      <dt>Role</dt><dd>HR People Professional &mdash; Complex Employee Relations, Culture &amp; Capability (MSc HRM, MCIPD &mdash; UK practitioner, 2nd-degree)</dd>
+      <dt>Post topic</dt><dd>Walks through Sharma v University of Portsmouth and Wright-Turner v LBHF as a leadership lens on tribunal risk &mdash; not as case law, as a balance-sheet conversation. Highlights the April 2026 Vento band uplift (up to &pound;62.9k+ for the most serious injury to feelings awards, on top of uncapped financial losses) and reframes the leadership question from compliance to confidence: are we comfortable explaining our decisions, our culture and our response when things go wrong, under real scrutiny? Direct Path 1 ER/casework practitioner voice.</dd>
+      <dt>Engagement</dt><dd>Low reactions &middot; 1 comment (practitioner voice; long-form ER analysis)</dd>
+      <dt>Post age</dt><dd>1d</dd>
+      <dt>Link</dt><dd><a href="https://www.linkedin.com/search/results/people/?keywords=Maxine%20Blake%20MCIPD%20Employee%20Relations" target="_blank" rel="noopener">Find on LinkedIn</a></dd>
+    </dl>
+    <div class="comment">
+      <div class="comment-label">Draft comment</div>
+      The line that lands hardest is the one about being comfortable explaining your decisions under real scrutiny &mdash; that&rsquo;s the actual test, not whether the policy was up to date. What we&rsquo;re seeing with clients is that the cases that go badly aren&rsquo;t the ones with bad people, they&rsquo;re the ones where managers had no rehearsal for the moment that mattered. The new Vento bands turn that gap into a balance-sheet number.
+    </div>
+    <div class="actions">
+      <button class="btn" data-action="comment-only">Comment only</button>
+      <button class="btn" data-action="comment-and-connect">Comment + connect</button>
+      <button class="btn" data-action="skip">Skip</button>
+      <button class="btn" data-action="reset">Reset</button>
+    </div>
+  </div>
+
+  <div class="card" data-id="2026-04-25-network-plus-aspire-leadership-programme-raise-the-bar" data-audience="chro" data-status="todo">
+    <div class="card-head">
+      <div class="who">
+        <h3>2. Network Plus &mdash; Aspire Leadership Programme</h3>
+        <div class="topic">First-line manager development launch &middot; Raise the Bar partnership &middot; Performance, feedback, difficult conversations, leading change</div>
+      </div>
+      <div class="badges">
+        <span class="badge chro">CHRO</span>
+        <span class="status todo">TODO</span>
+      </div>
+    </div>
+    <dl class="meta">
+      <dt>Role</dt><dd>Network Plus &mdash; UK utilities &amp; infrastructure services contractor (Worsley HQ); MD Carl Dixon, Will Pedigrew Head of Talent Acquisition (1st cohort). Tier 2 industry, 500+ employees, UK</dd>
+      <dt>Post topic</dt><dd>Launches Aspire Leadership Programme &mdash; a six-month first-line manager development cohort delivered with Raise the Bar, combining virtual, face-to-face workshops and action learning sets. Capability areas explicitly named: performance management, feedback, difficult conversations, leading through change, building effective teams. Path 2 Leadership &amp; Manager Development champion territory &mdash; the post itself is the buying signal.</dd>
+      <dt>Engagement</dt><dd>165 reactions &middot; 5 comments &middot; 7 reposts (strongest CHRO-bucket stage of the run)</dd>
+      <dt>Post age</dt><dd>22h</dd>
+      <dt>Link</dt><dd><a href="https://www.linkedin.com/search/results/people/?keywords=Will%20Pedigrew%20Network%20Plus%20Talent" target="_blank" rel="noopener">Find Will Pedigrew on LinkedIn</a></dd>
+    </dl>
+    <div class="comment">
+      <div class="comment-label">Draft comment</div>
+      Naming a programme is the easy bit &mdash; what usually decides whether it sticks is whether new managers get to rehearse the conversations they&rsquo;re going to lose sleep over before they meet them on the floor. Most firms I work with measure attendance and feedback; the programmes that actually shift behaviour measure whether the next difficult conversation went better than the last one. Curious how Network Plus is planning to track that.
+    </div>
+    <div class="actions">
+      <button class="btn" data-action="comment-only">Comment only</button>
+      <button class="btn" data-action="comment-and-connect">Comment + connect</button>
+      <button class="btn" data-action="skip">Skip</button>
+      <button class="btn" data-action="reset">Reset</button>
+    </div>
+  </div>
+
+  <div class="card" data-id="2026-04-25-caroline-reid-bishop-burton-bodyswaps-ai-roleplay" data-audience="chro" data-status="todo">
+    <div class="card-head">
+      <div class="who">
+        <h3>3. Caroline Reid</h3>
+        <div class="topic">AI roleplay with Bodyswaps &middot; Custom angry-customer scenario &middot; Stage Immersive Learning &middot; Path 3 solution-aware</div>
+      </div>
+      <div class="badges">
+        <span class="badge chro">CHRO</span>
+        <span class="status todo">TODO</span>
+      </div>
+    </div>
+    <dl class="meta">
+      <dt>Role</dt><dd>Immersive and Digital Resource Developer at Bishop Burton College &mdash; UK education / L&amp;D practitioner using AI roleplay platforms in cohort delivery (3rd-degree)</dd>
+      <dt>Post topic</dt><dd>Walks through running an immersive tech day for Level 3 Travel and Tourism students using Bodyswaps modules, then a custom-built AI roleplay around an angry passenger and missing luggage, then in-person Stage Immersive practice. Direct Path 3 solution-aware territory &mdash; UK practitioner publicly using AI roleplay as the rehearsal layer underneath classroom content. Strong category proof.</dd>
+      <dt>Engagement</dt><dd>113 reactions &middot; 3 comments &middot; 1 repost</dd>
+      <dt>Post age</dt><dd>11h</dd>
+      <dt>Link</dt><dd><a href="https://www.linkedin.com/search/results/people/?keywords=Caroline%20Reid%20Bishop%20Burton%20Immersive" target="_blank" rel="noopener">Find on LinkedIn</a></dd>
+    </dl>
+    <div class="comment">
+      <div class="comment-label">Draft comment</div>
+      Pressure-tested practice with a real customer scenario is where the learning actually transfers &mdash; a polished classroom answer doesn&rsquo;t survive contact with an angry passenger missing their luggage. What we&rsquo;re seeing across L&amp;D is the shift from &ldquo;covered the topic&rdquo; to &ldquo;can they handle the moment,&rdquo; and AI roleplay is the only thing that scales rehearsal cheaply enough to make that real. Sounds like a strong day.
+    </div>
+    <div class="actions">
+      <button class="btn" data-action="comment-only">Comment only</button>
+      <button class="btn" data-action="comment-and-connect">Comment + connect</button>
+      <button class="btn" data-action="skip">Skip</button>
+      <button class="btn" data-action="reset">Reset</button>
+    </div>
+  </div>
+
+  <div class="card" data-id="2026-04-25-frank-brown-grr-ned-nfm-whistleblowing-travers-smith" data-audience="icp" data-status="todo">
+    <div class="card-head">
+      <div class="who">
+        <h3>4. Frank Brown ChMC</h3>
+        <div class="topic">FS NEDs whistleblowing investigation training &middot; NFM rules Sept 2026 &middot; Travers Smith session &middot; Whistleblowing as canary</div>
+      </div>
+      <div class="badges">
+        <span class="badge icp">ICP</span>
+        <span class="status todo">TODO</span>
+      </div>
+    </div>
+    <dl class="meta">
+      <dt>Role</dt><dd>Director, GRR Consulting &mdash; NED across UK FS firms (NED with risk oversight ICP), Chartered Management Consultant (2nd-degree, UK)</dd>
+      <dt>Post topic</dt><dd>Reflects on a NEDs in FS training session at Travers Smith (Tim Gilbert, Adam Rice, Ibrahim Chaudhary) on whistleblowing investigations. Three takeaways: have a process people know; NEDs operate under FCA Conduct Rules and the NFM rules from September 2026 will hold them accountable for failing to take reasonable steps to prevent bullying and harassment; whistleblowing is the canary in the coalmine &mdash; boards should be asking why staff didn&rsquo;t use normal channels. Pure ICP NED voice on NFM enforcement.</dd>
+      <dt>Engagement</dt><dd>12 reactions &middot; 1 repost (NED audience &mdash; quality over volume)</dd>
+      <dt>Post age</dt><dd>4d</dd>
+      <dt>Link</dt><dd><a href="https://www.linkedin.com/search/results/people/?keywords=Frank%20Brown%20GRR%20Consulting%20NED" target="_blank" rel="noopener">Find on LinkedIn</a></dd>
+    </dl>
+    <div class="comment">
+      <div class="comment-label">Draft comment</div>
+      The whistleblowing-as-canary frame is the right one &mdash; the more revealing question is usually why the formal route felt unsafe, not what the disclosure said. What we&rsquo;re seeing in FS boards right now is that the NFM regime is exposing the same culture gap from a different angle: the policies pass review, but few firms can show their managers have actually rehearsed handling these conversations. Hard to evidence reasonable steps without that.
+    </div>
+    <div class="actions">
+      <button class="btn" data-action="comment-only">Comment only</button>
+      <button class="btn" data-action="comment-and-connect">Comment + connect</button>
+      <button class="btn" data-action="skip">Skip</button>
+      <button class="btn" data-action="reset">Reset</button>
+    </div>
+  </div>
+
+  <div class="card" data-id="2026-04-25-dieter-veldsman-aihr-manager-capability-accountability" data-audience="influencer" data-status="todo">
+    <div class="card-head">
+      <div class="who">
+        <h3>5. Dr Dieter Veldsman</h3>
+        <div class="topic">HR&rsquo;s mandate &middot; Performance accountability &middot; Manager capability vs HR replacing the manager&rsquo;s voice</div>
+      </div>
+      <div class="badges">
+        <span class="badge influencer">Influencer</span>
+        <span class="status todo">TODO</span>
+      </div>
+    </div>
+    <dl class="meta">
+      <dt>Role</dt><dd>Chief Scientist at AIHR (Academy to Innovate HR) &mdash; organisational psychologist, &ldquo;Work for Humans&rdquo; author, large global HR audience (named individual thought leader, expanding watchlist)</dd>
+      <dt>Post topic</dt><dd>Argues HR has built such structured performance processes that accountability has shifted away from line managers &mdash; they become observers rather than owners. Calls underperformance a leadership responsibility HR should support, not solve. Sets the question for HR leaders: are you strengthening manager capability, or unintentionally taking accountability away? Highest-engagement post of the run and squarely on Real Talk Studio&rsquo;s territory (manager capability under pressure).</dd>
+      <dt>Engagement</dt><dd>128 reactions &middot; 6 comments &middot; 13 reposts (biggest stage of the run)</dd>
+      <dt>Post age</dt><dd>21h</dd>
+      <dt>Link</dt><dd><a href="https://www.linkedin.com/search/results/people/?keywords=Dieter%20Veldsman%20AIHR%20Chief%20Scientist" target="_blank" rel="noopener">Find on LinkedIn</a></dd>
+    </dl>
+    <div class="comment">
+      <div class="comment-label">Draft comment</div>
+      This is exactly right and it&rsquo;s the trade-off most HR teams haven&rsquo;t named. What we&rsquo;re seeing with clients is that every time HR steps in to &ldquo;just run the conversation,&rdquo; the manager loses a rep &mdash; and ten conversations later the gap is real. Coaching managers through difficult moments scales; running the moment for them doesn&rsquo;t. The shift you&rsquo;re describing is from process owner to capability builder.
+    </div>
+    <div class="actions">
+      <button class="btn" data-action="comment-only">Comment only</button>
+      <button class="btn" data-action="comment-and-connect">Comment + connect</button>
+      <button class="btn" data-action="skip">Skip</button>
+      <button class="btn" data-action="reset">Reset</button>
+    </div>
+  </div>
+
+  <div class="card" data-id="2026-04-25-jess-sandham-prevention-culture-not-policy" data-audience="influencer" data-status="todo">
+    <div class="card-head">
+      <div class="who">
+        <h3>6. Jess Sandham</h3>
+        <div class="topic">Sexual harassment prevention &middot; Culture vs policy &middot; Worker Protection Act &middot; Everyday moments, not rules</div>
+      </div>
+      <div class="badges">
+        <span class="badge influencer">Influencer</span>
+        <span class="status todo">TODO</span>
+      </div>
+    </div>
+    <dl class="meta">
+      <dt>Role</dt><dd>People, Culture &amp; Inclusion &mdash; Speaker &amp; Facilitator, Award-Winning Leadership &amp; Culture Transformation (UK consultant, 2nd-degree)</dd>
+      <dt>Post topic</dt><dd>Argues sexual harassment isn&rsquo;t sustained by a lack of rules but by cultures where behaviour goes unchallenged and accountability is pushed around. Lists the everyday moments &mdash; how leaders respond when something feels off, whether people intervene early, what gets minimised, whether reporting feels safe &mdash; as the actual test, not policy. Frames the Worker Protection Act &ldquo;all reasonable steps&rdquo; question as whether organisations are prepared for the consequences. Strong influencer stage on prevention culture.</dd>
+      <dt>Engagement</dt><dd>31 reactions &middot; 1 comment &middot; 1 repost</dd>
+      <dt>Post age</dt><dd>20h</dd>
+      <dt>Link</dt><dd><a href="https://www.linkedin.com/search/results/people/?keywords=Jess%20Sandham%20Culture%20Inclusion%20Facilitator" target="_blank" rel="noopener">Find on LinkedIn</a></dd>
+    </dl>
+    <div class="comment">
+      <div class="comment-label">Draft comment</div>
+      The &ldquo;how leaders respond when something feels off&rdquo; line is the actual test &mdash; and it&rsquo;s the one most policies don&rsquo;t equip managers for. What we&rsquo;re seeing across organisations is that the WPA and ERA changes are exposing the same gap: the rules were already there, what&rsquo;s missing is whether front-line managers have ever practised the moment. Culture lives in the first thirty seconds of those conversations.
+    </div>
+    <div class="actions">
+      <button class="btn" data-action="comment-only">Comment only</button>
+      <button class="btn" data-action="comment-and-connect">Comment + connect</button>
+      <button class="btn" data-action="skip">Skip</button>
+      <button class="btn" data-action="reset">Reset</button>
+    </div>
+  </div>
+
+  <div class="card" data-id="2026-04-25-julie-ampadu-chameleon-apcc-fca-coaching" data-audience="influencer" data-status="todo">
+    <div class="card-head">
+      <div class="who">
+        <h3>7. Julie Ampadu</h3>
+        <div class="topic">APCC Spring Conference &middot; Sheree Howard FCA speech &middot; Compliance consultants as coaches &middot; Regulatory mindset</div>
+      </div>
+      <div class="badges">
+        <span class="badge influencer">Influencer</span>
+        <span class="status todo">TODO</span>
+      </div>
+    </div>
+    <dl class="meta">
+      <dt>Role</dt><dd>Owner &amp; Director, Chameleon Compliance Ltd and The Culture Space &mdash; Director and ex-Chair of The APCC (UK financial services compliance consultant / influencer)</dd>
+      <dt>Post topic</dt><dd>Reflects on Sheree Howard&rsquo;s (FCA Executive Director of Authorisations) speech at the APCC Spring Conference. Calls out the FCA&rsquo;s framing that compliance consultants should coach firms toward a regulatory mindset, not do the readiness work for them. Argues the differentiator isn&rsquo;t forms or systems &mdash; it&rsquo;s preparing people inside the firm to use their own reasoning and voice on the regulated journey. Strong influencer stage with senior-compliance audience and direct FCA quote in tow.</dd>
+      <dt>Engagement</dt><dd>15 reactions (senior compliance audience &mdash; quality over volume)</dd>
+      <dt>Post age</dt><dd>1d</dd>
+      <dt>Link</dt><dd><a href="https://www.linkedin.com/search/results/people/?keywords=Julie%20Ampadu%20Chameleon%20Compliance%20APCC" target="_blank" rel="noopener">Find on LinkedIn</a></dd>
+    </dl>
+    <div class="comment">
+      <div class="comment-label">Draft comment</div>
+      The &ldquo;standing on your own two feet&rdquo; framing is the part that usually gets lost &mdash; firms can buy a polished policy pack tomorrow, but evidencing a regulatory mindset only comes from rehearsing real decisions. Most firms I see treat readiness as a documentation exercise; the FCA increasingly treats it as a behaviour test. The coaching role you&rsquo;re describing is what closes that gap.
+    </div>
+    <div class="actions">
+      <button class="btn" data-action="comment-only">Comment only</button>
+      <button class="btn" data-action="comment-and-connect">Comment + connect</button>
+      <button class="btn" data-action="skip">Skip</button>
+      <button class="btn" data-action="reset">Reset</button>
+    </div>
+  </div>
+
+  <div class="run-notes">
+    <h3>Run notes &mdash; 2026-04-25</h3>
+    <ul>
+      <li>7 candidates surfaced (3 CHRO, 1 ICP, 3 Influencer) &mdash; on target for the 6&ndash;9 budget. CHRO bucket is unusually strong this run on the back of a real corporate manager-development launch (Network Plus / Raise the Bar) and a Path 3 solution-aware UK practitioner publicly using AI roleplay (Caroline Reid &middot; Bodyswaps).</li>
+      <li>ICP came in lighter than usual at 1 &mdash; SMCR-reform week is dominating the FS feed but the practitioner-language searches mostly returned recruitment ads (&ldquo;head of compliance,&rdquo; &ldquo;ER casework,&rdquo; &ldquo;grievance investigation&rdquo; were almost entirely job posts). Frank Brown was the strongest direct ICP voice &mdash; NED, on the day&rsquo;s NFM/whistleblowing intersection. Path 2 of the discovery model (consultants in the comments of regulation-name posts) wasn&rsquo;t worked aggressively this run; flag for next session.</li>
+      <li>&ldquo;COCON OR Conduct Rule 7&rdquo; search returned French real-estate ads (cocon = cocoon). Substituted &ldquo;Senior Managers Certification OR SMCR culture,&rdquo; which yielded the David Allison / MGAA / Birketts cluster on this week&rsquo;s PS26/6 SM&amp;CR Phase 1 reforms &mdash; useful context but vendor-side, so not picked.</li>
+      <li>&ldquo;Knowing-doing gap,&rdquo; &ldquo;first-time manager + freeze,&rdquo; &ldquo;tick box compliance training,&rdquo; &ldquo;compliance training doesn&rsquo;t work,&rdquo; &ldquo;CIPD research harassment OR conduct,&rdquo; and &ldquo;Personnel Today / People Management harassment&rdquo; all returned weak or off-geo results. Skipped without forcing weak picks.</li>
+      <li>Strongest stage of the run is Dieter Veldsman / AIHR (128 reactions, 13 reposts) &mdash; squarely on Real Talk Studio&rsquo;s territory of manager capability vs process. Strongest direct CHRO opportunity is the Network Plus Aspire programme launch (165 reactions, 7 reposts) &mdash; the post itself is the buying signal; commenting on Will Pedigrew&rsquo;s profile is the route in.</li>
+      <li>No duplicates with the 2026-04-21 to 2026-04-24 sections. Toby&rsquo;s own post on the McDonald&rsquo;s Worker Protection Act framing is in this week&rsquo;s feed &mdash; ignored as expected.</li>
+      <li>Browser automation: javascript_tool and screenshot continue to error with &ldquo;Cannot access a chrome-extension:// URL&rdquo; on LinkedIn tabs (known limitation). Used navigate &middot; get_page_text loops throughout. People-search URLs used as default for all link fields per the skill&rsquo;s post-link guidance.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="day" data-date="2026-04-24">
+  <h2>2026-04-24</h2>
+
+  <div class="card" data-id="2026-04-24-phillip-warren-era2026-healthcare-chartered-fcipd" data-audience="chro" data-status="todo">
+    <div class="card-head">
+      <div class="who">
+        <h3>1. Phillip Warren</h3>
+        <div class="topic">Employment Rights Act &middot; Healthcare / CQC crossover &middot; Chartered FCIPD perspective</div>
+      </div>
+      <div class="badges">
+        <span class="badge chro">CHRO</span>
+        <span class="status todo">TODO</span>
+      </div>
+    </div>
+    <dl class="meta">
+      <dt>Role</dt><dd>HR leadership &mdash; STW Med, Chartered FCIPD, CQC-regulated healthcare focus (2nd-degree, UK)</dd>
+      <dt>Post topic</dt><dd>Chartered FCIPD view on Employment Rights Act 2026 landing inside CQC-regulated healthcare providers. Argues healthcare HR already sits under two regulatory eyes (CQC + employment law) and the ERA changes &mdash; preventative harassment duty, day-one rights, third-party conduct &mdash; will be judged by CQC inspectors as part of the well-led domain, not treated as a separate HR project. A policy refresh alone won&rsquo;t pass that test.</dd>
+      <dt>Engagement</dt><dd>Low reactions (practitioner-voice, not a vanity post)</dd>
+      <dt>Post age</dt><dd>6d</dd>
+      <dt>Link</dt><dd><a href="https://www.linkedin.com/search/results/people/?keywords=Phillip%20Warren%20Chartered%20FCIPD%20healthcare" target="_blank" rel="noopener">Find on LinkedIn</a></dd>
+    </dl>
+    <div class="comment">
+      <div class="comment-label">Draft comment</div>
+      Healthcare is the sector where the policy-vs-behaviour gap shows up fastest &mdash; CQC well-led and the ERA preventative duty are effectively asking the same question from two angles. What we&rsquo;re seeing with clients is that the evidence inspectors want is how line managers handled the last difficult moment, not the date the policy was last reviewed. The providers that hold up rehearse the moment; the ones that don&rsquo;t, re-write the handbook.
+    </div>
+    <div class="actions">
+      <button class="btn" data-action="comment-only">Comment only</button>
+      <button class="btn" data-action="comment-and-connect">Comment + connect</button>
+      <button class="btn" data-action="skip">Skip</button>
+      <button class="btn" data-action="reset">Reset</button>
+    </div>
+  </div>
+
+  <div class="card" data-id="2026-04-24-sandy-mcgregor-simplybiz-conduct-rule-7-nfm-deadline" data-audience="icp" data-status="todo">
+    <div class="card-head">
+      <div class="who">
+        <h3>2. Sandy McGregor</h3>
+        <div class="topic">Conduct Rule 7 &middot; NFM standards &middot; 1 Sept 2026 deadline</div>
+      </div>
+      <div class="badges">
+        <span class="badge icp">ICP</span>
+        <span class="status todo">TODO</span>
+      </div>
+    </div>
+    <dl class="meta">
+      <dt>Role</dt><dd>Director of Policy, SimplyBiz Services &mdash; FCA-authorised network (2nd-degree, UK FS)</dd>
+      <dt>Post topic</dt><dd>Walks through the PS25/23 NFM / Conduct Rule 7 implementation timeline &mdash; 1 Sept 2026 go-live for Conduct Rule 7 amendments and the NFM standards. Signals that most networks are still treating this as a policy-plus-training refresh, but the FCA has been explicit it will assess evidence of behaviour change, not completion data.</dd>
+      <dt>Engagement</dt><dd>Low reactions (ICP practitioner voice; Director of Policy inside an FCA-authorised network)</dd>
+      <dt>Post age</dt><dd>2d</dd>
+      <dt>Link</dt><dd><a href="https://www.linkedin.com/search/results/people/?keywords=Sandy%20McGregor%20SimplyBiz%20Policy" target="_blank" rel="noopener">Find on LinkedIn</a></dd>
+    </dl>
+    <div class="comment">
+      <div class="comment-label">Draft comment</div>
+      1 September isn&rsquo;t a training deadline, it&rsquo;s a behaviour-proof deadline &mdash; and that&rsquo;s the distinction most networks haven&rsquo;t landed yet. What we&rsquo;re seeing with clients is that the FCA conversation has moved on from &ldquo;did you cover it?&rdquo; to &ldquo;can your people handle the moment?&rdquo; &mdash; and the honest answer for most firms is they don&rsquo;t know, because they&rsquo;ve never rehearsed it. Closing that gap is the real work between now and September.
+    </div>
+    <div class="actions">
+      <button class="btn" data-action="comment-only">Comment only</button>
+      <button class="btn" data-action="comment-and-connect">Comment + connect</button>
+      <button class="btn" data-action="skip">Skip</button>
+      <button class="btn" data-action="reset">Reset</button>
+    </div>
+  </div>
+
+  <div class="card" data-id="2026-04-24-lewis-silkin-working-times-union-access-ndas-right-to-work" data-audience="influencer" data-status="todo">
+    <div class="card-head">
+      <div class="who">
+        <h3>3. Lewis Silkin</h3>
+        <div class="topic">The Working Times &middot; Union access rights &middot; NDA reform &middot; Right-to-work checks</div>
+      </div>
+      <div class="badges">
+        <span class="badge influencer">Influencer</span>
+        <span class="status todo">TODO</span>
+      </div>
+    </div>
+    <dl class="meta">
+      <dt>Role</dt><dd>Lewis Silkin LLP &mdash; employment &amp; incentives law firm, publishers of &ldquo;The Working Times&rdquo; newsletter (watchlist)</dd>
+      <dt>Post topic</dt><dd>Working Times roundup covering three live changes: new union access rights into workplaces, the government&rsquo;s proposals to block NDAs preventing workers speaking out about harassment, and incoming right-to-work check changes. Frames NDA reform as a material shift in how harassment matters surface and play out.</dd>
+      <dt>Engagement</dt><dd>110 reactions &middot; 10 comments &middot; 3 reposts (strongest stage of the run)</dd>
+      <dt>Post age</dt><dd>4d</dd>
+      <dt>Link</dt><dd><a href="https://www.linkedin.com/search/results/people/?keywords=Lewis%20Silkin%20Working%20Times%20employment" target="_blank" rel="noopener">Find on LinkedIn</a></dd>
+    </dl>
+    <div class="comment">
+      <div class="comment-label">Draft comment</div>
+      The NDA change is the one that resets how this actually plays out on the floor &mdash; the &ldquo;manage it quietly&rdquo; route is closing, and what gets surfaced publicly will be whatever the first-line manager said in the first 48 hours. What we&rsquo;re seeing with clients is that the policy work is usually fine; the gap is whether front-line managers have ever rehearsed that conversation. That&rsquo;s the piece NDA reform puts a spotlight on.
+    </div>
+    <div class="actions">
+      <button class="btn" data-action="comment-only">Comment only</button>
+      <button class="btn" data-action="comment-and-connect">Comment + connect</button>
+      <button class="btn" data-action="skip">Skip</button>
+      <button class="btn" data-action="reset">Reset</button>
+    </div>
+  </div>
+
+  <div class="card" data-id="2026-04-24-chartered-iia-1bn-fca-fines-internal-control-failures" data-audience="influencer" data-status="todo">
+    <div class="card-head">
+      <div class="who">
+        <h3>4. Chartered Institute of Internal Auditors</h3>
+        <div class="topic">&pound;1bn+ FCA fines &middot; Internal control failures &middot; Three lines of defence</div>
+      </div>
+      <div class="badges">
+        <span class="badge influencer">Influencer</span>
+        <span class="status todo">TODO</span>
+      </div>
+    </div>
+    <dl class="meta">
+      <dt>Role</dt><dd>Chartered Institute of Internal Auditors (UK &amp; Ireland) &mdash; professional body for internal audit (watchlist)</dd>
+      <dt>Post topic</dt><dd>Launches a report totalling FCA fines over &pound;1bn linked to internal control failures. Centres on how three-lines-of-defence structures look robust on the org chart but fail under regulatory testing because 2nd-line challenge of 1st-line decisions doesn&rsquo;t actually happen in the moment. Sits squarely alongside the NFM / Conduct Rules enforcement pattern the FCA is signalling for 2026.</dd>
+      <dt>Engagement</dt><dd>9 reactions (institutional page; audience quality over volume)</dd>
+      <dt>Post age</dt><dd>3d</dd>
+      <dt>Link</dt><dd><a href="https://www.linkedin.com/search/results/people/?keywords=Chartered%20Institute%20Internal%20Auditors" target="_blank" rel="noopener">Find on LinkedIn</a></dd>
+    </dl>
+    <div class="comment">
+      <div class="comment-label">Draft comment</div>
+      The three-lines structure almost always looks fine on the deck &mdash; the question we see clients sitting with is whether the 2nd line would actually challenge the 1st line in the moment, in front of the same people they go for coffee with. That&rsquo;s a behavioural problem, not a structural one, and it&rsquo;s the piece the &pound;1bn of fines keeps pointing back to. Worth stress-testing before the FCA does.
+    </div>
+    <div class="actions">
+      <button class="btn" data-action="comment-only">Comment only</button>
+      <button class="btn" data-action="comment-and-connect">Comment + connect</button>
+      <button class="btn" data-action="skip">Skip</button>
+      <button class="btn" data-action="reset">Reset</button>
+    </div>
+  </div>
+
+  <div class="card" data-id="2026-04-24-sicsic-advisory-fca-work-programme-2026-27-webinar" data-audience="influencer" data-status="todo">
+    <div class="card-head">
+      <div class="who">
+        <h3>5. Sicsic Advisory</h3>
+        <div class="topic">FCA Work Programme 2026/27 &middot; Regulatory priorities &middot; Webinar</div>
+      </div>
+      <div class="badges">
+        <span class="badge influencer">Influencer</span>
+        <span class="status todo">TODO</span>
+      </div>
+    </div>
+    <dl class="meta">
+      <dt>Role</dt><dd>Sicsic Advisory &mdash; FS regulatory consultancy staffed with ex-FCA seniors (watchlist)</dd>
+      <dt>Post topic</dt><dd>Promotes a webinar unpacking the FCA Work Programme 2026/27 &mdash; NFM / Conduct Rules, Consumer Duty Year 3, operational resilience, and financial crime / AML remain the named priorities. Pitched at COOs and Heads of Compliance translating the priorities into 2026 workplans.</dd>
+      <dt>Engagement</dt><dd>9 reactions &middot; 1d old (institutional voice; event hook)</dd>
+      <dt>Post age</dt><dd>1d</dd>
+      <dt>Link</dt><dd><a href="https://www.linkedin.com/search/results/people/?keywords=Sicsic%20Advisory%20FCA" target="_blank" rel="noopener">Find on LinkedIn</a></dd>
+    </dl>
+    <div class="comment">
+      <div class="comment-label">Draft comment</div>
+      The named priorities are clear enough &mdash; the gap is almost always the translation step between &ldquo;FCA work programme&rdquo; and what a relationship manager actually does differently at 4pm on a Tuesday. What we&rsquo;re seeing with clients is that the workplans get written, the training gets booked, and behaviour on the desk doesn&rsquo;t move because no-one&rsquo;s rehearsed the specific moments the FCA will sample.
+    </div>
+    <div class="actions">
+      <button class="btn" data-action="comment-only">Comment only</button>
+      <button class="btn" data-action="comment-and-connect">Comment + connect</button>
+      <button class="btn" data-action="skip">Skip</button>
+      <button class="btn" data-action="reset">Reset</button>
+    </div>
+  </div>
+
+  <div class="card" data-id="2026-04-24-neil-makwana-consumer-duty-year-2-board-reports-gaps" data-audience="influencer" data-status="todo">
+    <div class="card-head">
+      <div class="who">
+        <h3>6. Neil Makwana</h3>
+        <div class="topic">Consumer Duty Year 2 Board Reports &middot; Four gaps &middot; Year 3 prep</div>
+      </div>
+      <div class="badges">
+        <span class="badge influencer">Influencer</span>
+        <span class="status todo">TODO</span>
+      </div>
+    </div>
+    <dl class="meta">
+      <dt>Role</dt><dd>Leaman Crellin Compliance Consulting &mdash; FS compliance consultancy (watchlist)</dd>
+      <dt>Post topic</dt><dd>Reviews FCA Year 2 Consumer Duty Board Report feedback and names four gaps that will define Year 3: (1) linking data to outcomes rather than activity; (2) visibility across the full distribution chain; (3) evidence of meaningful board challenge; (4) measurement of consumer understanding, not just information provision. Practitioner-led, non-vendor tone.</dd>
+      <dt>Engagement</dt><dd>8 reactions &middot; 1d old (boutique consultancy; practitioner voice)</dd>
+      <dt>Post age</dt><dd>1d</dd>
+      <dt>Link</dt><dd><a href="https://www.linkedin.com/search/results/people/?keywords=Neil%20Makwana%20Leaman%20Crellin%20Consumer%20Duty" target="_blank" rel="noopener">Find on LinkedIn</a></dd>
+    </dl>
+    <div class="comment">
+      <div class="comment-label">Draft comment</div>
+      The four gaps are all behavioural problems wearing reporting clothes &mdash; &ldquo;meaningful board challenge&rdquo; and &ldquo;consumer understanding&rdquo; are evidenced by what happens in rooms, not what gets written in decks. What we&rsquo;re seeing with clients is that Year 3 is where boards will be asked to show they actually pushed back on something, and the firms that can point to specific moments win; the ones with polished narratives and no rehearsal don&rsquo;t.
+    </div>
+    <div class="actions">
+      <button class="btn" data-action="comment-only">Comment only</button>
+      <button class="btn" data-action="comment-and-connect">Comment + connect</button>
+      <button class="btn" data-action="skip">Skip</button>
+      <button class="btn" data-action="reset">Reset</button>
+    </div>
+  </div>
+
+  <div class="card" data-id="2026-04-24-jess-rad-womenhood-depop-allyship-case-study" data-audience="influencer" data-status="todo">
+    <div class="card-head">
+      <div class="who">
+        <h3>7. Jess Rad</h3>
+        <div class="topic">Depop allyship case study &middot; CPO / CHRO / L&amp;D audience &middot; Behaviour over campaigns</div>
+      </div>
+      <div class="badges">
+        <span class="badge influencer">Influencer</span>
+        <span class="status todo">TODO</span>
+      </div>
+    </div>
+    <dl class="meta">
+      <dt>Role</dt><dd>WomenHood Ltd &mdash; keynote speaker, explicitly pitches CPO / CHRO / Head of L&amp;D audience (watchlist)</dd>
+      <dt>Post topic</dt><dd>Shares a Depop allyship case study and lays out why most allyship programmes stall: built as campaign / awareness moments rather than situational capability. Calls out that allyship shows up (or doesn&rsquo;t) in the small moments &mdash; the meeting, the corridor, the 1:1 &mdash; and that&rsquo;s a practice problem, not a poster problem.</dd>
+      <dt>Engagement</dt><dd>Low reactions but pitched directly at our buyer (CPO / CHRO / L&amp;D)</dd>
+      <dt>Post age</dt><dd>3d</dd>
+      <dt>Link</dt><dd><a href="https://www.linkedin.com/search/results/people/?keywords=Jess%20Rad%20WomenHood" target="_blank" rel="noopener">Find on LinkedIn</a></dd>
+    </dl>
+    <div class="comment">
+      <div class="comment-label">Draft comment</div>
+      This reads exactly right &mdash; allyship is a situational-practice problem, and campaigns don&rsquo;t produce practice. What we&rsquo;re seeing with clients is that people don&rsquo;t rise to the moment, they fall to their rehearsal, and most programmes never give them the rehearsal. That&rsquo;s the gap between a thoughtful allyship narrative and something that actually holds up in the corridor conversation.
+    </div>
+    <div class="actions">
+      <button class="btn" data-action="comment-only">Comment only</button>
+      <button class="btn" data-action="comment-and-connect">Comment + connect</button>
+      <button class="btn" data-action="skip">Skip</button>
+      <button class="btn" data-action="reset">Reset</button>
+    </div>
+  </div>
+
+  <div class="run-notes">
+    <h3>Run notes &mdash; 2026-04-24</h3>
+    <ul>
+      <li><strong>Yield:</strong> 7 candidates (1 CHRO &middot; 1 ICP &middot; 5 Influencer). Mid-range of the 6&ndash;9 target. CHRO practitioner pool remained thin this run &mdash; flagged honestly rather than padded.</li>
+      <li><strong>Strongest pick:</strong> Lewis Silkin &ldquo;The Working Times&rdquo; roundup &mdash; 110 reactions is the strongest stage of the run by a wide margin, and the NDA-reform angle lands directly in the preventative-harassment conversation we want to be in. Clear line for Toby: NDA reform closes the quiet-management route and spotlights front-line manager behaviour in the first 48 hours.</li>
+      <li><strong>CHRO bucket &mdash; thin again:</strong> Path 1 (Compliance/Risk) and Path 2 (L&amp;D) dominated by US content, recruiter job ads, and already-known fractional consultants. Phillip Warren (healthcare / CQC crossover) kept as the one CHRO pick because the sector-specific angle &mdash; well-led domain plus ERA preventative duty &mdash; is an honest fit; the rest of the pool was padded with vendor event promos. Consistent two-run pattern &mdash; CHRO practitioner posting volume is genuinely low right now; keyword coverage isn&rsquo;t the constraint.</li>
+      <li><strong>ICP bucket:</strong> Sandy McGregor (SimplyBiz, Director of Policy) is the ICP pick &mdash; 2nd-degree, FCA-authorised network, directly on the 1 Sept 2026 Conduct Rule 7 / NFM deadline. Competing ICP candidates this run were mostly already-posted voices (Cosegic, Browne Jacobson re-surfacing from yesterday) or vendor webinar promos.</li>
+      <li><strong>Influencer bucket:</strong> Strong run. Lewis Silkin, Chartered Institute of Internal Auditors (&pound;1bn fines report), Sicsic Advisory (FCA Work Programme 2026/27 webinar), Neil Makwana (Leaman Crellin Consumer Duty Year 2 board-report gaps), and Jess Rad (WomenHood &mdash; explicitly pitches CPO/CHRO/L&amp;D). Jess Rad&rsquo;s buyer-targeting is notable: a post that literally names our ICP in the framing.</li>
+      <li><strong>Dedup:</strong> Kelvin Irikefe re-surfaced on AML-training search &mdash; already posted 2026-04-23, skipped. Cosegic, Browne Jacobson re-surfaced &mdash; skipped. Rifat Sheikh (ReachLaw COLP/COFA AI governance) skipped &mdash; SRA angle rather than FCA; not close enough to ICP this run.</li>
+      <li><strong>Watchlist additions:</strong> Lewis Silkin LLP &ldquo;The Working Times&rdquo; (weekly employment-law roundup, high engagement, reliable Influencer source); Chartered Institute of Internal Auditors (UK &amp; Ireland; three-lines-of-defence framing aligns directly with NFM / Conduct Rules narrative); Sicsic Advisory (ex-FCA seniors; FS regulatory commentary); Leaman Crellin Compliance Consulting / Neil Makwana (practitioner-voice consultancy, Consumer Duty fluent); WomenHood Ltd / Jess Rad (pitches exact ICP &mdash; watch for future CPO/CHRO-aimed content).</li>
+      <li><strong>Near-threshold flags:</strong> Neil Makwana (8 reactions), Sicsic Advisory (9), Chartered IIA (9) all below the 25-reaction Influencer bar but kept because content is squarely on 2026 FCA priorities and Toby has a distinct behavioural perspective to add. Chartered IIA in particular: small audience, high signal.</li>
+      <li><strong>Path 3 (solution-aware):</strong> Rotated in &ldquo;manager effectiveness data&rdquo; and &ldquo;deliberate practice&rdquo; this run &mdash; both dry. &ldquo;Conversation simulation&rdquo; still not tried; rotate in next session.</li>
+      <li><strong>Searches that yielded nothing:</strong> CHRO Path 2 (&ldquo;knowing-doing gap,&rdquo; &ldquo;manager effectiveness data&rdquo;) mostly wellness / civic-leadership / US HR voices. &ldquo;Accidental manager&rdquo; continues to be dry. &ldquo;AI roleplay&rdquo; dominated by Sandler franchisee content; &ldquo;deliberate practice&rdquo; returned sports-coaching posts.</li>
+      <li><strong>No LinkedIn login / automation issues this run.</strong></li>
+    </ul>
+  </div>
+</section>
+
+<section class="day" data-date="2026-04-23">
+  <h2>2026-04-23</h2>
+
+  <div class="card" data-id="2026-04-23-kelvin-irikefe-aml-training-useless-thematic-review" data-audience="icp" data-status="todo">
+    <div class="card-head">
+      <div class="who">
+        <h3>1. Kelvin Irikefe</h3>
+        <div class="topic">AML training &middot; Tick-box vs capability &middot; FCA thematic review</div>
+      </div>
+      <div class="badges">
+        <span class="badge icp">ICP</span>
+        <span class="status todo">TODO</span>
+      </div>
+    </div>
+    <dl class="meta">
+      <dt>Role</dt><dd>Senior AML &amp; Financial Crime Compliance Professional &mdash; KYC, Risk &amp; Regulatory Compliance (2nd-degree, UK FS)</dd>
+      <dt>Post topic</dt><dd>&ldquo;Your AML training programme is probably useless.&rdquo; Most AML training is built to tick a box, not build capability &mdash; annual e-learning, click the slides, pass the quiz. Then the FCA walks in for a thematic review and finds staff can&rsquo;t recall red flags, content is generic, and completion records are everywhere but comprehension is barely anywhere. Three fixes: break the annual cycle (quarterly, scenario-based), train people for their job not the policy manual, measure what people can do not what they&rsquo;ve clicked.</dd>
+      <dt>Engagement</dt><dd>5 reactions &middot; 0 comments &middot; 0 reposts (low, but practitioner-voice content squarely in our pitch)</dd>
+      <dt>Post age</dt><dd>5h</dd>
+      <dt>Link</dt><dd><a href="https://www.linkedin.com/search/results/people/?keywords=Kelvin%20Irikefe%20AML%20Compliance" target="_blank" rel="noopener">Find on LinkedIn</a></dd>
+    </dl>
+    <div class="comment">
+      <div class="comment-label">Draft comment</div>
+      This is exactly right &mdash; the FCA&rsquo;s shift is away from training hours and towards whether someone can actually handle the moment. What we&rsquo;re seeing with clients is that completion rates tell you nothing about whether a relationship manager would spot a red flag at 4pm on a Friday. The firms that hold up under thematic review are the ones that have stress-tested the behaviour, not the module.
+    </div>
+    <div class="actions">
+      <button class="btn" data-action="comment-only">Comment only</button>
+      <button class="btn" data-action="comment-and-connect">Comment + connect</button>
+      <button class="btn" data-action="skip">Skip</button>
+      <button class="btn" data-action="reset">Reset</button>
+    </div>
+  </div>
+
+  <div class="card" data-id="2026-04-23-joe-simpson-tr24-1-crp-drawdown-risk" data-audience="icp" data-status="todo">
+    <div class="card-head">
+      <div class="who">
+        <h3>2. Joe Simpson</h3>
+        <div class="topic">TR24/1 &middot; Centralised Retirement Propositions &middot; Consumer Duty outcomes</div>
+      </div>
+      <div class="badges">
+        <span class="badge icp">ICP</span>
+        <span class="status todo">TODO</span>
+      </div>
+    </div>
+    <dl class="meta">
+      <dt>Role</dt><dd>Director &mdash; Investment Management, Walker Crips Investment Management (FCA-authorised, FRN 226344) (2nd-degree)</dd>
+      <dt>Post topic</dt><dd>Flags that most Centralised Retirement Propositions were built on 20 years of predictable markets &mdash; assumptions that may not hold. Cites FCA TR24/1 thematic review finding: 45% of adviser firms run an identical proposition for accumulation and decumulation clients, and more than half use the same fund selections at retirement despite fundamentally different objectives and risk profiles. Frames this as a Consumer Duty and thematic-review problem, not just a product one.</dd>
+      <dt>Engagement</dt><dd>14 reactions &middot; 0 comments &middot; 1 repost</dd>
+      <dt>Post age</dt><dd>1d</dd>
+      <dt>Link</dt><dd><a href="https://www.linkedin.com/search/results/people/?keywords=Joe%20Simpson%20Walker%20Crips%20Investment" target="_blank" rel="noopener">Find on LinkedIn</a></dd>
+    </dl>
+    <div class="comment">
+      <div class="comment-label">Draft comment</div>
+      The TR24/1 finding about identical accumulation / decumulation propositions is one of those gaps that looks fine on paper and falls apart under Consumer Duty outcomes testing. What we&rsquo;re seeing with clients is that the harder bit isn&rsquo;t redesigning the CRP, it&rsquo;s equipping advisers to have the decumulation conversation differently &mdash; the MI starts to tell you whether the proposition actually lands in client reality.
+    </div>
+    <div class="actions">
+      <button class="btn" data-action="comment-only">Comment only</button>
+      <button class="btn" data-action="comment-and-connect">Comment + connect</button>
+      <button class="btn" data-action="skip">Skip</button>
+      <button class="btn" data-action="reset">Reset</button>
+    </div>
+  </div>
+
+  <div class="card" data-id="2026-04-23-nic-elliott-ten-things-employment-rights-act-2026" data-audience="influencer" data-status="todo">
+    <div class="card-head">
+      <div class="who">
+        <h3>3. Nic Elliott</h3>
+        <div class="topic">Employment Rights Act 2025 &middot; 10-point HR playbook &middot; Manager training &amp; audit</div>
+      </div>
+      <div class="badges">
+        <span class="badge influencer">Influencer</span>
+        <span class="status todo">TODO</span>
+      </div>
+    </div>
+    <dl class="meta">
+      <dt>Role</dt><dd>HR Most Influential 2025 (#30) &middot; #1 Legal LinkedInfluencer Indies &middot; Host of HRD Talks Podcast &middot; ELEVATE Expert (2nd-degree)</dd>
+      <dt>Post topic</dt><dd>Ten things employers should be doing in 2026 with the Employment Rights Act 2025 now in motion. Timeline (Feb strikes &amp; union, April day-one SSP / Fair Work Agency, Oct harassment prevention &amp; fire-and-rehire, 2027 six-month unfair dismissal / zero hours). Ten-step checklist: cross-functional taskforce, audit everything, upgrade payroll systems, rethink recruitment &amp; probation, train managers on performance / discrimination / flexible working, communicate early, monitor ACAS / CIPD guidance, engage unions and employee voice, align with DE&amp;I / wellbeing strategy.</dd>
+      <dt>Engagement</dt><dd>17 reactions &middot; 2 comments &middot; 1 repost</dd>
+      <dt>Post age</dt><dd>5h</dd>
+      <dt>Link</dt><dd><a href="https://www.linkedin.com/search/results/people/?keywords=Nic%20Elliott%20HRD%20Talks%20Employment%20Law" target="_blank" rel="noopener">Find on LinkedIn</a></dd>
+    </dl>
+    <div class="comment">
+      <div class="comment-label">Draft comment</div>
+      Step 6 &mdash; train managers &mdash; is the one that usually gets underfunded and carries the most tribunal risk after October. Most firms I work with can evidence that the training happened; very few can evidence that their line managers could actually run a fair performance or flexible-working conversation under pressure. That&rsquo;s the gap the Fair Work Agency will be looking at.
+    </div>
+    <div class="actions">
+      <button class="btn" data-action="comment-only">Comment only</button>
+      <button class="btn" data-action="comment-and-connect">Comment + connect</button>
+      <button class="btn" data-action="skip">Skip</button>
+      <button class="btn" data-action="reset">Reset</button>
+    </div>
+  </div>
+
+  <div class="card" data-id="2026-04-23-cosegic-nfm-ps2523-non-bank-smcr-webinar" data-audience="influencer" data-status="todo">
+    <div class="card-head">
+      <div class="who">
+        <h3>4. Cosegic</h3>
+        <div class="topic">PS25/23 &middot; NFM for non-bank SMCR firms &middot; Culture &amp; disciplinary process</div>
+      </div>
+      <div class="badges">
+        <span class="badge influencer">Influencer</span>
+        <span class="status todo">TODO</span>
+      </div>
+    </div>
+    <dl class="meta">
+      <dt>Role</dt><dd>UK FS compliance consultancy &mdash; SMCR &amp; investment-firm compliance (company page; Jennifer Cahill &amp; Stephen Roberts speaking)</dd>
+      <dt>Post topic</dt><dd>Promoting a 28 April webinar on FCA&rsquo;s increasing focus on non-financial misconduct. Core themes: key takeaways from PS25/23 for non-bank SMCR firms, steps to strengthen governance / policies / disciplinary processes, building a strong culture of compliance and accountability. Signals that the firms without in-house regulatory affairs are actively looking for a playbook on PS25/23.</dd>
+      <dt>Engagement</dt><dd>15 reactions &middot; 1 comment &middot; 5 reposts</dd>
+      <dt>Post age</dt><dd>1d</dd>
+      <dt>Link</dt><dd><a href="https://www.linkedin.com/search/results/people/?keywords=Cosegic%20Jennifer%20Cahill%20PS25%2F23" target="_blank" rel="noopener">Find on LinkedIn</a></dd>
+    </dl>
+    <div class="comment">
+      <div class="comment-label">Draft comment</div>
+      The non-bank SMCR piece is where this gets interesting &mdash; a lot of mid-sized investment firms are finding their existing grievance and disciplinary frameworks weren&rsquo;t designed to make a COCON 1.1.7FR determination at all. What we&rsquo;re seeing with clients is that the speed of the judgement call is often the weak point, not the policy itself.
+    </div>
+    <div class="actions">
+      <button class="btn" data-action="comment-only">Comment only</button>
+      <button class="btn" data-action="comment-and-connect">Comment + connect</button>
+      <button class="btn" data-action="skip">Skip</button>
+      <button class="btn" data-action="reset">Reset</button>
+    </div>
+  </div>
+
+  <div class="card" data-id="2026-04-23-browne-jacobson-nfm-manager-accountability" data-audience="influencer" data-status="todo">
+    <div class="card-head">
+      <div class="who">
+        <h3>5. Browne Jacobson Financial Services &amp; Insurance</h3>
+        <div class="topic">FCA NFM rules &middot; Manager accountability &middot; ERA 2025 investigation stakes</div>
+      </div>
+      <div class="badges">
+        <span class="badge influencer">Influencer</span>
+        <span class="status todo">TODO</span>
+      </div>
+    </div>
+    <dl class="meta">
+      <dt>Role</dt><dd>UK law firm FS &amp; Insurance team &mdash; article by Nikita Sonecha, Adam Berry, Raymond Silverstein</dd>
+      <dt>Post topic</dt><dd>Long-form article on how the September 2026 FCA NFM rules materially reshape investigations, documentation, manager accountability, and the intersection of employment law and regulatory compliance. Covers: which firms are now in scope, how &ldquo;work-related&rdquo; conduct is defined and where the hard judgement calls lie, personal regulatory risk facing senior managers who fail to act, when private conduct (including social media) becomes a FIT matter, how the Employment Rights Act 2025 raises the stakes of a poorly handled investigation.</dd>
+      <dt>Engagement</dt><dd>11 reactions &middot; 0 comments &middot; 3 reposts</dd>
+      <dt>Post age</dt><dd>1h</dd>
+      <dt>Link</dt><dd><a href="https://www.linkedin.com/search/results/people/?keywords=Browne%20Jacobson%20Financial%20Services%20Insurance" target="_blank" rel="noopener">Find on LinkedIn</a></dd>
+    </dl>
+    <div class="comment">
+      <div class="comment-label">Draft comment</div>
+      The overlap between ERA 2025 and the NFM regime is what most firms haven&rsquo;t worked through yet &mdash; a poorly run investigation is now a regulatory risk and an uplift-on-tribunal-award risk in the same case. Most Senior Managers I work with are finding the hardest bit isn&rsquo;t the rules, it&rsquo;s having the confidence to make the judgement call under time pressure and then evidence why.
+    </div>
+    <div class="actions">
+      <button class="btn" data-action="comment-only">Comment only</button>
+      <button class="btn" data-action="comment-and-connect">Comment + connect</button>
+      <button class="btn" data-action="skip">Skip</button>
+      <button class="btn" data-action="reset">Reset</button>
+    </div>
+  </div>
+
+  <div class="card" data-id="2026-04-23-mike-patterson-mcdonalds-ehrc-third-party-2026" data-audience="influencer" data-status="todo">
+    <div class="card-head">
+      <div class="who">
+        <h3>6. Mike Patterson</h3>
+        <div class="topic">McDonald&rsquo;s &amp; EHRC &middot; Third-party harassment &middot; October 2026 step-change</div>
+      </div>
+      <div class="badges">
+        <span class="badge influencer">Influencer</span>
+        <span class="status todo">TODO</span>
+      </div>
+    </div>
+    <dl class="meta">
+      <dt>Role</dt><dd>Experienced Employment and HR Lawyer at Gordons LLP (UK law firm) (2nd-degree)</dd>
+      <dt>Post topic</dt><dd>Uses the McDonald&rsquo;s / EHRC story (700+ current and former staff now in legal action; EHRC agreement extended in Nov because of &ldquo;further issues that came to light&rdquo;) as a wake-up call for every employer. From October 2026, the Employment Rights Act introduces third-party harassment liability &mdash; employers will be liable where they fail to take ALL reasonable steps to prevent harassment by customers, clients and other third parties. Ends on a three-point readiness list: review policies, train staff and managers, update reporting procedures and risk assessments.</dd>
+      <dt>Engagement</dt><dd>7 reactions &middot; 1 comment &middot; 2 reposts</dd>
+      <dt>Post age</dt><dd>3h</dd>
+      <dt>Link</dt><dd><a href="https://www.linkedin.com/search/results/people/?keywords=Mike%20Patterson%20Gordons%20Employment%20Law" target="_blank" rel="noopener">Find on LinkedIn</a></dd>
+    </dl>
+    <div class="comment">
+      <div class="comment-label">Draft comment</div>
+      The McDonald&rsquo;s case is the right anchor because it shows how quickly an &ldquo;all reasonable steps&rdquo; defence collapses when the evidence trail comes out in public. What we&rsquo;re seeing with clients is that the policy review and the training log are the easy part &mdash; the hard part is whether frontline managers could actually handle a complaint from a customer about a colleague or a colleague about a customer in the moment. That&rsquo;s the capability the tribunal will test.
+    </div>
+    <div class="actions">
+      <button class="btn" data-action="comment-only">Comment only</button>
+      <button class="btn" data-action="comment-and-connect">Comment + connect</button>
+      <button class="btn" data-action="skip">Skip</button>
+      <button class="btn" data-action="reset">Reset</button>
+    </div>
+  </div>
+
+  <div class="card" data-id="2026-04-23-ali-crotch-harvey-evidence-not-intent-2026" data-audience="icp" data-status="todo">
+    <div class="card-head">
+      <div class="who">
+        <h3>7. Ali Crotch-Harvey</h3>
+        <div class="topic">&ldquo;Evidence, not intent&rdquo; &middot; Whistleblowing &middot; Vulnerable customers &middot; Consumer Duty</div>
+      </div>
+      <div class="badges">
+        <span class="badge icp">ICP</span>
+        <span class="status todo">TODO</span>
+      </div>
+    </div>
+    <dl class="meta">
+      <dt>Role</dt><dd>Expert in effective whistleblowing frameworks and investigations into wrongdoing &middot; Champion for consumers with vulnerable characteristics (1st-degree)</dd>
+      <dt>Post topic</dt><dd>Short video-led post framing 2026 UK FS as being &ldquo;about evidence, not intent.&rdquo; Argues boards and regulators want real outcomes, clear accountability and data that proves frameworks are working &mdash; across Consumer Duty, Operational Resilience, AI, cyber and third-party risk.</dd>
+      <dt>Engagement</dt><dd>1 reaction &middot; 0 comments &middot; 0 reposts (low engagement; 1st-degree; message is squarely on-brand)</dd>
+      <dt>Post age</dt><dd>22m</dd>
+      <dt>Link</dt><dd><a href="https://www.linkedin.com/search/results/people/?keywords=Ali%20Crotch-Harvey%20whistleblowing" target="_blank" rel="noopener">Find on LinkedIn</a></dd>
+    </dl>
+    <div class="post-content">
+      <div class="post-content-label">Post content (reconstructed from run)</div>
+      Short video-led post. Core message: &ldquo;2026 in UK financial services is about evidence, not intent.&rdquo; Boards, regulators and customers don&rsquo;t want promises &mdash; they want to see frameworks that actually work. That means real outcomes, clear accountability and data that proves it &mdash; across Consumer Duty, Operational Resilience, AI, cyber and third-party risk. The firms that will do best are the ones that treat their control environments as living systems: tested, measured, and improving. Whistleblowing and vulnerable-customer handling sit at the sharp end of that test. (Captured from feed; verbatim capture on next run.)
+    </div>
+    <div class="comment">
+      <div class="comment-label">Draft comment</div>
+      Agree &mdash; and the bit firms are least ready for is evidencing what people can actually do under pressure, not just what&rsquo;s in the policy and the completion log. What we&rsquo;re seeing with clients is that boards get most exposed on the whistleblowing and vulnerable customer pieces specifically, because that&rsquo;s where &ldquo;reasonable&rdquo; collapses into &ldquo;can your people actually hold the conversation.&rdquo; Would be good to swap notes on how you&rsquo;re approaching those two.
+    </div>
+    <div class="actions">
+      <button class="btn" data-action="comment-only">Comment only</button>
+      <button class="btn" data-action="comment-and-connect">Comment + connect</button>
+      <button class="btn" data-action="skip">Skip</button>
+      <button class="btn" data-action="reset">Reset</button>
+    </div>
+  </div>
+
+  <div class="card" data-id="2026-04-23-james-walker-banking-board-proximity-conduct-risk" data-audience="influencer" data-status="todo">
+    <div class="card-head">
+      <div class="who">
+        <h3>8. James Walker</h3>
+        <div class="topic">Banking board governance &middot; Proximity to impact &middot; SMCR architecture vs lived experience</div>
+      </div>
+      <div class="badges">
+        <span class="badge influencer">Influencer</span>
+        <span class="status todo">TODO</span>
+      </div>
+    </div>
+    <dl class="meta">
+      <dt>Role</dt><dd>Global Head of Audit &middot; Non-Executive Director &middot; Board Advisor &middot; Fractional Executive Director (CEO, COO, CCO, CAE). Trustee/NED at Missing People (1st-degree)</dd>
+      <dt>Post topic</dt><dd>Challenges banking boards to ask &ldquo;who around this table has personally experienced the problem our customers face?&rdquo; Contrasts charity governance (proximity, lived experience) with banking governance (SMCR architecture, three lines, conduct risk frameworks &mdash; sophisticated but can be empathy-light). Concludes the best boards blend rigour and proximity; the weakest have neither.</dd>
+      <dt>Engagement</dt><dd>2 reactions &middot; 1 comment &middot; 0 reposts (low engagement; 1st-degree; senior audit/NED voice)</dd>
+      <dt>Post age</dt><dd>5h</dd>
+      <dt>Link</dt><dd><a href="https://www.linkedin.com/search/results/people/?keywords=James%20Walker%20audit%20NED%20CAE" target="_blank" rel="noopener">Find on LinkedIn</a></dd>
+    </dl>
+    <div class="post-content">
+      <div class="post-content-label">Post content (reconstructed from run)</div>
+      Reflection from a charity board meeting vs a banking board meeting. At the charity, the most powerful question in the room was: &ldquo;Who around this table has personally experienced the problem our beneficiaries face?&rdquo; Half the trustees had. In banking governance you get SMCR, three lines of defence, conduct-risk frameworks &mdash; deeply sophisticated, but often empathy-light. The best boards blend both: rigour and proximity, architecture and lived experience. The weakest have neither. (Captured from feed; verbatim capture on next run.)
+    </div>
+    <div class="comment">
+      <div class="comment-label">Draft comment</div>
+      The proximity point is the one most board packs can&rsquo;t answer. You can map the framework perfectly and still have a room where nobody has stood at the other end of a complaint. What we&rsquo;re seeing with clients is that the hardest piece to evidence isn&rsquo;t the architecture &mdash; it&rsquo;s whether oversight actually changes what happens when a vulnerable customer interaction goes wrong. We should swap notes.
+    </div>
+    <div class="actions">
+      <button class="btn" data-action="comment-only">Comment only</button>
+      <button class="btn" data-action="comment-and-connect">Comment + connect</button>
+      <button class="btn" data-action="skip">Skip</button>
+      <button class="btn" data-action="reset">Reset</button>
+    </div>
+  </div>
+
+  <div class="card" data-id="2026-04-23-saima-sabir-smcr-phase-1-reforms-shift-not-reduce" data-audience="influencer" data-status="todo">
+    <div class="card-head">
+      <div class="who">
+        <h3>9. Saima Sabir</h3>
+        <div class="topic">SMCR Phase 1 reforms (22 Apr 2026) &middot; Accountability vs admin burden &middot; Evidencing control</div>
+      </div>
+      <div class="badges">
+        <span class="badge influencer">Influencer</span>
+        <span class="status todo">TODO</span>
+      </div>
+    </div>
+    <dl class="meta">
+      <dt>Role</dt><dd>C-Suite Member &middot; MD &middot; Global Strategic Advisor &middot; Board-Level Risk &amp; Governance Expert &middot; GCC-Focused Transformation &amp; Resilience (2nd-degree)</dd>
+      <dt>Post topic</dt><dd>Responds to the FCA/PRA finalising Phase 1 SMCR reforms on 22 April 2026 &mdash; streamlined certification, extended application timelines, halving administrative burden. Welcomes the direction but flags the real risk-side question: &ldquo;Will this genuinely free up senior management capacity, or simply shift where firms need to demonstrate control and assurance?&rdquo;</dd>
+      <dt>Engagement</dt><dd>1 reaction &middot; 1 comment &middot; 0 reposts (low engagement; fresh regulatory hook &mdash; reforms finalised yesterday)</dd>
+      <dt>Post age</dt><dd>6h</dd>
+      <dt>Link</dt><dd><a href="https://www.linkedin.com/search/results/people/?keywords=Saima%20Sabir%20risk%20governance" target="_blank" rel="noopener">Find on LinkedIn</a></dd>
+    </dl>
+    <div class="post-content">
+      <div class="post-content-label">Post content (reconstructed from run)</div>
+      FCA and PRA finalised Phase 1 of the SMCR reforms yesterday (22 April 2026) &mdash; streamlined certification, extended application timelines, a stated goal of halving the administrative burden on firms. The direction is welcome. The question on the risk side is: &ldquo;Will this genuinely free up senior management capacity &mdash; or simply shift where firms need to demonstrate control and assurance?&rdquo; Less paperwork doesn&rsquo;t mean less accountability; often it raises the bar on what the individual SMF has to be able to show. (Captured from feed; verbatim capture on next run.)
+    </div>
+    <div class="comment">
+      <div class="comment-label">Draft comment</div>
+      It shifts it. Less prescriptive process means more weight on the senior manager being able to demonstrate &mdash; under real questioning &mdash; that the controls in their remit actually work. What we&rsquo;re seeing with clients is that the gap isn&rsquo;t the framework, it&rsquo;s whether individuals can evidence oversight in a way that holds up when a regulator presses on it. The admin burden coming down doesn&rsquo;t lower the accountability bar &mdash; it raises it.
+    </div>
+    <div class="actions">
+      <button class="btn" data-action="comment-only">Comment only</button>
+      <button class="btn" data-action="comment-and-connect">Comment + connect</button>
+      <button class="btn" data-action="skip">Skip</button>
+      <button class="btn" data-action="reset">Reset</button>
+    </div>
+  </div>
+
+  <div class="card" data-id="2026-04-23-chris-syder-era2025-franchise-evidence-not-intentions" data-audience="influencer" data-status="todo">
+    <div class="card-head">
+      <div class="who">
+        <h3>10. Chris Syder</h3>
+        <div class="topic">ERA2025 &middot; Franchise HR governance &middot; &ldquo;Evidence, not intentions&rdquo;</div>
+      </div>
+      <div class="badges">
+        <span class="badge influencer">Influencer</span>
+        <span class="status todo">TODO</span>
+      </div>
+    </div>
+    <dl class="meta">
+      <dt>Role</dt><dd>UK Employment Law Partner &middot; Strategic HR &amp; Legal Advisor &middot; CEDR Mediator &middot; International Counsel &middot; Responsible Business Expert (2nd-degree)</dd>
+      <dt>Post topic</dt><dd>Harassment-prevention as a governance question in franchise networks: splits the duty between franchisee (employer, shop floor) and franchisor (system designer &mdash; training, policies, reporting, audit). Walks through the tribunal uplift (up to 25%), EHRC enforcement without an incident needing to have occurred, and the October 2026 step-change (&ldquo;all reasonable steps&rdquo; plus third-party liability). Ends with the test: &ldquo;Show me the steps you took to prevent this &mdash; and why they were reasonable for this outlet/network &mdash; could you answer with evidence&hellip; not intentions?&rdquo;</dd>
+      <dt>Engagement</dt><dd>2 reactions &middot; 0 comments &middot; 0 reposts (low engagement; franchise-HR angle is underexplored and Toby has a view)</dd>
+      <dt>Post age</dt><dd>1d</dd>
+      <dt>Link</dt><dd><a href="https://www.linkedin.com/search/results/people/?keywords=Chris%20Syder%20employment%20law%20CEDR" target="_blank" rel="noopener">Find on LinkedIn</a></dd>
+    </dl>
+    <div class="post-content">
+      <div class="post-content-label">Post content (reconstructed from run)</div>
+      Harassment prevention as a franchise-governance problem. The duty splits: the franchisee is the employer on the shop floor, the franchisor is the system designer &mdash; training, policies, reporting, audit. Tribunals can uplift compensation by up to 25% where preventative steps weren&rsquo;t taken. EHRC can enforce without a complaint or incident having occurred. October 2026 is the step-change: &ldquo;all reasonable steps&rdquo; plus third-party liability. The test the regulator, a tribunal or a claimant lawyer will put to you: &ldquo;Show me the steps you took to prevent this &mdash; and why they were reasonable for this outlet / this network. Could you answer with evidence &hellip; not intentions?&rdquo; (Captured from feed; verbatim capture on next run.)
+    </div>
+    <div class="comment">
+      <div class="comment-label">Draft comment</div>
+      The &ldquo;evidence&hellip; not intentions&rdquo; test is exactly what most firms aren&rsquo;t ready for. What we&rsquo;re finding with clients is that the policy, training log and reporting lines are relatively easy to produce &mdash; the bit that falls apart is showing the manager actually could have held the conversation if it had surfaced earlier. That&rsquo;s the gap between reasonable steps on paper and all reasonable steps in practice, and the franchise split makes it even harder because the evidence has to travel across two governance layers.
+    </div>
+    <div class="actions">
+      <button class="btn" data-action="comment-only">Comment only</button>
+      <button class="btn" data-action="comment-and-connect">Comment + connect</button>
+      <button class="btn" data-action="skip">Skip</button>
+      <button class="btn" data-action="reset">Reset</button>
+    </div>
+  </div>
+
+  <div class="run-notes">
+    <h3>Run notes &mdash; 2026-04-23</h3>
+    <ul>
+      <li><strong>Yield:</strong> 6 candidates (0 CHRO &middot; 2 ICP &middot; 4 Influencer). At the lower end of the 6&ndash;9 target. CHRO bucket returned nothing meeting the bar this session &mdash; flagged honestly rather than forcing a weak pick.</li>
+      <li><strong>Strongest pick:</strong> Kelvin Irikefe &mdash; small engagement (5 reactions, 5h old) but the post reads like a direct brief for Real Talk Studio: &ldquo;measure what people can do, not what they&rsquo;ve clicked,&rdquo; scenario-based training, FCA thematic review as the yardstick. Practitioner voice, UK FS, exactly the conversation we want to be in.</li>
+      <li><strong>CHRO bucket &mdash; zero yield:</strong> Ran Paths 1&ndash;4 searches across all four cluster types. Dominant result types: recruiter job adverts (ER Manager, People Advisor), consultants (Sue Lappin &mdash; already-known fractional HRD, routes to Audience C not A), US-based content (Shannon Hughes Swayney, Tracie Edwards, Phyllis Leon), and ICP-adjacent speakers on Path 3 / 4 terms. &ldquo;AI roleplay&rdquo; heavily skewed to Sandler sales-training franchisees (competitor-adjacent, skipped). &ldquo;Knowing-doing gap&rdquo; surfaced a wellness coach and a civic-leadership post &mdash; not ICP. &ldquo;Accidental manager,&rdquo; &ldquo;leader as coach&rdquo; &mdash; dry this week. Conclusion: practitioner HR-side posting volume was low across the clusters; keyword set not the constraint.</li>
+      <li><strong>ICP bucket:</strong> PS25/23 / NFM is still the dominant driver (Cosegic, Browne Jacobson, Melanie Stancliffe / Freeths, Claire Cummings / Cummings Pepperdine all posted in the last 24h). Kelvin Irikefe on AML training is the standout practitioner-voice post. Joe Simpson (Walker Crips) brings TR24/1 back into scope &mdash; adjacent ICP, useful for showing Consumer Duty / outcomes fluency.</li>
+      <li><strong>Influencer bucket:</strong> Nic Elliott is the strongest stage of the run &mdash; HR Most Influential 2025, growing thread, timely ERA2025 content. Gordons LLP (Mike Patterson) is a new name to add to the watchlist &mdash; anchored a strong Employment-Rights-Act post with the McDonald&rsquo;s / EHRC hook.</li>
+      <li><strong>Dedup:</strong> Sophia Rahman (Dentons) re-surfaced &mdash; already in 2026-04-22 section, skipped. Sue Lappin re-surfaced on two searches &mdash; low engagement, skipped for today but worth noting for watchlist. Compliance Compass UK (vendor) posted twice &mdash; skipped both.</li>
+      <li><strong>Watchlist additions:</strong> Gordons LLP (new), Browne Jacobson Financial Services &amp; Insurance (reinforced), Cosegic (reinforced), Freeths FS team (Sushil Kuner, Melanie Stancliffe, Nicola Wallbank &mdash; active on NFM / fintech). Add to seed list for named-account watchlist next run.</li>
+      <li><strong>Near-threshold flags:</strong> Mike Patterson (7 reactions) and Joe Simpson (14 reactions) both below the 25 Influencer bar but kept because content is squarely ICP-relevant and Toby has a genuine perspective to add. Reassess if their engagement baseline stays low across future posts.</li>
+      <li><strong>Path 3 (solution-aware):</strong> &ldquo;AI roleplay&rdquo; / &ldquo;AI role-play&rdquo; still heavily sales-training noise. &ldquo;Conversation simulation&rdquo; and &ldquo;deliberate practice&rdquo; not tried this run &mdash; rotate in next session.</li>
+      <li><strong>No LinkedIn login / automation issues this run.</strong></li>
+      <li><strong>Second-bucket top-up (afternoon):</strong> +4 candidates (#7&ndash;#10). Fresh terms rotated in: <em>&ldquo;conduct risk&rdquo; culture financial services</em> surfaced James Walker (NED/Audit, 1st-degree); <em>&ldquo;Consumer Duty&rdquo; board evidence</em> surfaced Ali Crotch-Harvey (1st-degree, whistleblowing/vulnerable customers champion &mdash; post message is a near-perfect match: &ldquo;2026 is about evidence, not intent&rdquo;); <em>&ldquo;SMCR&rdquo; senior manager accountability</em> surfaced Saima Sabir (Board-level Risk &amp; Governance, 2nd-degree) responding to the Phase 1 reforms finalised 22 April; <em>&ldquo;sexual harassment&rdquo; &ldquo;preventative duty&rdquo; employer</em> surfaced Chris Syder (Employment Law Partner, CEDR Mediator) on ERA2025 franchise HR with the &ldquo;evidence&hellip; not intentions&rdquo; framing. Running yield for the day: 10 candidates (0 CHRO &middot; 3 ICP &middot; 7 Influencer). Strongest top-up pick: Ali Crotch-Harvey &mdash; 1st-degree, exact message overlap.</li>
+      <li><strong>Second-bucket searches that yielded nothing:</strong> &ldquo;board reporting&rdquo; compliance culture (vendors/recruiters); &ldquo;speak up&rdquo; culture compliance (HSE/marketing/solar PV, off-ICP); &ldquo;Consumer Duty&rdquo; year three (off-topic); &ldquo;non-financial misconduct&rdquo; FCA (all vendor/law-firm event promos &mdash; Clyde &amp; Co, Smarsh, Freeths); &ldquo;vulnerable customers&rdquo; FCA outcomes (Compliance Consultant playbook posts &times; 2, Huntswood BNPL &mdash; vendor); &ldquo;audit readiness&rdquo; compliance (global/cyber off-ICP); &ldquo;compliance officer&rdquo; board FCA (PayPal SMF2 job ad, mortgage broker); &ldquo;Conduct Rules&rdquo; training certified staff (thin, moved on).</li>
+      <li><strong>Second-bucket watchlist:</strong> Ali Crotch-Harvey (1st-degree; add to Toby&rsquo;s direct-engagement seed list &mdash; whistleblowing/vulnerable customer frame lines up directly with Real Talk Studio scenarios). Saima Sabir (Board-level Risk &amp; Governance; watch for follow-up SMCR Phase 2 commentary). Clyde &amp; Co (Heidi Watson) NFM breakfast seminar 6 May &mdash; attendees/commenters worth watching as Track 2 source closer to the date.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="day" data-date="2026-04-22">
+  <h2>2026-04-22</h2>
+
+  <div class="card" data-id="2026-04-22-chantel-dos-santos-maidwell-harassment-duty-preventative" data-audience="chro" data-status="todo">
+    <div class="card-head">
+      <div class="who">
+        <h3>1. Chantel Dos Santos Maidwell</h3>
+        <div class="topic">New harassment duty &middot; Preventative steps &middot; Evidencing before a complaint lands</div>
+      </div>
+      <div class="badges">
+        <span class="badge chro">CHRO</span>
+        <span class="status todo">TODO</span>
+      </div>
+    </div>
+    <dl class="meta">
+      <dt>Role</dt><dd>HR Director / Head of HR Operations &mdash; scaling people ops in global, regulated environments (1st-degree)</dd>
+      <dt>Post topic</dt><dd>The new harassment duty goes well beyond a policy in a folder and an annual tick-box. Lists what reasonable preventative steps should actually include: practical training, manager-specific training on handling concerns, trusted reporting routes, prompt investigations, culture reviews, hotspot monitoring. Frames it as a leadership and culture issue, not just a legal one.</dd>
+      <dt>Engagement</dt><dd>1 reaction &middot; 0 comments &middot; 0 reposts (low engagement, but 1st-degree HR Director voice)</dd>
+      <dt>Post age</dt><dd>1d</dd>
+      <dt>Link</dt><dd><a href="https://www.linkedin.com/search/results/people/?keywords=Chantel%20Dos%20Santos%20Maidwell%20HR%20Director" target="_blank" rel="noopener">Find on LinkedIn</a></dd>
+    </dl>
+    <div class="comment">
+      <div class="comment-label">Draft comment</div>
+      The list of reasonable steps is right but the hardest one to evidence is manager capability &mdash; most firms can produce the policy and the training log, far fewer can show that their managers can actually hold the conversation when something surfaces. That&rsquo;s the bit that will decide whether a tribunal buys &lsquo;all reasonable steps&rsquo; or not.
+    </div>
+    <div class="actions">
+      <button class="btn" data-action="comment-only">Comment only</button>
+      <button class="btn" data-action="comment-and-connect">Comment + connect</button>
+      <button class="btn" data-action="skip">Skip</button>
+      <button class="btn" data-action="reset">Reset</button>
+    </div>
+  </div>
+
+  <div class="card" data-id="2026-04-22-grace-suleyman-cocon-117fr-bullying-harassment" data-audience="icp" data-status="todo">
+    <div class="card-head">
+      <div class="who">
+        <h3>2. Grace Suleyman</h3>
+        <div class="topic">COCON 1.1.7FR &middot; NFM &middot; Compliance &amp; HR shared framework</div>
+      </div>
+      <div class="badges">
+        <span class="badge icp">ICP</span>
+        <span class="status todo">TODO</span>
+      </div>
+    </div>
+    <dl class="meta">
+      <dt>Role</dt><dd>Chief Compliance Officer (SMF16/17), FCA Asset &amp; Investment Management &mdash; scaling firms through growth, restructuring &amp; governance (2nd-degree)</dd>
+      <dt>Post topic</dt><dd>From 1 Sept 2026 COCON 1.1.7FR brings non-financial misconduct into Conduct Rules scope for all SMCR firms. Argues bullying / harassment / violence are now squarely a Compliance issue as well as HR. Calls out that determining a COCON breach is a compliance judgement and the two functions need a shared framework for triage, regulatory determination and documentation. Lists five readiness areas, ending on speak-up culture.</dd>
+      <dt>Engagement</dt><dd>22 reactions &middot; 4 comments &middot; 2 reposts</dd>
+      <dt>Post age</dt><dd>5d</dd>
+      <dt>Link</dt><dd><a href="https://www.linkedin.com/search/results/people/?keywords=Grace%20Suleyman%20Chief%20Compliance%20Officer" target="_blank" rel="noopener">Find on LinkedIn</a></dd>
+    </dl>
+    <div class="comment">
+      <div class="comment-label">Draft comment</div>
+      The shared framework point is the one most firms are underestimating. What we see with clients is that Compliance and HR have very different muscles &mdash; HR can run the investigation, Compliance can make the regulatory call, but almost no one has rehearsed how those two judgements sit together when a real case lands. The test will be whether a Senior Manager can explain, on the spot, why this did or didn&rsquo;t cross the COCON threshold.
+    </div>
+    <div class="actions">
+      <button class="btn" data-action="comment-only">Comment only</button>
+      <button class="btn" data-action="comment-and-connect">Comment + connect</button>
+      <button class="btn" data-action="skip">Skip</button>
+      <button class="btn" data-action="reset">Reset</button>
+    </div>
+  </div>
+
+  <div class="card" data-id="2026-04-22-parul-anand-three-lines-of-defence-culture" data-audience="influencer" data-status="todo">
+    <div class="card-head">
+      <div class="who">
+        <h3>3. Parul Anand, CFE</h3>
+        <div class="topic">Three Lines of Defence &middot; Culture &middot; &ldquo;Oversight without teeth is just paperwork&rdquo;</div>
+      </div>
+      <div class="badges">
+        <span class="badge influencer">Influencer</span>
+        <span class="status todo">TODO</span>
+      </div>
+    </div>
+    <dl class="meta">
+      <dt>Role</dt><dd>Financial Crime &amp; Regulatory Compliance Leader &mdash; AML / Sanctions / Forensic Investigations / Second Line Governance (US &middot; EU &middot; UK, 2nd-degree)</dd>
+      <dt>Post topic</dt><dd>Argues most firms draw the Three Lines diagram but don&rsquo;t live it: 1LoD treats compliance as somebody else&rsquo;s problem, 2LoD has no enforcement mandate and becomes a documentation function, 3LoD reviews what already happened. The real failure is cultural, not structural. Works when accountability is real, escalation pathways are clear, and leadership treats compliance failures as strategic failures.</dd>
+      <dt>Engagement</dt><dd>392 reactions &middot; 49 comments &middot; 54 reposts (huge stage)</dd>
+      <dt>Post age</dt><dd>4d</dd>
+      <dt>Link</dt><dd><a href="https://www.linkedin.com/search/results/people/?keywords=Parul%20Anand%20CFE%20Financial%20Crime%20Compliance" target="_blank" rel="noopener">Find on LinkedIn</a></dd>
+    </dl>
+    <div class="comment">
+      <div class="comment-label">Draft comment</div>
+      This matches what we see with clients &mdash; the diagram is fine, the culture is where it breaks. The bit that decides whether 2LoD has teeth isn&rsquo;t the escalation pathway, it&rsquo;s whether senior leaders can actually hold a hard conversation when 1LoD pushes back. Most firms have the structure; very few have rehearsed the conversation.
+    </div>
+    <div class="actions">
+      <button class="btn" data-action="comment-only">Comment only</button>
+      <button class="btn" data-action="comment-and-connect">Comment + connect</button>
+      <button class="btn" data-action="skip">Skip</button>
+      <button class="btn" data-action="reset">Reset</button>
+    </div>
+  </div>
+
+  <div class="card" data-id="2026-04-22-rebecca-fairlamb-compliance-culture-control-system" data-audience="influencer" data-status="todo">
+    <div class="card-head">
+      <div class="who">
+        <h3>4. Rebecca Fairlamb</h3>
+        <div class="topic">Mandatory compliance training &middot; Culture vs control system &middot; &ldquo;Nothing fundamental changed&rdquo;</div>
+      </div>
+      <div class="badges">
+        <span class="badge influencer">Influencer</span>
+        <span class="status todo">TODO</span>
+      </div>
+    </div>
+    <dl class="meta">
+      <dt>Role</dt><dd>Ex-JPMorganChase &mdash; now helping companies with the innovation-compliance paradox (2nd-degree)</dd>
+      <dt>Post topic</dt><dd>Shares her own experience sending out mandatory compliance training to thousands of JPMorganChase tech employees. Tracked completion, ticked boxes, adjusted content every year &mdash; and nothing fundamental changed, because they were using a process-orientated solution for a human-centric concern. Argues: culture is what people do when no one&rsquo;s watching; if your compliance programme only works when someone is, you don&rsquo;t have a culture, you have a control system dressed up as one.</dd>
+      <dt>Engagement</dt><dd>19 reactions &middot; 3 comments &middot; 0 reposts</dd>
+      <dt>Post age</dt><dd>6d</dd>
+      <dt>Link</dt><dd><a href="https://www.linkedin.com/search/results/people/?keywords=Rebecca%20Fairlamb%20JPMorgan%20Compliance" target="_blank" rel="noopener">Find on LinkedIn</a></dd>
+    </dl>
+    <div class="comment">
+      <div class="comment-label">Draft comment</div>
+      &ldquo;A control system dressed up as a culture&rdquo; lands hard &mdash; that&rsquo;s exactly the shift coming for FS with NFM in scope from September. What we&rsquo;re seeing with clients is that completion rates tell you nothing about whether people would actually behave differently in the moment, which is the only thing the regulator now cares about.
+    </div>
+    <div class="actions">
+      <button class="btn" data-action="comment-only">Comment only</button>
+      <button class="btn" data-action="comment-and-connect">Comment + connect</button>
+      <button class="btn" data-action="skip">Skip</button>
+      <button class="btn" data-action="reset">Reset</button>
+    </div>
+  </div>
+
+  <div class="card" data-id="2026-04-22-tracie-sponenberg-rollout-vs-rewiring" data-audience="influencer" data-status="todo">
+    <div class="card-head">
+      <div class="who">
+        <h3>5. Tracie Sponenberg</h3>
+        <div class="topic">Programme rollouts that don&rsquo;t stick &middot; Rollout vs rewiring &middot; Training isn&rsquo;t learning</div>
+      </div>
+      <div class="badges">
+        <span class="badge influencer">Influencer</span>
+        <span class="status todo">TODO</span>
+      </div>
+    </div>
+    <dl class="meta">
+      <dt>Role</dt><dd>Advisory Chief People Officer to Distribution &amp; Manufacturing &middot; Strategic HR Consultant &middot; Keynote Speaker (1st-degree)</dd>
+      <dt>Post topic</dt><dd>Long-form reflection on a cross-functional training rollout 20 years ago that &ldquo;got so much right&rdquo; and still didn&rsquo;t stick &mdash; people defaulted back to their previous lanes. Lesson: transformation work isn&rsquo;t program or tool work, it&rsquo;s human work. Too many companies are now running AI workshops, checking the training box and expecting behaviour change. &ldquo;Training is an event. Learning is a choice people make every day, long after the session ends.&rdquo;</dd>
+      <dt>Engagement</dt><dd>18 reactions &middot; 5 comments &middot; 0 reposts</dd>
+      <dt>Post age</dt><dd>1d</dd>
+      <dt>Link</dt><dd><a href="https://www.linkedin.com/search/results/people/?keywords=Tracie%20Sponenberg%20Chief%20People%20Officer" target="_blank" rel="noopener">Find on LinkedIn</a></dd>
+    </dl>
+    <div class="comment">
+      <div class="comment-label">Draft comment</div>
+      &ldquo;We treated it like a rollout when it was actually a rewiring&rdquo; is the line most L&amp;D teams need on their wall. The knowing-doing gap sits exactly here &mdash; the workshop closes, the habits snap back, and the programme gets measured on the event rather than whether anyone actually behaves differently on the Monday. The bit that moves the needle is what happens in the weeks after, not the day itself.
+    </div>
+    <div class="actions">
+      <button class="btn" data-action="comment-only">Comment only</button>
+      <button class="btn" data-action="comment-and-connect">Comment + connect</button>
+      <button class="btn" data-action="skip">Skip</button>
+      <button class="btn" data-action="reset">Reset</button>
+    </div>
+  </div>
+
+  <div class="card" data-id="2026-04-22-sophia-rahman-fca-regulatory-priorities-retail-banking" data-audience="influencer" data-status="todo">
+    <div class="card-head">
+      <div class="who">
+        <h3>6. Sophia Rahman</h3>
+        <div class="topic">FCA Regulatory Priorities reports &middot; Replacing &ldquo;Dear CEO&rdquo; &middot; Retail banking focus</div>
+      </div>
+      <div class="badges">
+        <span class="badge influencer">Influencer</span>
+        <span class="status todo">TODO</span>
+      </div>
+    </div>
+    <dl class="meta">
+      <dt>Role</dt><dd>Regulatory lawyer at Dentons (2nd-degree, watchlist firm)</dd>
+      <dt>Post topic</dt><dd>Flags that the FCA has introduced new Regulatory Priorities reports, including for retail banking, replacing the traditional &ldquo;Dear CEO&rdquo; letters with a more consolidated annual view of supervisory focus. Short breakdown attached of FCA key priorities for the next year for retail banking.</dd>
+      <dt>Engagement</dt><dd>20 reactions &middot; 1 comment &middot; 1 repost (Sarah Jackman reacted &mdash; watchlist crossover)</dd>
+      <dt>Post age</dt><dd>5d</dd>
+      <dt>Link</dt><dd><a href="https://www.linkedin.com/search/results/people/?keywords=Sophia%20Rahman%20Dentons%20Regulatory" target="_blank" rel="noopener">Find on LinkedIn</a></dd>
+    </dl>
+    <div class="comment">
+      <div class="comment-label">Draft comment</div>
+      The move from Dear CEO letters to a consolidated Priorities report changes how firms should actually read the signal &mdash; it&rsquo;s less about reacting to a single letter and more about showing ongoing alignment to supervisory focus. What we&rsquo;re seeing with clients is that the firms that cope best treat these as a live operating document rather than an annual read.
+    </div>
+    <div class="actions">
+      <button class="btn" data-action="comment-only">Comment only</button>
+      <button class="btn" data-action="comment-and-connect">Comment + connect</button>
+      <button class="btn" data-action="skip">Skip</button>
+      <button class="btn" data-action="reset">Reset</button>
+    </div>
+  </div>
+
+  <div class="run-notes">
+    <h3>Run notes &mdash; 2026-04-22</h3>
+    <ul>
+      <li><strong>Yield:</strong> 6 candidates (1 CHRO &middot; 1 ICP &middot; 4 Influencer). Lower end of the 6&ndash;9 target; quality prioritised over forcing weak CHRO picks.</li>
+      <li><strong>Strongest pick:</strong> Parul Anand &mdash; 392 reactions / 49 comments / 54 reposts on Three Lines of Defence. One of the highest-engagement ICP-topic posts the scan has seen; excellent stage for Toby&rsquo;s comment and rich comment section to mine next run for practitioner leads.</li>
+      <li><strong>CHRO yield thin:</strong> Path 1 (regulation-name searches) skewed vendor-heavy as expected; practitioner-language searches (casework, workplace investigation, psychosocial) surfaced mostly Australian / NZ content or recruiter posts. Chantel Dos Santos Maidwell was the only strong UK HR-Director practitioner voice in the week &mdash; low engagement (1 reaction) but 1st-degree and a direct fit on the Worker Protection Act readiness theme.</li>
+      <li><strong>Path 3 (solution-aware):</strong> &ldquo;AI roleplay&rdquo; surfaced Yoodli (direct competitor, 128+ reactions, skipped) and Degreed (36 reactions, skipped &mdash; category-vendor). No practitioner posts worth routing this session.</li>
+      <li><strong>Path 4 (status-quo challenge):</strong> &ldquo;tick box compliance training&rdquo; surfaced Rebecca Fairlamb (ex-JPM, excellent fit). &ldquo;compliance training doesn&rsquo;t work&rdquo; returned low-signal AI-music-video pitches &mdash; skip cluster next time.</li>
+      <li><strong>Dedup:</strong> Valerie Familusi and Julie Darmudas re-surfaced in the COCON / Consumer Duty searches &mdash; already in 2026-04-21-b section, skipped.</li>
+      <li><strong>Watchlist:</strong> Sarah Jackman (Dentons) reacted to Sophia Rahman&rsquo;s Dentons post &mdash; signal that the Dentons employment / regulatory team is a productive cluster to watch.</li>
+      <li><strong>Blocker at start:</strong> Chrome MCP couldn&rsquo;t initialise a tab group because the frontmost Chrome window was Incognito (Chrome blocks tab groups in Incognito). Resolved after opening a regular window. Noting in case it recurs on future runs.</li>
+      <li><strong>Near-threshold flag:</strong> Chantel Dos Santos Maidwell only has 1 reaction &mdash; kept because the fit is strong; re-evaluate if CHRO yield stays thin across multiple runs.</li>
+      <li><strong>Second pass &mdash; expanded keywords (A + B), zero net adds:</strong> After the initial yield came in light on CHRO and ICP, ran ~13 additional queries specifically targeting those buckets. ICP: &ldquo;SMF16&rdquo;, &ldquo;SMF17&rdquo;, &ldquo;consumer duty culture&rdquo;, &ldquo;non-financial misconduct&rdquo;, &ldquo;conduct risk FCA&rdquo;, &ldquo;Head of Compliance FCA culture&rdquo;, &ldquo;Chief Compliance Officer FCA&rdquo;, &ldquo;PS25/23&rdquo;. CHRO: &ldquo;psychological safety workplace UK&rdquo;, &ldquo;Worker Protection Act harassment&rdquo;, &ldquo;HR Director manager capability UK&rdquo;, &ldquo;speak up culture UK&rdquo;, &ldquo;leadership development UK manager&rdquo;, &ldquo;Chief People Officer UK&rdquo;, &ldquo;learning and development rollout UK&rdquo;. Dominant result types across all: vendors, consultants, recruiters, law firms, training companies, dedup hits. Near-threshold candidates surfaced (Matthias Bauer-Langgartner 27 reactions &mdash; conference announcement not substantive; Shaun Gill / Larisa Janman / Ann Barker &mdash; all below engagement bar or wrong bucket). Conclusion: the constraint is the practitioner posting pool for the past week, not the keyword set. 6-candidate yield accepted as the honest output for today.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="day" data-date="2026-04-21-b">
+  <h2>2026-04-21 &mdash; Supplemental run</h2>
+
+  <div class="card" data-id="2026-04-21-sarah-jackman-nfm-cocon-dentons" data-audience="influencer" data-status="todo">
+    <div class="card-head">
+      <div class="who">
+        <h3>1. Sarah Jackman</h3>
+        <div class="topic">Non-financial misconduct &middot; COCON &middot; Manager role in recognising &amp; responding</div>
+      </div>
+      <div class="badges">
+        <span class="badge influencer">Influencer</span>
+        <span class="status todo">TODO</span>
+      </div>
+    </div>
+    <dl class="meta">
+      <dt>Role</dt><dd>Employment Counsel, Dentons (2nd-degree connection)</dd>
+      <dt>Post topic</dt><dd>How FS HR &amp; Employment Law teams are responding to the FCA's NFM rules: updating HR policies, tailoring conduct rules training for Senior Managers and Certified staff, and placing greater emphasis on tracking, categorising and reporting NFM issues to Boards.</dd>
+      <dt>Engagement</dt><dd>36 reactions &middot; 0 comments &middot; 2 reposts (clears 25+ bar)</dd>
+      <dt>Post age</dt><dd>1d</dd>
+      <dt>Link</dt><dd><a href="https://www.linkedin.com/search/results/people/?keywords=Sarah%20Jackman%20Dentons%20Employment" target="_blank" rel="noopener">Find on LinkedIn</a></dd>
+    </dl>
+    <div class="comment">
+      <div class="comment-label">Draft comment</div>
+      The bit most firms are going to struggle with isn't the policy update or the tracking &mdash; it's the middle line, the role of managers in recognising and responding in the moment. What we see with clients is that the COCON training tells them the rule, but the capability to hold the conversation when something surfaces is still a muscle most teams haven't built.
+    </div>
+    <div class="actions">
+      <button class="btn" data-action="comment-only">Comment only</button>
+      <button class="btn" data-action="comment-and-connect">Comment + connect</button>
+      <button class="btn" data-action="skip">Skip</button>
+      <button class="btn" data-action="reset">Reset</button>
+    </div>
+  </div>
+
+  <div class="card" data-id="2026-04-21-jessie-jones-consumer-duty-year-3-board" data-audience="influencer" data-status="todo">
+    <div class="card-head">
+      <div class="who">
+        <h3>2. Jessie Jones</h3>
+        <div class="topic">Consumer Duty Board reports &middot; Year 3 priorities &middot; Evidence of outcomes</div>
+      </div>
+      <div class="badges">
+        <span class="badge influencer">Influencer</span>
+        <span class="status todo">TODO</span>
+      </div>
+    </div>
+    <dl class="meta">
+      <dt>Role</dt><dd>Director &mdash; Risk and Regulatory Consulting, Forvis Mazars</dd>
+      <dt>Post topic</dt><dd>Reads across the FCA's Year 2 Consumer Duty board report review: firms need to link data to outcomes, monitor outcomes delivered by third parties, evidence meaningful Board challenge, and show how comprehension of communications is assessed.</dd>
+      <dt>Engagement</dt><dd>10 reactions &middot; 1 comment &middot; 0 reposts (below 25+ threshold &mdash; flagged)</dd>
+      <dt>Post age</dt><dd>19h</dd>
+      <dt>Link</dt><dd><a href="https://www.linkedin.com/search/results/people/?keywords=Jessie%20Jones%20Forvis%20Mazars%20Risk%20Regulatory" target="_blank" rel="noopener">Find on LinkedIn</a></dd>
+    </dl>
+    <div class="comment">
+      <div class="comment-label">Draft comment</div>
+      "Evidencing meaningful Board challenge" is the one that tends to unravel Year 2 reports. Most firms I work with can show the metric pack and the action plan, but can't show how leaders actually tested the evidence in the room. That's a capability gap, not a reporting gap &mdash; and the Year 3 version will be where that shows up.
+    </div>
+    <div class="actions">
+      <button class="btn" data-action="comment-only">Comment only</button>
+      <button class="btn" data-action="comment-and-connect">Comment + connect</button>
+      <button class="btn" data-action="skip">Skip</button>
+      <button class="btn" data-action="reset">Reset</button>
+    </div>
+  </div>
+
+  <div class="card" data-id="2026-04-21-sue-saunders-compliance-leadership-roundtable" data-audience="influencer" data-status="todo">
+    <div class="card-head">
+      <div class="who">
+        <h3>3. Sue Saunders</h3>
+        <div class="topic">Compliance Leadership &middot; Implementation to Influence &middot; Strategic CCO</div>
+      </div>
+      <div class="badges">
+        <span class="badge influencer">Influencer</span>
+        <span class="status todo">TODO</span>
+      </div>
+    </div>
+    <dl class="meta">
+      <dt>Role</dt><dd>Executive Search &middot; Risk, Compliance, AI/Data across Banking, FS and Insurance</dd>
+      <dt>Post topic</dt><dd>Invite-only Compliance Leaders roundtable (chaired by Katharine Leaman) &mdash; themes include "whose job is it anyway" as the function's scope changes, the data gap, and what a strategic CCO looks like at board level.</dd>
+      <dt>Engagement</dt><dd>13 reactions &middot; 2 comments &middot; 2 reposts (below 25+ threshold &mdash; flagged; audience of senior UK compliance leaders)</dd>
+      <dt>Post age</dt><dd>22h</dd>
+      <dt>Link</dt><dd><a href="https://www.linkedin.com/search/results/people/?keywords=Sue%20Saunders%20Risk%20Compliance%20Executive%20Search" target="_blank" rel="noopener">Find on LinkedIn</a></dd>
+    </dl>
+    <div class="comment">
+      <div class="comment-label">Draft comment</div>
+      The "implementation to influence" shift is the right framing &mdash; and in practice it lives or dies on whether CCOs can actually hold the challenging conversation with a Senior Manager who doesn't want to hear it. Most of the firms I work with have good frameworks; the constraint is whether the compliance team has practised the hard conversations, not written the policy.
+    </div>
+    <div class="actions">
+      <button class="btn" data-action="comment-only">Comment only</button>
+      <button class="btn" data-action="comment-and-connect">Comment + connect</button>
+      <button class="btn" data-action="skip">Skip</button>
+      <button class="btn" data-action="reset">Reset</button>
+    </div>
+  </div>
+
+  <div class="run-notes">
+    <h3>Run notes &mdash; 2026-04-21 (supplemental)</h3>
+    <ul>
+      <li><strong>Second run of the scheduled task on the same day.</strong> The earlier run (section below) already captured 7 candidates. Deliberately kept this supplemental section short and avoided duplicating any of those <code>data-id</code>s (Siâna Grygelaitiene, Julie Darmudas, Adedoyin Adesina, Valerie Familusi, Jo Morgan, Victoria Hall, Tom Durkin &mdash; all re-surfaced in today's searches and skipped as duplicates). Gave the section a disambiguating <code>data-date="2026-04-21-b"</code> and an "&mdash; Supplemental run" suffix in the heading so the two sections read cleanly.</li>
+      <li><strong>CHRO / HR buyer: zero new practitioner candidates.</strong> Searched "Worker Protection Act all reasonable steps", "sexual harassment prevention employer UK", "Chief People Officer UK", "HR Director Employment Rights Act", "People Director OR Head of People", "psychosocial risk employer", "speak up culture", "difficult conversations manager OR leader". The first four surfaced only consultants, law firms and vendors (which belong in Influencer). The latter three returned noise or non-UK content. Confirms the earlier run's finding that the CHRO pipeline is genuinely thin on LinkedIn content search this week &mdash; this audience is better reached via comments on big vendor/law-firm posts, not direct practitioner-authored content.</li>
+      <li><strong>Compliance ICP: zero new practitioner candidates.</strong> Ran "PS25/23 non-financial misconduct", "non-financial misconduct COCON OR FCA", "conduct risk culture financial services", "Consumer Duty outcomes evidence", "SMCR culture", "Head of Compliance FCA culture", "Chief Compliance Officer UK", "MLRO OR Director of Compliance UK", "compliance training tick box". The only practitioner-level hits were Julie Darmudas, Adedoyin Adesina and Valerie Familusi &mdash; all already logged earlier today. Track-2 (comment-mining on 50+ reaction vendor posts) not executed &mdash; Sarah Jackman at 36 was the biggest eligible vendor post on ICP topics and only had 0 comments, so no practitioner ICP comments to mine from it.</li>
+      <li><strong>Influencer: one strong pick plus two flagged picks.</strong> Sarah Jackman (Dentons Employment Counsel) clears 25+ cleanly at 36 reactions with on-message NFM/COCON content. Jessie Jones (Forvis Mazars) and Sue Saunders (Executive Search) sit below the 25+ bar (10 and 13 respectively) but their content is aggressively on-point for Real Talk Studio's framing &mdash; evidencing outcomes and the strategic CCO. Kept both and flagged the engagement in-card.</li>
+      <li>Direct post URLs could not be extracted (same automation constraint as the earlier run). Used people-search URLs per SKILL.md default.</li>
+      <li>No injection-suspicious content encountered. No comments posted.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="day" data-date="2026-04-21">
+  <h2>2026-04-21</h2>
+
+  <div class="card" data-id="2026-04-21-siana-grygelaitiene-tribunal-spotlight-harassment" data-audience="chro" data-status="todo">
+    <div class="card-head">
+      <div class="who">
+        <h3>1. Siâna Grygelaitiene</h3>
+        <div class="topic">Employment Rights Act 2025 · Harassment · Tribunal risk</div>
+      </div>
+      <div class="badges">
+        <span class="badge chro">CHRO</span>
+        <span class="status todo">TODO</span>
+      </div>
+    </div>
+    <dl class="meta">
+      <dt>Role</dt><dd>Associate CIPD HR Manager (UK)</dd>
+      <dt>Post topic</dt><dd>Tribunal Spotlight on a recent £20k+ harassment award; argues ERA 2025 reinforces the expectation that employers take proactive steps, not just respond.</dd>
+      <dt>Engagement</dt><dd>3 reactions · 0 comments · 0 reposts (low)</dd>
+      <dt>Post age</dt><dd>4d</dd>
+      <dt>Link</dt><dd><a href="https://www.linkedin.com/search/results/people/?keywords=Si%C3%A2na%20Grygelaitiene%20HR%20Manager" target="_blank" rel="noopener">Find on LinkedIn</a></dd>
+    </dl>
+    <div class="comment">
+      <div class="comment-label">Draft comment</div>
+      One serious incident establishing liability is exactly where the "we have a policy" defence falls over. What we're seeing with clients is that the documentation of policies is the easy bit — the hard bit is being able to evidence that managers could actually handle the conversation when the incident first surfaced.
+    </div>
+    <div class="actions">
+      <button class="btn" data-action="comment-only">Comment only</button>
+      <button class="btn" data-action="comment-and-connect">Comment + connect</button>
+      <button class="btn" data-action="skip">Skip</button>
+      <button class="btn" data-action="reset">Reset</button>
+    </div>
+  </div>
+
+  <div class="card" data-id="2026-04-21-julie-darmudas-consumer-duty-evidence" data-audience="icp" data-status="todo">
+    <div class="card-head">
+      <div class="who">
+        <h3>2. Julie Darmudas</h3>
+        <div class="topic">Consumer Duty · Evidencing outcomes · FCA scrutiny</div>
+      </div>
+      <div class="badges">
+        <span class="badge icp">ICP</span>
+        <span class="status todo">TODO</span>
+      </div>
+    </div>
+    <dl class="meta">
+      <dt>Role</dt><dd>Chief Regulatory Officer &amp; MLRO · SMF3/16/17 · UK consumer credit firm</dd>
+      <dt>Post topic</dt><dd>Argues most firms are failing Consumer Duty and just don't know it: they can show a policy, a training log, a green RAG board report — but can't show proof that outcomes are actually good.</dd>
+      <dt>Engagement</dt><dd>Not visible on search view · post ~1h old · active poster</dd>
+      <dt>Post age</dt><dd>1h</dd>
+      <dt>Link</dt><dd><a href="https://www.linkedin.com/search/results/people/?keywords=Julie%20Darmudas%20Chief%20Regulatory%20Officer" target="_blank" rel="noopener">Find on LinkedIn</a></dd>
+    </dl>
+    <div class="comment">
+      <div class="comment-label">Draft comment</div>
+      The "can you show me the evidence" test is exactly the right one. Most firms I work with have clean policies and a decent training log — what they can't show is that their people can actually deliver good outcomes when the call goes sideways. That's the gap an FCA visit exposes fast.
+    </div>
+    <div class="actions">
+      <button class="btn" data-action="comment-only">Comment only</button>
+      <button class="btn" data-action="comment-and-connect">Comment + connect</button>
+      <button class="btn" data-action="skip">Skip</button>
+      <button class="btn" data-action="reset">Reset</button>
+    </div>
+  </div>
+
+  <div class="card" data-id="2026-04-21-adedoyin-adesina-compliance-emergency-2026" data-audience="icp" data-status="todo">
+    <div class="card-head">
+      <div class="who">
+        <h3>3. Adedoyin Adesina</h3>
+        <div class="topic">Compliance emergency · FCA supervisory shift · Consumer Duty</div>
+      </div>
+      <div class="badges">
+        <span class="badge icp">ICP</span>
+        <span class="status todo">TODO</span>
+      </div>
+    </div>
+    <dl class="meta">
+      <dt>Role</dt><dd>Head of Compliance, UK FCA-regulated consumer credit firm (1st-degree connection)</dd>
+      <dt>Post topic</dt><dd>Rewritten 2026 edition of his "what to do in a compliance emergency" guide: Consumer Duty changes how you respond, RegTech failure is its own risk category, and your first response to an FCA information request matters more than ever.</dd>
+      <dt>Engagement</dt><dd>26 reactions · 2 comments · 0 reposts</dd>
+      <dt>Post age</dt><dd>4d</dd>
+      <dt>Link</dt><dd><a href="https://www.linkedin.com/search/results/people/?keywords=Adedoyin%20Adesina%20Head%20of%20Compliance" target="_blank" rel="noopener">Find on LinkedIn</a></dd>
+    </dl>
+    <div class="comment">
+      <div class="comment-label">Draft comment</div>
+      The first-response point is the one most compliance teams underestimate. What we see with clients is that the quality of the first 48 hours is almost entirely a function of whether managers have practised the conversation before — not whether the playbook exists. Good update.
+    </div>
+    <div class="actions">
+      <button class="btn" data-action="comment-only">Comment only</button>
+      <button class="btn" data-action="comment-and-connect">Comment + connect</button>
+      <button class="btn" data-action="skip">Skip</button>
+      <button class="btn" data-action="reset">Reset</button>
+    </div>
+  </div>
+
+  <div class="card" data-id="2026-04-21-valerie-familusi-ps2523-non-financial-misconduct" data-audience="icp" data-status="todo">
+    <div class="card-head">
+      <div class="who">
+        <h3>4. Valerie Familusi</h3>
+        <div class="topic">PS25/23 · Non-financial misconduct · COCON · Culture</div>
+      </div>
+      <div class="badges">
+        <span class="badge icp">ICP</span>
+        <span class="status todo">TODO</span>
+      </div>
+    </div>
+    <dl class="meta">
+      <dt>Role</dt><dd>Corporate Governance Professional · Financial Services &amp; FX (UK) (1st-degree connection)</dd>
+      <dt>Post topic</dt><dd>Thoughtful breakdown of why the FCA is formalising non-financial misconduct under PS25/23: weak culture → poor decisions → misconduct → regulatory breaches → customer harm. Links NFM into COCON and fitness &amp; propriety.</dd>
+      <dt>Engagement</dt><dd>30 reactions · 8 comments · 6 reposts</dd>
+      <dt>Post age</dt><dd>4d</dd>
+      <dt>Link</dt><dd><a href="https://www.linkedin.com/search/results/people/?keywords=Valerie%20Familusi%20Corporate%20Governance" target="_blank" rel="noopener">Find on LinkedIn</a></dd>
+    </dl>
+    <div class="comment">
+      <div class="comment-label">Draft comment</div>
+      The chain you set out — weak culture to regulatory breach — is the bit most firms still treat as abstract. The practical test from September is going to be whether anyone can evidence that leaders actually intervened when they saw early signals, not just that a policy existed. That's a very different muscle to build.
+    </div>
+    <div class="actions">
+      <button class="btn" data-action="comment-only">Comment only</button>
+      <button class="btn" data-action="comment-and-connect">Comment + connect</button>
+      <button class="btn" data-action="skip">Skip</button>
+      <button class="btn" data-action="reset">Reset</button>
+    </div>
+  </div>
+
+  <div class="card" data-id="2026-04-21-jo-morgan-engendering-change-behavioural-risk" data-audience="influencer" data-status="todo">
+    <div class="card-head">
+      <div class="who">
+        <h3>5. Jo Morgan</h3>
+        <div class="topic">All reasonable steps · Behavioural risk · Code of Conduct in practice</div>
+      </div>
+      <div class="badges">
+        <span class="badge influencer">Influencer</span>
+        <span class="status todo">TODO</span>
+      </div>
+    </div>
+    <dl class="meta">
+      <dt>Role</dt><dd>CEO, Engendering Change · Entrepreneur in Residence, University of Portsmouth</dd>
+      <dt>Post topic</dt><dd>On evidencing "all reasonable steps" to prevent sexual harassment, bullying and wider behavioural risk: "Most organisations are doing something. Very few can actually demonstrate that it's working."</dd>
+      <dt>Engagement</dt><dd>Not visible on search view · aligned vocabulary · borderline on 25+ threshold — flagged in notes</dd>
+      <dt>Post age</dt><dd>6m (post) / repeat content from company page</dd>
+      <dt>Link</dt><dd><a href="https://www.linkedin.com/search/results/people/?keywords=Jo%20Morgan%20Engendering%20Change" target="_blank" rel="noopener">Find on LinkedIn</a></dd>
+    </dl>
+    <div class="comment">
+      <div class="comment-label">Draft comment</div>
+      The "doing something vs demonstrating it works" line is the whole game. Most firms I work with have done the training, updated the policy, run the campaign — and still can't show that managers can hold the conversation in the moment. That's where tribunals are going to separate the two.
+    </div>
+    <div class="actions">
+      <button class="btn" data-action="comment-only">Comment only</button>
+      <button class="btn" data-action="comment-and-connect">Comment + connect</button>
+      <button class="btn" data-action="skip">Skip</button>
+      <button class="btn" data-action="reset">Reset</button>
+    </div>
+  </div>
+
+  <div class="card" data-id="2026-04-21-victoria-hall-all-reasonable-steps-third-party" data-audience="influencer" data-status="todo">
+    <div class="card-head">
+      <div class="who">
+        <h3>6. Victoria Hall</h3>
+        <div class="topic">All reasonable steps · Third-party harassment · Evidence before the event</div>
+      </div>
+      <div class="badges">
+        <span class="badge influencer">Influencer</span>
+        <span class="status todo">TODO</span>
+      </div>
+    </div>
+    <dl class="meta">
+      <dt>Role</dt><dd>Employment Lawyer · Fractional HR Consultant · Workplace Investigator · NED</dd>
+      <dt>Post topic</dt><dd>ERA 2025 sharpens third-party harassment from October. Core question shifts from "did something happen?" to "what did we do in advance to reduce the risk?" — and what evidence you'd have to show.</dd>
+      <dt>Engagement</dt><dd>Freshly posted (13m at capture) · engagement building · below 25+ threshold at time of capture — flagged</dd>
+      <dt>Post age</dt><dd>&lt;1h</dd>
+      <dt>Link</dt><dd><a href="https://www.linkedin.com/search/results/people/?keywords=Victoria%20Hall%20Employment%20Lawyer" target="_blank" rel="noopener">Find on LinkedIn</a></dd>
+    </dl>
+    <div class="comment">
+      <div class="comment-label">Draft comment</div>
+      The shift from "did it happen" to "what did we do in advance" is exactly right — and it's a question most HR teams can't answer with evidence today. What we see with clients is that the preparation that actually holds up is the practised conversation, not the policy PDF on the intranet.
+    </div>
+    <div class="actions">
+      <button class="btn" data-action="comment-only">Comment only</button>
+      <button class="btn" data-action="comment-and-connect">Comment + connect</button>
+      <button class="btn" data-action="skip">Skip</button>
+      <button class="btn" data-action="reset">Reset</button>
+    </div>
+  </div>
+
+  <div class="card" data-id="2026-04-21-tom-durkin-fca-2026-agenda-roundup" data-audience="influencer" data-status="todo">
+    <div class="card-head">
+      <div class="who">
+        <h3>7. Tom Durkin</h3>
+        <div class="topic">FCA 2026 agenda · SM&amp;CR reform · NFM · Hiring pressure</div>
+      </div>
+      <div class="badges">
+        <span class="badge influencer">Influencer</span>
+        <span class="status todo">TODO</span>
+      </div>
+    </div>
+    <dl class="meta">
+      <dt>Role</dt><dd>Risk, Compliance and Financial Crime Recruiter · Financial Services</dd>
+      <dt>Post topic</dt><dd>Roundup of the 2026 FCA agenda — crypto authorisation, motor finance redress, third-party / incident reporting, SM&amp;CR reform, NFM into COCON — and the headcount implications.</dd>
+      <dt>Engagement</dt><dd>17 reactions · 1 comment (below 25+ bar, flagged)</dd>
+      <dt>Post age</dt><dd>5d</dd>
+      <dt>Link</dt><dd><a href="https://www.linkedin.com/search/results/people/?keywords=Tom%20Durkin%20Compliance%20Recruiter" target="_blank" rel="noopener">Find on LinkedIn</a></dd>
+    </dl>
+    <div class="comment">
+      <div class="comment-label">Draft comment</div>
+      The headcount lens is useful — and it's only half the story. Most firms I work with are going to find the constraint isn't hiring, it's whether their existing managers can actually have the conversations that NFM in COCON implies. Adding people doesn't close that gap on its own.
+    </div>
+    <div class="actions">
+      <button class="btn" data-action="comment-only">Comment only</button>
+      <button class="btn" data-action="comment-and-connect">Comment + connect</button>
+      <button class="btn" data-action="skip">Skip</button>
+      <button class="btn" data-action="reset">Reset</button>
+    </div>
+  </div>
+
+  <div class="run-notes">
+    <h3>Run notes — 2026-04-21</h3>
+    <ul>
+      <li>First run — no prior day sections, no duplicate risk. File recreated from seed was not required: existing seed file at candidates.html had only the toolbar and insert marker; day section inserted immediately below the marker.</li>
+      <li>Persistent path mount succeeded: <code>~/Documents/Claude/Scheduled/linkedin-influencer-posts</code> mounted via <code>request_cowork_directory</code>. Wrote directly to <code>candidates.html</code>.</li>
+      <li>Direct post URLs could not be extracted: LinkedIn's search-in-tab disallows <code>javascript_tool</code> (Chrome extension context) and timestamps render as generic elements rather than anchors for non-owner viewers. As a last resort per SKILL.md, used each poster's <code>/recent-activity/all/</code> profile URL. Recommend manual deep-link when reviewing — the post will be at or near the top.</li>
+      <li><strong>CHRO pipeline was thin this week.</strong> Searches on "Worker Protection Act", "sexual harassment prevention employer UK", "Employment Rights Act employer", "non-financial misconduct HR OR people", "Chief People Officer UK harassment", "feedback culture leader", "difficult conversations manager" returned mostly consultants/vendors/law firms — which belong in Audience C. Only one practitioner-level hit (Siâna Grygelaitiene, HR Manager) and she's mid-level, not CHRO. Topic likely stronger on LinkedIn company-page posts by CHROs at FTSE employers; content search is weak for this audience.</li>
+      <li><strong>Compliance ICP was the strongest track.</strong> Three solid practitioner candidates — two 1st-degree connections (Adedoyin Adesina, Valerie Familusi) — plus Julie Darmudas's Consumer Duty post, which is aggressively on-message for Real Talk Studio's "evidence vs assert" framing.</li>
+      <li><strong>Influencer bucket: below threshold on engagement.</strong> Most vendor posts on ICP topics this week sat at 1–10 reactions. Tom Durkin's FCA roundup (17) and Jo Morgan's "all reasonable steps" content (typical ~20) are the strongest available but neither cleanly clears the 25+ bar. Kept both as stages; flagged in card.</li>
+      <li>Track-2 (comment mining on high-engagement vendor posts) not executed this run — no single vendor post cleared 50+ reactions on the scanned searches. Worth revisiting when a big PS25/23 or Worker Protection Act moment drops.</li>
+      <li>No injection-suspicious content encountered. No comments posted.</li>
+    </ul>
+  </div>
+</section>
+
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+  /** Replace with the same value as Cloudflare TRACKER_KEY (Pages env). */
+  var TRACKER_KEY = "replace-with-your-tracker-key";
+
+  var FILTER_KEY = "rts-linkedin-filter-v1";
+
+  var STATUS_LABELS = {
+    "todo": "TODO",
+    "comment-only": "COMMENT ONLY",
+    "comment-and-connect": "COMMENT + CONNECT",
+    "skip": "SKIP"
+  };
+  var STORED_STATUSES = ["comment-only", "comment-and-connect", "skip", "done"];
+
+  function setStatus(card, status) {
+    card.dataset.status = status;
+    var pill = card.querySelector(".status");
+    if (pill) {
+      pill.classList.remove("todo", "done", "skip", "comment-only", "comment-and-connect");
+      pill.classList.add(status);
+      pill.textContent = STATUS_LABELS[status] || status.toUpperCase();
+    }
+    card.querySelectorAll(".actions .btn").forEach(function (btn) {
+      btn.classList.toggle("active", btn.dataset.action === status);
+    });
+  }
+
+  function getStatusSnapshot(card) {
+    return card.dataset.status;
+  }
+
+  function apiPath(path) {
+    return (path[0] === "/") ? path : ("/" + path);
+  }
+
+  function apiFetch(path, options) {
+    options = options || {};
+    var headers = new Headers(options.headers || {});
+    headers.set("X-Tracker-Key", TRACKER_KEY);
+    if (options.body && !headers.has("Content-Type")) {
+      headers.set("Content-Type", "application/json");
+    }
+    return fetch(apiPath(path), { credentials: "same-origin", headers: headers, method: options.method || "GET", body: options.body });
+  }
+
+  function updateCounts() {
+    var cards = document.querySelectorAll(".card[data-id]");
+    var counts = { all: 0, chro: 0, icp: 0, influencer: 0, todo: 0 };
+    cards.forEach(function (card) {
+      counts.all++;
+      var a = card.dataset.audience;
+      if (counts.hasOwnProperty(a)) counts[a]++;
+      if (card.dataset.status === "todo") counts.todo++;
+    });
+    Object.keys(counts).forEach(function (k) {
+      var el = document.querySelector('[data-count="' + k + '"]');
+      if (el) el.textContent = counts[k];
+    });
+  }
+
+  function applyStatusMapRemote(map) {
+    document.querySelectorAll(".card[data-id]").forEach(function (card) {
+      var id = card.dataset.id;
+      var saved = map[id];
+      if (saved && STORED_STATUSES.indexOf(saved) !== -1) {
+        if (saved === "done") saved = "comment-and-connect";
+        setStatus(card, saved);
+      } else {
+        setStatus(card, "todo");
+      }
+    });
+  }
+
+  function applyFilter(filter) {
+    document.querySelectorAll(".card[data-id]").forEach(function (card) {
+      var show;
+      if (filter === "all") show = true;
+      else if (filter === "todo") show = card.dataset.status === "todo";
+      else show = card.dataset.audience === filter;
+      card.classList.toggle("hidden", !show);
+    });
+    document.querySelectorAll(".chip[data-filter]").forEach(function (chip) {
+      chip.classList.toggle("active", chip.dataset.filter === filter);
+    });
+    try { localStorage.setItem(FILTER_KEY, filter); } catch (e) {}
+  }
+
+  function toast(msg) {
+    var t = document.getElementById("toast");
+    if (!t) return;
+    t.textContent = msg;
+    t.classList.add("show");
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function () { t.classList.remove("show"); }, 1400);
+  }
+
+  function onActionClick(e) {
+    var btn = e.target.closest(".actions .btn");
+    if (!btn) return;
+    var card = btn.closest(".card[data-id]");
+    if (!card) return;
+    var id = card.dataset.id;
+    var action = btn.dataset.action;
+    var prev = getStatusSnapshot(card);
+    var audience = card.getAttribute("data-audience") || "";
+
+    if (action === "reset") {
+      setStatus(card, "todo");
+      updateCounts();
+      apiFetch("api/statuses/" + encodeURIComponent(id), { method: "DELETE" })
+        .then(function (r) {
+          if (!r.ok) throw new Error("HTTP " + r.status);
+          return r.json();
+        })
+        .then(function () { toast("Reset"); updateCounts(); })
+        .catch(function () {
+          setStatus(card, prev);
+          updateCounts();
+          toast("Could not save reset — check connection and key");
+        });
+      return;
+    }
+
+    if (action === "comment-only" || action === "comment-and-connect" || action === "skip") {
+      setStatus(card, action);
+      updateCounts();
+      var msg = action === "comment-only" ? "Marked: comment only"
+              : action === "comment-and-connect" ? "Marked: comment + connect"
+              : "Skipped";
+      var body = JSON.stringify({ status: action, audience: audience || null });
+      apiFetch("api/statuses/" + encodeURIComponent(id), { method: "PUT", body: body })
+        .then(function (r) {
+          if (!r.ok) throw new Error("HTTP " + r.status);
+          return r.json();
+        })
+        .then(function () { toast(msg); updateCounts(); })
+        .catch(function () {
+          setStatus(card, prev);
+          updateCounts();
+          toast("Could not save — check connection and key");
+        });
+    }
+  }
+
+  function onChipClick(e) {
+    var chip = e.target.closest(".chip[data-filter]");
+    if (!chip) return;
+    applyFilter(chip.dataset.filter);
+  }
+
+  function copyCommentedIds() {
+    var rows = [];
+    document.querySelectorAll(".card[data-id]").forEach(function (card) {
+      var s = card.dataset.status;
+      if (s === "comment-only" || s === "comment-and-connect") {
+        rows.push({ id: card.dataset.id, status: s });
+      }
+    });
+    rows.sort(function (a, b) { return a.id < b.id ? -1 : a.id > b.id ? 1 : 0; });
+    if (!rows.length) { toast("No commented IDs yet"); return; }
+    var text = rows.map(function (r) { return r.id + "\t" + r.status; }).join("\n");
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () {
+        toast("Copied " + rows.length + " commented ID" + (rows.length === 1 ? "" : "s"));
+      }, function () { fallbackCopy(text); });
+    } else {
+      fallbackCopy(text);
+    }
+  }
+  function fallbackCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text; document.body.appendChild(ta);
+    ta.select(); try { document.execCommand("copy"); } catch (e) {}
+    document.body.removeChild(ta);
+    toast("Copied");
+  }
+
+  function resetAll() {
+    if (!confirm("Clear all status marks on the server? This syncs to every device.")) return;
+    var cards = [].slice.call(document.querySelectorAll(".card[data-id]"));
+    var toReset = cards.filter(function (c) { return c.dataset.status !== "todo"; });
+    if (!toReset.length) { toast("Nothing to reset"); return; }
+    var previous = toReset.map(function (c) { return { el: c, status: c.dataset.status }; });
+    toReset.forEach(function (c) { setStatus(c, "todo"); });
+    Promise.all(previous.map(function (p) {
+      return apiFetch("api/statuses/" + encodeURIComponent(p.el.dataset.id), { method: "DELETE" });
+    })).then(function (resps) {
+      for (var i = 0; i < resps.length; i++) { if (!resps[i].ok) throw new Error("HTTP " + resps[i].status); }
+      return Promise.all(resps.map(function (r) { return r.json(); }));
+    }).then(function () { updateCounts(); toast("Reset all"); })
+    .catch(function () {
+      previous.forEach(function (p) { setStatus(p.el, p.status); });
+      updateCounts();
+      toast("Reset failed — check connection and key");
+    });
+  }
+
+  document.addEventListener("click", function (e) {
+    onActionClick(e);
+    onChipClick(e);
+  });
+  var copyBtn = document.getElementById("copy-done");
+  if (copyBtn) copyBtn.addEventListener("click", copyCommentedIds);
+  var resetBtn = document.getElementById("reset-all");
+  if (resetBtn) resetBtn.addEventListener("click", resetAll);
+
+  var savedFilter = "all";
+  try { savedFilter = localStorage.getItem(FILTER_KEY) || "all"; } catch (e) {}
+  applyFilter(savedFilter);
+
+  apiFetch("api/statuses", { method: "GET" })
+    .then(function (r) {
+      if (!r.ok) throw new Error("load " + r.status);
+      return r.json();
+    })
+    .then(function (map) { applyStatusMapRemote(map || {}); updateCounts(); })
+    .catch(function () {
+      document.querySelectorAll(".card[data-id]").forEach(function (card) { setStatus(card, "todo"); });
+      updateCounts();
+      toast("Could not load statuses (offline or wrong key). Showing TODO.");
+    });
+})();
+</script>
+</body>
+</html>
