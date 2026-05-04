@@ -155,6 +155,23 @@
     cursor: grab;
     font-size: 13px;
   }
+  .inbox-card.inbox-card-stale {
+    border-color: #fbbf24;
+    background: linear-gradient(135deg, #fffbeb 0%, #fff 55%);
+    box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.22), var(--shadow-sm);
+  }
+  .inbox-stale-pill {
+    font-size: 9px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #b45309;
+    background: #fde68a;
+    padding: 2px 6px;
+    border-radius: 4px;
+    flex-shrink: 0;
+    line-height: 1.2;
+  }
   .inbox-card:active { cursor: grabbing; }
   .inbox-card.dragging { opacity: 0.55; }
   .inbox-card.unstarred-flag {
@@ -235,11 +252,12 @@
 <main class="page">
   <div class="page-head">
     <h1 class="page-title">Inbox</h1>
-    <p class="page-sub">Starred LinkedIn threads — synced daily at 07:00 UK. Drag cards between columns or use the move control on mobile.</p>
+    <p class="page-sub">Starred LinkedIn threads — synced daily at 07:00 UK. Drag cards between columns or use the move on mobile. Conversations with no message in over <strong>5 days</strong> are highlighted; use <strong>Only &gt;5d idle</strong> to filter them.</p>
   </div>
 
   <div class="filter-menu-bar" role="toolbar" aria-label="Inbox filters">
     <label class="toggle" id="tog-unstar"><span class="toggle-track" aria-hidden="true"></span> Hide unstarred</label>
+    <label class="toggle" id="tog-stale"><span class="toggle-track" aria-hidden="true"></span> Only &gt;5d idle</label>
     <div class="filter-menu-field" style="flex:1;min-width:180px;max-width:320px">
       <label class="filter-menu-label" for="inbox-search">Search</label>
       <input type="search" id="inbox-search" class="filter-input" placeholder="Name, role, company, snippet…" autocomplete="off">
@@ -260,6 +278,10 @@
 (function () {
   var LS_HIDE = "inbox-kanban-hide-unstarred";
   var LS_SEARCH = "inbox-kanban-search";
+  var LS_STALE_ONLY = "inbox-kanban-stale-only";
+
+  /** Last activity older than this many whole calendar days = "stale" */
+  var STALE_AFTER_DAYS = 5;
 
   var COLS = [
     { key: "new", label: "New" },
@@ -284,8 +306,31 @@
   function readFilters() {
     return {
       hideUnstarred: localStorage.getItem(LS_HIDE) === "1",
+      staleOnly: localStorage.getItem(LS_STALE_ONLY) === "1",
       search: (localStorage.getItem(LS_SEARCH) || "").trim().toLowerCase()
     };
+  }
+
+  /**
+   * Whole calendar days between last_message_at (date prefix) and today in local time.
+   * Returns null if unparseable or missing.
+   */
+  function daysSinceLastMessage(iso) {
+    if (!iso || typeof iso !== "string") return null;
+    var dayStr = iso.length >= 10 ? iso.slice(0, 10) : iso;
+    var parts = dayStr.split("-");
+    if (parts.length !== 3) return null;
+    var d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+    if (isNaN(d.getTime())) return null;
+    var now = new Date();
+    var startToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    var startThat = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    return Math.round((startToday - startThat) / 86400000);
+  }
+
+  function isStaleThread(t) {
+    var age = daysSinceLastMessage(t.last_message_at);
+    return age !== null && age > STALE_AFTER_DAYS;
   }
 
   function writeFilter(key, val) {
@@ -325,6 +370,7 @@
   function filterThreads(list, f) {
     return list.filter(function (t) {
       if (f.hideUnstarred && !t.starred) return false;
+      if (f.staleOnly && !isStaleThread(t)) return false;
       if (f.search) {
         var blob = [t.title, t.role, t.company, t.last_message_snippet, participantTitle(t)].join(" ").toLowerCase();
         if (blob.indexOf(f.search) === -1) return false;
@@ -437,6 +483,8 @@
   function cardEl(t) {
     var card = document.createElement("div");
     card.className = "inbox-card";
+    var stale = isStaleThread(t);
+    if (stale) card.classList.add("inbox-card-stale");
     card.draggable = true;
     card.dataset.threadId = t.thread_id;
     card.dataset.column = t.column;
@@ -465,7 +513,9 @@
     else if (pres === "offline") dotClass += " offline";
 
     html += '<div class="inbox-card-title-row"><span class="' + dotClass + '" title="' + (t.presence || "unknown") + '"></span>';
-    html += '<span class="inbox-card-title">' + escapeHtml(participantTitle(t)) + "</span></div>";
+    html += '<span class="inbox-card-title">' + escapeHtml(participantTitle(t)) + "</span>";
+    if (stale) html += '<span class="inbox-stale-pill" title="Last message more than ' + STALE_AFTER_DAYS + ' days ago">&gt;' + STALE_AFTER_DAYS + "d idle</span>";
+    html += "</div>";
 
     var meta = "";
     if (t.role || t.company) {
@@ -545,12 +595,21 @@
 
   function initToolbar() {
     var fu = document.getElementById("tog-unstar");
+    var st = document.getElementById("tog-stale");
     var search = document.getElementById("inbox-search");
     if (fu) {
       if (readFilters().hideUnstarred) fu.classList.add("on");
       fu.addEventListener("click", function () {
         fu.classList.toggle("on");
         writeFilter(LS_HIDE, fu.classList.contains("on") ? "1" : "");
+        render();
+      });
+    }
+    if (st) {
+      if (readFilters().staleOnly) st.classList.add("on");
+      st.addEventListener("click", function () {
+        st.classList.toggle("on");
+        writeFilter(LS_STALE_ONLY, st.classList.contains("on") ? "1" : "");
         render();
       });
     }
