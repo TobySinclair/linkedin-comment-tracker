@@ -107,7 +107,7 @@
     display: grid;
     grid-template-columns: repeat(5, 1fr);
     gap: 12px;
-    align-items: start;
+    align-items: stretch;
   }
   @media (max-width: 768px) {
     .kanban { grid-template-columns: 1fr; }
@@ -119,6 +119,13 @@
     min-height: 200px;
     display: flex;
     flex-direction: column;
+  }
+  @media (min-width: 769px) {
+    /* Tall drop zone so sparse columns (e.g. Archive) stay easy targets while dragging from a long column. */
+    .kb-col {
+      min-height: max(200px, calc(100dvh - 260px));
+      min-height: max(200px, calc(100vh - 260px));
+    }
   }
   .kb-col-head {
     padding: 10px 12px;
@@ -137,11 +144,17 @@
   }
   .kb-col-body {
     padding: 10px;
-    flex: 1;
-    min-height: 120px;
+    flex: 1 1 auto;
+    min-height: 0;
     transition: background 0.15s;
   }
-  .kb-col-body.drag-over { background: var(--accent-soft); }
+  .kb-col.kb-col-drag-over {
+    box-shadow: inset 0 0 0 2px var(--accent);
+    background: var(--accent-soft);
+  }
+  .kb-col.kb-col-drag-over .kb-col-head {
+    background: var(--surface-soft);
+  }
   .kb-empty {
     text-align: center; color: var(--ink-4); font-size: 12px; padding: 24px 8px;
   }
@@ -477,16 +490,19 @@
       body.className = "kb-col-body";
       body.dataset.column = col.key;
 
-      body.addEventListener("dragover", function (e) {
+      wrap.addEventListener("dragover", function (e) {
         e.preventDefault();
-        body.classList.add("drag-over");
+        e.dataTransfer.dropEffect = "move";
+        wrap.classList.add("kb-col-drag-over");
       });
-      body.addEventListener("dragleave", function (e) {
-        if (e.target === body) body.classList.remove("drag-over");
+      wrap.addEventListener("dragleave", function (e) {
+        var rel = e.relatedTarget;
+        if (rel && wrap.contains(rel)) return;
+        wrap.classList.remove("kb-col-drag-over");
       });
-      body.addEventListener("drop", function (e) {
+      wrap.addEventListener("drop", function (e) {
         e.preventDefault();
-        body.classList.remove("drag-over");
+        wrap.classList.remove("kb-col-drag-over");
         var id = e.dataTransfer.getData("text/plain");
         if (!id) return;
         var th = allThreads.find(function (x) { return x.thread_id === id; });
@@ -532,7 +548,7 @@
     card.addEventListener("dragend", function () {
       card.classList.remove("dragging");
       draggingId = null;
-      document.querySelectorAll(".kb-col-body.drag-over").forEach(function (el) { el.classList.remove("drag-over"); });
+      document.querySelectorAll(".kb-col.kb-col-drag-over").forEach(function (el) { el.classList.remove("kb-col-drag-over"); });
     });
 
     var html = "";
