@@ -1,4 +1,4 @@
-/** @param {{ linkedinUrl?: string, name?: string, dataId?: string }} parts */
+/** @param {{ linkedinUrl?: string, name?: string, dataId?: string, threadId?: string }} parts */
 export function normalizeContactKey(parts) {
   const u = normalizeLinkedinUrlForDedup(parts.linkedinUrl);
   if (u) return "url:" + u;
@@ -8,6 +8,8 @@ export function normalizeContactKey(parts) {
     .trim();
   if (n && n !== "—") return "name:" + n;
   if (parts.dataId) return "id:" + String(parts.dataId);
+  const tid = parts.threadId != null ? String(parts.threadId).trim() : "";
+  if (tid) return "thread:" + tid;
   return null;
 }
 
@@ -30,7 +32,14 @@ function normalizeLinkedinUrlForDedup(href) {
 
 export function lastMessageDateToUnix(iso) {
   if (!iso || typeof iso !== "string") return null;
-  const dayStr = iso.length >= 10 ? iso.slice(0, 10) : iso;
+  const s = iso.trim();
+  if (s.length > 10 || /[Tt]\d/.test(s)) {
+    const parsed = Date.parse(s);
+    if (!Number.isNaN(parsed)) {
+      return Math.floor(parsed / 1000);
+    }
+  }
+  const dayStr = s.length >= 10 ? s.slice(0, 10) : s;
   const parts = dayStr.split("-");
   if (parts.length !== 3) return null;
   const y = Number(parts[0]);
@@ -51,6 +60,7 @@ const ICP = new Set(["hr", "compliance", "other"]);
  *   job_title?: string,
  *   linkedin_url?: string,
  *   data_id?: string,
+ *   thread_id?: string,
  *   touched_at: number,
  *   source: "comment" | "inbox",
  *   icp_category?: string | null
@@ -61,6 +71,7 @@ export async function upsertDirectoryTouch(db, t) {
     linkedinUrl: t.linkedin_url,
     name: t.name,
     dataId: t.data_id,
+    threadId: t.thread_id,
   });
   if (!key) return;
 
@@ -120,6 +131,14 @@ export async function upsertDirectoryTouch(db, t) {
       mergedLast = exLast;
       mergedSrc = exSrc || source;
     }
+
+    const hadComment = exSrc === "comment" || exSrc === "both";
+    const hadInbox = exSrc === "inbox" || exSrc === "both";
+    const fromComment = source === "comment";
+    const fromInbox = source === "inbox";
+    if ((hadComment || fromComment) && (hadInbox || fromInbox)) {
+      mergedSrc = "both";
+    }
   }
 
   await db
@@ -156,12 +175,13 @@ export async function upsertDirectoryTouch(db, t) {
 export async function reconcileInboxThreads(db) {
   const { results } = await db
     .prepare(
-      "SELECT title, role, company, profile_url, last_message_at, icp_category FROM inbox_threads"
+      "SELECT thread_id, title, role, company, profile_url, last_message_at, icp_category FROM inbox_threads"
     )
     .all();
 
   const fallbackTs = Math.floor(Date.now() / 1000);
   for (const row of results || []) {
+    const threadId = row.thread_id != null ? String(row.thread_id) : "";
     const title = row.title != null ? String(row.title) : "";
     const role = row.role != null ? String(row.role) : "";
     const company = row.company != null ? String(row.company) : "";
@@ -170,10 +190,11 @@ export async function reconcileInboxThreads(db) {
     const tUnix = lastMessageDateToUnix(row.last_message_at) || fallbackTs;
 
     await upsertDirectoryTouch(db, {
-      name: title || "—",
+      name: title.trim() || "—",
       job_title: jobTitle,
       linkedin_url: profileUrl,
       data_id: "",
+      thread_id: threadId,
       touched_at: tUnix,
       source: "inbox",
       icp_category: row.icp_category,

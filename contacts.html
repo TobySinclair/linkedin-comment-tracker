@@ -281,14 +281,26 @@
       empty.textContent = "Loading…";
     }
     document.getElementById("dir-wrap").hidden = true;
-    apiFetch("api/directory", { method: "GET" })
+
+    function fetchDirectory() {
+      return apiFetch("api/directory", { method: "GET" })
+        .then(function (r) {
+          if (!r.ok) throw new Error("HTTP " + r.status);
+          return r.json();
+        })
+        .then(function (data) {
+          renderList(data.contacts || []);
+        });
+    }
+
+    apiFetch("api/directory/reconcile-inbox", { method: "POST", body: "{}" })
       .then(function (r) {
-        if (!r.ok) throw new Error("HTTP " + r.status);
-        return r.json();
+        return r.ok ? r.json() : null;
       })
-      .then(function (data) {
-        renderList(data.contacts || []);
+      .catch(function () {
+        return null;
       })
+      .then(fetchDirectory)
       .catch(function () {
         document.getElementById("dir-wrap").hidden = true;
         if (empty) {
