@@ -53,5 +53,19 @@ CREATE INDEX IF NOT EXISTS idx_inbox_column ON inbox_threads(column);
 CREATE INDEX IF NOT EXISTS idx_inbox_starred ON inbox_threads(starred);
 CREATE INDEX IF NOT EXISTS idx_inbox_last_message ON inbox_threads(last_message_at DESC);
 
+-- Contacts directory (merged from comment touches + inbox threads).
+CREATE TABLE IF NOT EXISTS directory_contact (
+  contact_key              TEXT PRIMARY KEY,
+  name                     TEXT NOT NULL,
+  job_title                TEXT,
+  linkedin_url             TEXT,
+  icp_category             TEXT,
+  last_interaction_at      INTEGER NOT NULL,
+  last_interaction_source  TEXT,
+  updated_at               INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_directory_last ON directory_contact (last_interaction_at DESC);
+
 -- If inbox_threads already existed without icp_category, run once per database:
 -- npx wrangler d1 execute <database_name> --remote --command="ALTER TABLE inbox_threads ADD COLUMN icp_category TEXT;"

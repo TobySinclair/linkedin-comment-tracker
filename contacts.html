@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contacts — Real Talk Studio Ops Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fafafa;
+    --surface: #ffffff;
+    --surface-soft: #f4f4f5;
+    --border: #e4e4e7;
+    --border-mid: #d4d4d8;
+    --ink: #18181b;
+    --ink-2: #3f3f46;
+    --ink-3: #71717a;
+    --ink-4: #a1a1aa;
+    --accent: #2563eb;
+    --accent-soft: #eff6ff;
+    --sans: "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 13.5px; line-height: 1.45; min-height: 100vh; }
+  a { color: var(--accent); }
+  .topnav {
+    height: 52px; background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 0 24px; display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 30;
+  }
+  .topnav-left { display: flex; align-items: center; gap: 24px; }
+  .logo { display: inline-flex; align-items: center; gap: 9px; font-weight: 600; font-size: 14px; }
+  .logo-mark {
+    width: 22px; height: 22px; background: var(--ink); border-radius: 5px;
+    display: flex; align-items: center; justify-content: center; color: var(--surface); font-size: 13px; font-weight: 600;
+  }
+  .app-switch { display: flex; align-items: center; gap: 2px; margin-left: 4px; padding-left: 16px; border-left: 1px solid var(--border); height: 28px; }
+  .app-switch a { font-size: 12.5px; font-weight: 500; text-decoration: none; padding: 6px 10px; border-radius: 6px; }
+  .app-switch a.current { color: var(--ink); background: var(--surface-soft); border: 1px solid var(--border); }
+  .app-switch a:not(.current) { color: var(--ink-3); border: 1px solid transparent; }
+  .app-switch a:not(.current):hover { color: var(--ink); background: var(--surface-soft); }
+  .page { max-width: 1280px; margin: 0 auto; padding: 24px 24px 80px; }
+  .page-title { font-size: 22px; font-weight: 600; margin: 0; letter-spacing: -0.02em; }
+  .page-sub { font-size: 13.5px; color: var(--ink-3); margin: 8px 0 20px; max-width: 720px; }
+  .dir-wrap {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden;
+  }
+  .dir-thead, .dir-row {
+    display: grid;
+    grid-template-columns: minmax(100px, 1fr) minmax(120px, 1.4fr) 120px minmax(140px, 1.6fr) 120px 100px;
+    gap: 12px; padding: 10px 16px; align-items: center; font-size: 13px;
+  }
+  .dir-thead {
+    background: var(--surface-soft); border-bottom: 1px solid var(--border);
+    font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-3);
+  }
+  .dir-row { border-bottom: 1px solid var(--border); }
+  .dir-row:last-child { border-bottom: none; }
+  .dir-name { font-weight: 500; color: var(--ink); }
+  .dir-title { color: var(--ink-2); line-height: 1.35; font-size: 12.5px; }
+  .dir-source { font-size: 11px; font-family: var(--mono); color: var(--ink-3); }
+  .dir-when { font-size: 12px; font-family: var(--mono); color: var(--ink-2); }
+  .dir-url { font-size: 11.5px; word-break: break-all; }
+  .dir-url a { font-weight: 500; }
+  .dir-icp {
+    width: 100%; height: 32px; font: inherit; font-size: 12px;
+    border: 1px solid var(--border); border-radius: 6px; padding: 0 8px; background: var(--surface); color: var(--ink);
+  }
+  .dir-icp:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+  .dir-empty { padding: 32px 20px; color: var(--ink-3); text-align: center; }
+  .btn-refresh {
+    height: 32px; padding: 0 12px; font: inherit; font-size: 12.5px; font-weight: 500;
+    border-radius: 6px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; margin-bottom: 16px;
+  }
+  .btn-refresh:hover { background: var(--surface-soft); }
+  @media (max-width: 960px) {
+    .dir-thead { display: none; }
+    .dir-row {
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+    .dir-row > div::before {
+      content: attr(data-label);
+      display: block;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: var(--ink-3);
+      margin-bottom: 2px;
+    }
+  }
+  .toast {
+    position: fixed; bottom: max(20px, env(safe-area-inset-bottom, 0px)); left: 50%; transform: translateX(-50%) translateY(20px);
+    background: #18181b; color: #fff; padding: 10px 16px; border-radius: 999px; font-size: 12.5px;
+    opacity: 0; pointer-events: none; transition: opacity 0.18s, transform 0.18s; z-index: 100;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+<nav class="topnav">
+  <div class="topnav-left">
+    <div class="logo"><div class="logo-mark">R</div>Real Talk Studio <span style="font-weight:400;color:var(--ink-3)">· Ops hub</span></div>
+    <div class="app-switch">
+      <a href="index.html">Comment Tracker</a>
+      <a href="inbox.html">Inbox</a>
+      <a href="okrs.html">OKRs</a>
+      <a href="contacts.html" class="current">Contacts</a>
+    </div>
+  </div>
+</nav>
+<main class="page">
+  <h1 class="page-title">Contacts directory</h1>
+  <p class="page-sub">
+    Merged from people you marked <strong>Comment</strong> or <strong>+ Connect</strong> on the tracker, and from <strong>all inbox threads</strong> (including unstarred).
+    Set <strong>ICP</strong> here; inbox card ICP pre-fills only when this field is empty. Last interaction is the newer of comment mark time and last message date.
+  </p>
+  <button type="button" class="btn-refresh" id="dir-refresh">Refresh</button>
+  <div class="dir-wrap" id="dir-wrap" hidden>
+    <div class="dir-thead" aria-hidden="true">
+      <div>Name</div>
+      <div>Job title</div>
+      <div>ICP</div>
+      <div>LinkedIn</div>
+      <div>Last interaction</div>
+      <div>Source</div>
+    </div>
+    <div id="dir-body"></div>
+  </div>
+  <div class="dir-empty" id="dir-empty">Loading…</div>
+</main>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+(function () {
+  var TRACKER_KEY = "summer";
+  function apiFetch(path, options) {
+    options = options || {};
+    var headers = new Headers(options.headers || {});
+    headers.set("X-Tracker-Key", TRACKER_KEY);
+    if (options.body && !headers.has("Content-Type")) {
+      headers.set("Content-Type", "application/json");
+    }
+    var url = path[0] === "/" ? path : "/" + path;
+    return fetch(url, { credentials: "same-origin", headers: headers, method: options.method || "GET", body: options.body });
+  }
+  function toast(msg) {
+    var t = document.getElementById("toast");
+    if (!t) return;
+    t.textContent = msg;
+    t.classList.add("show");
+    clearTimeout(toast._x);
+    toast._x = setTimeout(function () { t.classList.remove("show"); }, 2000);
+  }
+  function escapeHtml(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+  function sourceLabel(s) {
+    if (s === "inbox") return "Inbox";
+    if (s === "comment") return "Comment";
+    if (s === "both") return "Both";
+    return "—";
+  }
+  function icpLabel(v) {
+    if (v === "hr") return "HR";
+    if (v === "compliance") return "Compliance";
+    if (v === "other") return "Other";
+    return "";
+  }
+  function formatWhen(unix) {
+    var n = Number(unix);
+    if (!n) return "—";
+    var d = new Date(n * 1000);
+    return d.toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
+  }
+  function renderList(contacts) {
+    var wrap = document.getElementById("dir-wrap");
+    var body = document.getElementById("dir-body");
+    var empty = document.getElementById("dir-empty");
+    if (!body || !wrap || !empty) return;
+    body.innerHTML = "";
+    if (!contacts.length) {
+      wrap.hidden = true;
+      empty.hidden = false;
+      empty.textContent = "No contacts yet. Mark comments on the tracker or run an inbox sync.";
+      return;
+    }
+    empty.hidden = true;
+    wrap.hidden = false;
+    contacts.forEach(function (c) {
+      var key = c.contact_key != null ? String(c.contact_key) : "";
+      var row = document.createElement("div");
+      row.className = "dir-row";
+
+      var n = document.createElement("div");
+      n.className = "dir-name";
+      n.setAttribute("data-label", "Name");
+      n.textContent = c.name || "—";
+
+      var tt = document.createElement("div");
+      tt.className = "dir-title";
+      tt.setAttribute("data-label", "Job title");
+      tt.textContent = c.job_title || "—";
+
+      var icpCell = document.createElement("div");
+      icpCell.setAttribute("data-label", "ICP");
+      var sel = document.createElement("select");
+      sel.className = "dir-icp";
+      sel.setAttribute("aria-label", "ICP for " + (c.name || "contact"));
+      [["", "—"], ["hr", "HR"], ["compliance", "Compliance"], ["other", "Other"]].forEach(function (opt) {
+        var o = document.createElement("option");
+        o.value = opt[0];
+        o.textContent = opt[1];
+        if ((c.icp_category || "") === opt[0]) o.selected = true;
+        sel.appendChild(o);
+      });
+      sel.addEventListener("change", function () {
+        var v = sel.value;
+        apiFetch("api/directory/icp", {
+          method: "POST",
+          body: JSON.stringify({ contact_key: key, icp_category: v })
+        })
+          .then(function (r) {
+            if (!r.ok) throw new Error(String(r.status));
+            return r.json();
+          })
+          .then(function () { toast("ICP saved"); })
+          .catch(function () {
+            toast("Could not save ICP");
+            load();
+          });
+      });
+      icpCell.appendChild(sel);
+
+      var linkCell = document.createElement("div");
+      linkCell.className = "dir-url";
+      linkCell.setAttribute("data-label", "LinkedIn");
+      var url = (c.linkedin_url && String(c.linkedin_url).trim()) || "";
+      if (url) {
+        var a = document.createElement("a");
+        a.href = url;
+        a.target = "_blank";
+        a.rel = "noopener";
+        a.textContent = url.length > 42 ? url.slice(0, 40) + "…" : url;
+        a.title = url;
+        linkCell.appendChild(a);
+      } else {
+        linkCell.textContent = "—";
+        linkCell.style.color = "var(--ink-3)";
+      }
+
+      var when = document.createElement("div");
+      when.className = "dir-when";
+      when.setAttribute("data-label", "Last interaction");
+      when.textContent = formatWhen(c.last_interaction_at);
+
+      var src = document.createElement("div");
+      src.className = "dir-source";
+      src.setAttribute("data-label", "Source");
+      src.textContent = sourceLabel(c.last_interaction_source);
+
+      row.appendChild(n);
+      row.appendChild(tt);
+      row.appendChild(icpCell);
+      row.appendChild(linkCell);
+      row.appendChild(when);
+      row.appendChild(src);
+      body.appendChild(row);
+    });
+  }
+  function load() {
+    var empty = document.getElementById("dir-empty");
+    if (empty) {
+      empty.hidden = false;
+      empty.textContent = "Loading…";
+    }
+    document.getElementById("dir-wrap").hidden = true;
+    apiFetch("api/directory", { method: "GET" })
+      .then(function (r) {
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        return r.json();
+      })
+      .then(function (data) {
+        renderList(data.contacts || []);
+      })
+      .catch(function () {
+        document.getElementById("dir-wrap").hidden = true;
+        if (empty) {
+          empty.hidden = false;
+          empty.textContent = "Could not load (check connection and TRACKER_KEY in this page’s script).";
+        }
+      });
+  }
+  document.getElementById("dir-refresh").addEventListener("click", load);
+  load();
+})();
+</script>
+</body>
+</html>

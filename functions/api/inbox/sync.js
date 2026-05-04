@@ -1,4 +1,5 @@
 import { json, jsonError } from "../_utils.js";
+import { reconcileInboxThreads } from "../_directory.js";
 
 function unauthorized() {
   return new Response(JSON.stringify({ error: "unauthorized" }), {
@@ -184,6 +185,12 @@ export async function onRequest(ctx) {
       .bind(...ids)
       .run();
     markedUnstarred = r.meta?.changes ?? 0;
+  }
+
+  try {
+    await reconcileInboxThreads(ctx.env.DB);
+  } catch (e) {
+    console.warn("[inbox/sync] directory reconcile:", e && e.message ? e.message : e);
   }
 
   return json({
