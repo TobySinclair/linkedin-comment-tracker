@@ -27,6 +27,7 @@ function rowToApi(row) {
     last_message_snippet: row.last_message_snippet,
     column: col,
     notes: row.notes,
+    icp_category: row.icp_category || null,
     starred: row.starred === 1,
     has_metadata: hasMetadata,
     first_seen_at: row.first_seen_at,
@@ -43,7 +44,7 @@ export async function onRequest(ctx) {
   }
 
   const { results } = await ctx.env.DB.prepare(
-    "SELECT thread_id, title, is_group, participants_json, role, company, profile_url, presence, last_message_at, last_sender, last_message_snippet, \"column\", notes, starred, first_seen_at, last_synced_at FROM inbox_threads ORDER BY last_message_at DESC, thread_id"
+    "SELECT thread_id, title, is_group, participants_json, role, company, profile_url, presence, last_message_at, last_sender, last_message_snippet, \"column\", notes, icp_category, starred, first_seen_at, last_synced_at FROM inbox_threads ORDER BY last_message_at DESC, thread_id"
   ).all();
 
   const threads = (results || []).map(rowToApi);

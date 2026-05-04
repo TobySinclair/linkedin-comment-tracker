@@ -93,8 +93,8 @@ export async function onRequest(ctx) {
         `INSERT INTO inbox_threads (
           thread_id, title, is_group, participants_json, role, company, profile_url,
           presence, last_message_at, last_sender, last_message_snippet,
-          "column", notes, starred, first_seen_at, last_synced_at
-        ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, NULL, ?13, ?14, ?15)`
+          "column", notes, starred, first_seen_at, last_synced_at, icp_category
+        ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, NULL, ?13, ?14, ?15, NULL)`
       )
         .bind(
           threadId,

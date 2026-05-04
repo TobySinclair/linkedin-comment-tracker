@@ -188,6 +188,13 @@
   .presence-dot.reachable { background: var(--warn); }
   .presence-dot.offline { background: var(--ink-3); }
   .inbox-meta { font-size: 12px; color: var(--ink-3); margin-bottom: 6px; line-height: 1.35; }
+  .inbox-icp-row { margin-bottom: 8px; }
+  .inbox-icp-select {
+    width: 100%; height: 34px; font: inherit; font-size: 12px;
+    border: 1px solid var(--border); border-radius: 6px; padding: 0 8px;
+    background: var(--surface); color: var(--ink);
+  }
+  .inbox-icp-select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
   .inbox-last { font-size: 11px; font-family: var(--mono); color: var(--ink-2); margin-bottom: 6px; }
   .inbox-last .lbl-me { color: var(--accent); font-weight: 500; }
   .inbox-last .lbl-them { color: var(--ink-2); font-weight: 500; }
@@ -291,6 +298,13 @@
     { key: "archive", label: "Archive" }
   ];
 
+  function icpDisplayLabel(slug) {
+    if (slug === "hr") return "HR";
+    if (slug === "compliance") return "Compliance";
+    if (slug === "other") return "Other";
+    return "";
+  }
+
   var allThreads = [];
   var draggingId = null;
   var dragSourceCol = null;
@@ -372,7 +386,14 @@
       if (f.hideUnstarred && !t.starred) return false;
       if (f.staleOnly && !isStaleThread(t)) return false;
       if (f.search) {
-        var blob = [t.title, t.role, t.company, t.last_message_snippet, participantTitle(t)].join(" ").toLowerCase();
+        var blob = [
+          t.title,
+          t.role,
+          t.company,
+          t.last_message_snippet,
+          participantTitle(t),
+          icpDisplayLabel(t.icp_category || "")
+        ].join(" ").toLowerCase();
         if (blob.indexOf(f.search) === -1) return false;
       }
       return true;
@@ -394,6 +415,17 @@
       body: JSON.stringify({ thread_id: threadId, notes: notes })
     }).then(function (r) {
       if (!r.ok) throw new Error("notes " + r.status);
+      return r.json();
+    });
+  }
+
+  function saveIcp(threadId, icpRaw) {
+    return fetch("/api/inbox/icp", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ thread_id: threadId, icp_category: icpRaw })
+    }).then(function (r) {
+      if (!r.ok) throw new Error("icp " + r.status);
       return r.json();
     });
   }
@@ -525,6 +557,14 @@
     }
     html += '<div class="inbox-meta">' + meta + "</div>";
 
+    html += '<div class="inbox-icp-row"><span class="filter-menu-label" style="display:block;margin-bottom:4px">ICP</span>';
+    html += '<select class="inbox-icp-select" data-icp>';
+    html += '<option value=""' + (!t.icp_category ? " selected" : "") + ">—</option>";
+    html += '<option value="hr"' + (t.icp_category === "hr" ? " selected" : "") + ">HR</option>";
+    html += '<option value="compliance"' + (t.icp_category === "compliance" ? " selected" : "") + ">Compliance</option>";
+    html += '<option value="other"' + (t.icp_category === "other" ? " selected" : "") + ">Other</option>";
+    html += "</select></div>";
+
     var who = t.last_sender === "me" ? "You" : "Them";
     var whoClass = t.last_sender === "me" ? "lbl-me" : "lbl-them";
     html += '<div class="inbox-last"><span class="' + whoClass + '">' + who + "</span> · " + escapeHtml(relDate(t.last_message_at)) + "</div>";
@@ -545,6 +585,32 @@
     html += "</select></div>";
 
     card.innerHTML = html;
+
+    var icpSel = card.querySelector("[data-icp]");
+    if (icpSel) {
+      icpSel.addEventListener("mousedown", function (e) {
+        e.stopPropagation();
+      });
+      icpSel.addEventListener("click", function (e) {
+        e.stopPropagation();
+      });
+      icpSel.addEventListener("change", function () {
+        var v = icpSel.value;
+        var prev = t.icp_category || "";
+        t.icp_category = v || null;
+        saveIcp(t.thread_id, v)
+          .then(function (j) {
+            t.icp_category = j.icp_category != null ? j.icp_category : null;
+            icpSel.value = t.icp_category || "";
+            toast("ICP saved");
+          })
+          .catch(function () {
+            t.icp_category = prev || null;
+            icpSel.value = prev;
+            toast("Could not save ICP");
+          });
+      });
+    }
 
     var notesToggle = card.querySelector("[data-notes-toggle]");
     var notesWrap = card.querySelector(".notes-wrap");

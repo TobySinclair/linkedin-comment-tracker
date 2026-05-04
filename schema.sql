@@ -43,6 +43,7 @@ CREATE TABLE IF NOT EXISTS inbox_threads (
   last_message_snippet   TEXT,
   column                 TEXT NOT NULL DEFAULT 'new',
   notes                  TEXT,
+  icp_category           TEXT,
   starred                INTEGER NOT NULL DEFAULT 1,
   first_seen_at          TEXT NOT NULL,
   last_synced_at         TEXT NOT NULL
@@ -51,3 +52,6 @@ CREATE TABLE IF NOT EXISTS inbox_threads (
 CREATE INDEX IF NOT EXISTS idx_inbox_column ON inbox_threads(column);
 CREATE INDEX IF NOT EXISTS idx_inbox_starred ON inbox_threads(starred);
 CREATE INDEX IF NOT EXISTS idx_inbox_last_message ON inbox_threads(last_message_at DESC);
+
+-- If inbox_threads already existed without icp_category, run once per database:
+-- npx wrangler d1 execute <database_name> --remote --command="ALTER TABLE inbox_threads ADD COLUMN icp_category TEXT;"
