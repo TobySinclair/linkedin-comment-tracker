@@ -1,3 +1,7 @@
+-- Legacy DBs missing inbox_threads.icp_category (add once; skip if duplicate column error):
+--   npx wrangler d1 execute linkedin-tracker --local  --command="ALTER TABLE inbox_threads ADD COLUMN icp_category TEXT;"
+--   npx wrangler d1 execute linkedin-tracker --remote --command="ALTER TABLE inbox_threads ADD COLUMN icp_category TEXT;"
+
 -- Card statuses: only non-todo rows are stored (todo = absence of row).
 -- Engagement types follow index.html: comment-only, comment-and-connect, skip.
 CREATE TABLE IF NOT EXISTS card_status (
@@ -66,6 +70,3 @@ CREATE TABLE IF NOT EXISTS directory_contact (
 );
 
 CREATE INDEX IF NOT EXISTS idx_directory_last ON directory_contact (last_interaction_at DESC);
-
--- If inbox_threads already existed without icp_category, run once per database:
--- npx wrangler d1 execute <database_name> --remote --command="ALTER TABLE inbox_threads ADD COLUMN icp_category TEXT;"

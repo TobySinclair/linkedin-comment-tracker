@@ -43,10 +43,16 @@ export async function onRequest(ctx) {
     return jsonError(405, "Method not allowed");
   }
 
-  const { results } = await ctx.env.DB.prepare(
-    "SELECT thread_id, title, is_group, participants_json, role, company, profile_url, presence, last_message_at, last_sender, last_message_snippet, \"column\", notes, icp_category, starred, first_seen_at, last_synced_at FROM inbox_threads ORDER BY last_message_at DESC, thread_id"
-  ).all();
+  try {
+    const { results } = await ctx.env.DB.prepare(
+      "SELECT thread_id, title, is_group, participants_json, role, company, profile_url, presence, last_message_at, last_sender, last_message_snippet, \"column\", notes, icp_category, starred, first_seen_at, last_synced_at FROM inbox_threads ORDER BY last_message_at DESC, thread_id"
+    ).all();
 
-  const threads = (results || []).map(rowToApi);
-  return json({ threads });
+    const threads = (results || []).map(rowToApi);
+    return json({ threads });
+  } catch (e) {
+    const msg = e && e.message ? String(e.message) : "list failed";
+    console.error("[inbox/list]", msg);
+    return jsonError(500, msg);
+  }
 }
