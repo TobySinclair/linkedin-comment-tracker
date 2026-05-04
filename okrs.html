@@ -649,7 +649,7 @@
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
-(function () {{
+(function () {
   var TRACKER_KEY = "summer";
   function apiPath(path) {
     return (path[0] === "/") ? path : ("/" + path);
@@ -1028,9 +1028,11 @@
         var s = document.getElementById("okr-conf-" + idx);
         var l = document.getElementById("okr-conf-" + idx + "-lbl");
         if (!s || !l) return;
-        s.addEventListener("input", function () {
+        function okrConfSliderSync() {
           l.textContent = okrConfLabel(s.value);
-        });
+        }
+        s.addEventListener("input", okrConfSliderSync);
+        s.addEventListener("change", okrConfSliderSync);
       })(si);
     }
 

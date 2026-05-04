@@ -341,18 +341,18 @@
     </div>
     <div class="kpi">
       <div class="kpi-label">Streak</div>
-      <div class="kpi-value">—</div>
-      <div class="kpi-detail">Not tracked in-app</div>
+      <div class="kpi-value" id="kpi-streak">—</div>
+      <div class="kpi-detail">UTC days in a row (today or yesterday starts)</div>
     </div>
     <div class="kpi">
       <div class="kpi-label">This week</div>
-      <div class="kpi-value">—</div>
-      <div class="kpi-detail">Not tracked in-app</div>
+      <div class="kpi-value" id="kpi-week">—</div>
+      <div class="kpi-detail">Comment / +Connect marks · Mon 00:00 UTC</div>
     </div>
     <div class="kpi">
       <div class="kpi-label">Last 30 days</div>
-      <div class="kpi-value">—</div>
-      <div class="kpi-detail">Not tracked in-app</div>
+      <div class="kpi-value" id="kpi-30d">—</div>
+      <div class="kpi-detail">Comment / +Connect marks · rolling</div>
     </div>
   </div>
 
@@ -4185,6 +4185,28 @@
       if (o) o.style.display = done ? "none" : "";
     }
   }
+  function refreshCommentStats() {
+    var stEl = document.getElementById("kpi-streak");
+    var wEl = document.getElementById("kpi-week");
+    var mEl = document.getElementById("kpi-30d");
+    function fail() {
+      if (stEl) stEl.textContent = "—";
+      if (wEl) wEl.textContent = "—";
+      if (mEl) mEl.textContent = "—";
+    }
+    apiFetch("api/stats", { method: "GET" })
+      .then(function (r) {
+        if (!r.ok) throw new Error("stats " + r.status);
+        return r.json();
+      })
+      .then(function (d) {
+        if (stEl) stEl.textContent = d && d.streak != null ? String(d.streak) : "0";
+        if (wEl) wEl.textContent = d && d.week != null ? String(d.week) : "0";
+        if (mEl) mEl.textContent = d && d.days30 != null ? String(d.days30) : "0";
+      })
+      .catch(fail);
+  }
+
   function updateKPIAndChrome() {
     var cards = document.querySelectorAll(".card[data-id]");
     var n = 0, done = 0, todo = 0;
@@ -4718,7 +4740,7 @@
           if (!r.ok) throw new Error("HTTP " + r.status);
           return r.json();
         })
-        .then(function () { toast("Reset"); updateCounts(); if (_drawerCard === card) closeDrawer(); })
+        .then(function () { toast("Reset"); refreshCommentStats(); updateCounts(); if (_drawerCard === card) closeDrawer(); })
         .catch(function () {
           setStatus(card, prev);
           updateCounts();
@@ -4739,7 +4761,7 @@
           if (!r.ok) throw new Error("HTTP " + r.status);
           return r.json();
         })
-        .then(function () { toast(msg); updateCounts(); if (_drawerCard === card) closeDrawer(); maybeScrollToNextInQueue(); })
+        .then(function () { toast(msg); refreshCommentStats(); updateCounts(); if (_drawerCard === card) closeDrawer(); maybeScrollToNextInQueue(); })
         .catch(function () {
           setStatus(card, prev);
           updateCounts();
@@ -4786,8 +4808,21 @@
       return apiFetch("api/statuses/" + encodeURIComponent(p.el.dataset.id), { method: "DELETE" });
     })).then(function (resps) {
       for (var i = 0; i < resps.length; i++) { if (!resps[i].ok) throw new Error("HTTP " + resps[i].status); }
-      return Promise.all(resps.map(function (r) { return r.json(); }));
-    }).then(function () { updateCounts(); toast("Reset all"); })
+      return apiFetch("api/stats/reset", { method: "POST" });
+    }).then(function (r) {
+      if (!r || !r.ok) {
+        refreshCommentStats();
+        updateCounts();
+        toast("Reset all (could not clear streak log)");
+        return;
+      }
+      return r.json();
+    }).then(function (body) {
+      if (body === undefined) return;
+      refreshCommentStats();
+      updateCounts();
+      toast("Reset all");
+    })
     .catch(function () {
       previous.forEach(function (p) { setStatus(p.el, p.status); });
       updateCounts();
@@ -4887,7 +4922,7 @@
       if (!r.ok) throw new Error("load " + r.status);
       return r.json();
     })
-    .then(function (map) { applyStatusMapRemote(map || {}); updateCounts(); })
+    .then(function (map) { applyStatusMapRemote(map || {}); refreshCommentStats(); updateCounts(); })
     .catch(function () {
       document.querySelectorAll(".card[data-id]").forEach(function (card) { setStatus(card, "todo"); });
       updateCounts();

@@ -9,6 +9,19 @@ CREATE TABLE IF NOT EXISTS card_status (
 
 CREATE INDEX IF NOT EXISTS idx_card_status_audience ON card_status (audience);
 
+-- One row per UTC calendar day the user saved a Comment / +Connect mark (streak + backfill).
+CREATE TABLE IF NOT EXISTS engagement_days (
+  day          TEXT PRIMARY KEY,
+  touch_count  INTEGER NOT NULL DEFAULT 1
+);
+
+INSERT INTO engagement_days (day, touch_count)
+SELECT strftime('%Y-%m-%d', updated_at, 'unixepoch', 'utc'), COUNT(*)
+FROM card_status
+WHERE status IN ('comment-only', 'comment-and-connect')
+GROUP BY 1
+ON CONFLICT(day) DO UPDATE SET touch_count = excluded.touch_count;
+
 -- Single-row JSON documents for the ops hub (OKRs, KPIs, weekly check-ins).
 CREATE TABLE IF NOT EXISTS hub_blob (
   doc_id     TEXT PRIMARY KEY,

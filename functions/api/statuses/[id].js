@@ -79,6 +79,16 @@ async function handlePut(ctx, dataId) {
     .bind(dataId, status, audience, now)
     .run();
 
+  if (status === "comment-only" || status === "comment-and-connect") {
+    const dayKey = new Date(now * 1000).toISOString().slice(0, 10);
+    await ctx.env.DB.prepare(
+      `INSERT INTO engagement_days (day, touch_count) VALUES (?1, 1)
+       ON CONFLICT(day) DO UPDATE SET touch_count = touch_count + 1`
+    )
+      .bind(dayKey)
+      .run();
+  }
+
   return json({ ok: true });
 }
 
