@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OKRs & KPIs — Real Talk Studio Ops Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --accent-line: #bfdbfe;
+    --bg: #fafafa;
+    --surface: #ffffff;
+    --surface-soft: #f4f4f5;
+    --border: #e4e4e7;
+    --border-mid: #d4d4d8;
+    --ink: #18181b;
+    --ink-2: #3f3f46;
+    --ink-3: #71717a;
+    --ink-4: #a1a1aa;
+    --ink-5: #d4d4d8;
+    --accent: #2563eb;
+    --accent-2: #1d4ed8;
+    --accent-soft: #eff6ff;
+    --success: #16a34a;
+    --warn: #d97706;
+    --hot: #dc2626;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-lg: 0 4px 12px rgba(0,0,0,0.06), 0 24px 48px rgba(0,0,0,0.08);
+    --sans: "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+    --text: #18181b;
+    --muted: #71717a;
+    --todo-bg: #fff5e6;
+    --todo-text: #92400e;
+    --comment-only-bg: #eff6ff;
+    --comment-only-text: #1d4ed8;
+    --comment-connect-bg: #dcfce7;
+    --comment-connect-text: #166534;
+    --skip-bg: #f4f4f5;
+    --skip-text: #52525b;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  html, body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 13.5px;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+  a { color: var(--accent); }
+  .topnav {
+    height: 52px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 30;
+  }
+  .topnav-left { display: flex; align-items: center; gap: 24px; }
+  .logo {
+    display: inline-flex; align-items: center; gap: 9px;
+    font-weight: 600; font-size: 14px; color: var(--ink); letter-spacing: -0.01em;
+  }
+  .logo-mark {
+    width: 22px; height: 22px;
+    background: var(--ink); border-radius: 5px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--surface); font-size: 13px; font-weight: 600;
+  }
+  .topnav-right { display: flex; align-items: center; gap: 8px; }
+  .btn {
+    height: 32px; padding: 0 12px;
+    font-family: inherit; font-size: 12.5px; font-weight: 500;
+    border-radius: 6px; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--ink);
+    transition: background 0.12s, border-color 0.12s;
+  }
+  .btn:hover { background: var(--surface-soft); border-color: var(--border-mid); }
+  .tabs {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    display: flex; gap: 4px; flex-wrap: wrap;
+  }
+  .tab {
+    padding: 11px 12px; font-size: 13px; color: var(--ink-3);
+    cursor: default;
+    border: none; border-bottom: 2px solid transparent;
+    margin-bottom: -1px; background: none;
+    font-family: inherit;
+  }
+  .tab[data-view] { cursor: pointer; }
+  .tab.tab-current { color: var(--ink); font-weight: 500; border-bottom-color: var(--ink); }
+  .tab:disabled, .tab.tab-disabled {
+    cursor: default; pointer-events: none; opacity: 0.45;
+  }
+  .view-panel[hidden] { display: none !important; }
+  .contacts-table .contacts-thead, .contact-row {
+    display: grid;
+    grid-template-columns: minmax(120px, 1fr) minmax(0, 2.2fr) minmax(140px, 1.1fr);
+    gap: 14px; padding: 0 16px; align-items: start;
+  }
+  .contacts-table .contacts-thead {
+    height: 36px; align-items: center; background: var(--surface-soft);
+    border-bottom: 1px solid var(--border);
+    font-size: 11px; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 500;
+  }
+  .contact-row {
+    min-height: 48px; padding-top: 12px; padding-bottom: 12px;
+    border-bottom: 1px solid var(--border); font-size: 13.5px;
+  }
+  .contact-row:last-child { border-bottom: 0; }
+  .contact-name { font-weight: 500; color: var(--ink); }
+  .contact-title { color: var(--ink-2); line-height: 1.4; }
+  .contact-link { font-size: 12.5px; word-break: break-all; }
+  .contact-link a { font-weight: 500; }
+  .contacts-empty { padding: 24px 16px; color: var(--ink-3); font-size: 13.5px; }
+  @media (max-width: 700px) {
+    .contacts-table .contacts-thead { display: none; }
+    .contact-row { grid-template-columns: 1fr; padding: 12px; gap: 4px; }
+    .contact-link { grid-column: 1; }
+  }
+  .tab-count {
+    font-family: var(--mono); font-size: 11px; color: var(--ink-4);
+    margin-left: 6px; padding: 1px 6px; background: var(--surface-soft);
+    border-radius: 10px; font-weight: 400;
+  }
+  .page { max-width: 1180px; margin: 0 auto; padding: 24px 24px 80px; }
+  .page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin-bottom: 20px; flex-wrap: wrap; }
+  .page-title { font-size: 22px; font-weight: 600; letter-spacing: -0.02em; color: var(--ink); margin: 0; }
+  .page-sub { font-size: 13.5px; color: var(--ink-3); margin: 4px 0 0; }
+  .queue-status { font-size: 15px; color: var(--ink); font-weight: 600; margin: 0; padding: 0; }
+  .page-meta { display: flex; align-items: center; gap: 14px; font-family: var(--mono); font-size: 11.5px; color: var(--ink-3); }
+  .page-meta .sep { color: var(--ink-5); }
+  .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+  .kpi {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    padding: 14px 16px; display: flex; flex-direction: column; gap: 6px;
+  }
+  .kpi-label { font-size: 11px; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 500; }
+  .kpi-value { font-size: 26px; font-weight: 500; letter-spacing: -0.02em; color: var(--ink); line-height: 1.1; }
+  .kpi-value .of { font-size: 16px; font-weight: 400; color: var(--ink-4); }
+  .kpi-detail { font-size: 12px; color: var(--ink-3); }
+  .kpi-bar { height: 4px; background: var(--surface-soft); border-radius: 2px; overflow: hidden; margin-top: 4px; }
+  .kpi-bar-fill { height: 100%; background: var(--ink); border-radius: 2px; transition: width 0.3s ease; }
+  .kpi-trend { font-size: 12px; color: var(--success); font-family: var(--mono); }
+  .section-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .section-title { font-size: 13px; font-weight: 600; color: var(--ink); display: flex; align-items: center; gap: 10px; }
+  .section-counter {
+    font-family: var(--mono); font-size: 11px; color: var(--ink-3);
+    background: var(--surface-soft); border: 1px solid var(--border);
+    padding: 1px 7px; border-radius: 10px;
+  }
+  .toggle { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; color: var(--ink-3); font-size: 12.5px; }
+  .toggle-track {
+    width: 28px; height: 16px; background: var(--ink-5); border-radius: 999px; position: relative; transition: background 0.15s;
+  }
+  .toggle-track::after {
+    content: ""; position: absolute; width: 12px; height: 12px; background: white; border-radius: 50%;
+    top: 2px; left: 2px; transition: left 0.15s; box-shadow: var(--shadow-sm);
+  }
+  .toggle.on .toggle-track { background: var(--ink); }
+  .toggle.on .toggle-track::after { left: 14px; }
+  .table {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-top: 0;
+  }
+  .thead, .trow-cells { display: grid; grid-template-columns: 36px 1.5fr 2fr 110px 120px 120px; gap: 12px; padding: 0 14px; align-items: center; }
+  .thead { height: 36px; background: var(--surface-soft); border-bottom: 1px solid var(--border);
+    font-size: 11px; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 500; }
+  .filter-menu-bar { margin: 0 0 20px; display: flex; flex-direction: column; gap: 16px; }
+  .filter-menus { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 16px 28px; }
+  .filter-menu-field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .filter-menu-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-3); }
+  .filter-select {
+    min-width: 168px; max-width: 100%;
+    height: 34px; padding: 0 32px 0 10px;
+    font: inherit; font-size: 13px; color: var(--ink);
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px; cursor: pointer;
+    appearance: none; -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2371717a' d='M2.5 4.5L6 8l3.5-3.5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 10px center;
+  }
+  .filter-select:hover { border-color: var(--border-mid); }
+  .filter-select:focus { outline: none; box-shadow: 0 0 0 2px var(--accent-soft); border-color: var(--accent); }
+  @media (max-width: 540px) { .filter-select { min-width: 0; width: 100%; } }
+  .queue-list { margin: 0; }
+  .day-addressed-divider { display: flex; align-items: center; gap: 10px; color: var(--ink-3); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; margin: 0; padding: 8px 14px; background: var(--surface-soft); border-bottom: 1px solid var(--border); }
+  .day-addressed-divider::before, .day-addressed-divider::after { content: none; }
+  .queue-addressed-divider.is-hidden { display: none; }
+  .day { margin-top: 0; } .day > h2 { display: none; }
+  .table .wrap { border: 0; margin: 0; padding: 0; }
+  .card {
+    background: var(--surface); border: 0; border-bottom: 1px solid var(--border); border-radius: 0; padding: 0; margin: 0;
+    transition: background 0.1s, box-shadow 0.2s; box-shadow: none;
+  }
+  .card:last-child { border-bottom: 0; }
+  .card:hover { background: var(--surface-soft); }
+  .card.hidden { display: none; }
+  .queue-list.hide-done .card.card--addressed { display: none; }
+  .queue-list.hide-done .queue-addressed-divider { display: none; }
+  .card.card--addressed { opacity: 1; }
+  .card.trow.done .col-topic, .card.trow.done .author { color: var(--ink-3); }
+  .card.trow.done .author { text-decoration: line-through; text-decoration-color: var(--ink-5); }
+  .card.is-open { background: #fafaf9; }
+  .card-body { display: none; border-top: 1px solid var(--border); padding: 16px 18px; background: var(--surface-soft); }
+  .card.is-open .card-body { display: block; }
+  .card-head {
+    display: block; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; cursor: pointer; border-radius: 0;
+  }
+  .trow-cells { min-height: 56px; padding-top: 10px; padding-bottom: 10px; }
+  .card-expand {
+    all: unset; display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; margin: 0; border-radius: 6px; cursor: pointer; color: var(--ink-3);
+  }
+  .card-expand::before { content: ""; display: block; width: 6px; height: 6px; border: solid var(--ink-3); border-width: 0 2px 2px 0; transform: translateX(2px) rotate(-45deg); transition: transform 0.2s; }
+  .card.is-open .card-expand::before { transform: translateY(-1px) rotate(45deg); }
+  .card-expand:hover, .card-expand:focus { color: var(--accent); background: var(--accent-soft); box-shadow: 0 0 0 2px var(--accent-line, #bfdbfe); }
+  .name-stack { min-width: 0; }
+  .author-cell { display: flex; align-items: center; gap: 10px; min-width: 0; }
+  .author-avatar {
+    width: 28px; height: 28px; border-radius: 50%; color: #fff; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; font-size: 10.5px; font-weight: 600;
+  }
+  .author { font-size: 13.5px; font-weight: 500; color: var(--ink); }
+  .author-role { font-size: 12px; color: var(--ink-3); margin-top: 1px; }
+  .col-topic { font-size: 13px; color: var(--ink-2); line-height: 1.4; }
+  .badges-cell { display: flex; gap: 4px; flex-wrap: wrap; }
+  .engage-cell { font-family: var(--mono); font-size: 11.5px; color: var(--ink-3); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .engage-cell .s { color: var(--ink); font-weight: 500; }
+  .status-cell { text-align: right; font-size: 12px; }
+  .status-cell .row-date { font-size: 10px; color: var(--ink-4); font-family: var(--mono); margin-bottom: 2px; }
+  .status-tag { display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 4px; letter-spacing: 0.02em; }
+  .status.todo, .status-tag.todo { background: var(--todo-bg); color: var(--todo-text); }
+  .status.comment-only, .status-tag.comment-only { background: var(--comment-only-bg); color: var(--comment-only-text); }
+  .status.comment-and-connect, .status-tag.comment-and-connect { background: var(--comment-connect-bg); color: var(--comment-connect-text); }
+  .status.skip, .status-tag.skip { background: var(--skip-bg); color: var(--skip-text); }
+  .open-btn, .drawer-open-btn { color: var(--accent); font-weight: 500; display: inline-flex; align-items: center; gap: 4px; font-size: 12px; cursor: pointer; }
+  .trow-cells .open-btn, .trow-cells .drawer-open-btn { opacity: 0.85; }
+  .card:hover .trow-cells .open-btn, .card:hover .trow-cells .drawer-open-btn { opacity: 1; }
+  .status-done { color: var(--success); font-weight: 500; display: inline-flex; align-items: center; gap: 4px; }
+  .badge { display: inline-block; font-size: 10.5px; font-weight: 600; padding: 2px 7px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .badge.chro { background: #faf5ff; color: #7e22ce; border: 1px solid #e9d5ff; }
+  .badge.icp { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+  .badge.influencer { background: #fff7ed; color: #9a3412; border: 1px solid #fed7aa; }
+  .meta { display: grid; grid-template-columns: auto 1fr; gap: 6px 16px; font-size: 13.5px; margin: 12px 0 16px; }
+  .meta dt { color: var(--ink-3); font-weight: 500; } .meta dd { margin: 0; }
+  .comment { background: var(--accent-soft); border-left: 3px solid var(--accent); border-radius: 0 6px 6px 0; padding: 12px 14px; font-size: 14px; line-height: 1.6; }
+  .post-content { background: #fff; border: 1px solid var(--border); border-radius: 6px; padding: 12px 14px; font-size: 13.5px; white-space: pre-wrap; }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .actions .btn { height: auto; min-height: 34px; padding: 6px 12px; }
+  .actions .btn:hover { border-color: var(--accent); }
+  .actions .btn.active[data-action="comment-only"] { background: var(--comment-only-bg); color: var(--comment-only-text); border-color: #93c5fd; }
+  .actions .btn.active[data-action="comment-and-connect"] { background: var(--comment-connect-bg); color: var(--comment-connect-text); border-color: #86efac; }
+  .actions .btn.active[data-action="skip"] { background: var(--skip-bg); color: var(--skip-text); border-color: var(--border-mid); }
+  .post-content-label { font-size: 11px; font-weight: 600; color: var(--ink-3); text-transform: uppercase; margin-bottom: 6px; }
+  .comment-label { font-size: 11px; font-weight: 600; color: var(--accent); text-transform: uppercase; margin-bottom: 6px; }
+  .flag { font-style: italic; color: var(--ink-3); }
+  .backdrop { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.32); opacity: 0; pointer-events: none; transition: opacity 0.2s; z-index: 50; }
+  .backdrop.open { opacity: 1; pointer-events: auto; }
+  .drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(560px, 92vw); background: var(--surface); border-left: 1px solid var(--border); box-shadow: var(--shadow-lg);
+    transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.32, 0.72, 0.24, 1); z-index: 60; display: flex; flex-direction: column; }
+  .drawer.open { transform: translateX(0); }
+  .drawer-top { height: 48px; border-bottom: 1px solid var(--border); padding: 0 16px 0 20px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+  .drawer-scroll { flex: 1; overflow-y: auto; padding: 20px; }
+  .drawer-author { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 20px; }
+  .drawer-avatar { width: 40px; height: 40px; border-radius: 50%; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; }
+  .field-label { font-size: 10.5px; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 500; margin-bottom: 6px; }
+  .post-body { background: var(--surface-soft); border: 1px solid var(--border); border-radius: 6px; padding: 12px 14px; font-size: 13.5px; line-height: 1.55; margin-bottom: 16px; }
+  .drawer-actions { border-top: 1px solid var(--border); padding: 12px; flex-shrink: 0; background: var(--surface); }
+  .drawer-actions .actions { margin: 0; }
+  .btn-success { background: var(--success); color: #fff; border-color: var(--success); }
+  .btn-success:hover { background: #15803d; }
+  .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .btn-primary:hover { background: var(--accent-2); border-color: var(--accent-2); }
+  @media (max-width: 900px) { .kpis { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 700px) {
+    .thead { display: none; }
+    .trow-cells { grid-template-columns: 28px 1fr; padding: 10px; gap: 8px; }
+    .trow-cells .col-topic, .trow-cells .badges-cell, .trow-cells .engage-cell, .trow-cells .status-cell { grid-column: 2; }
+    .trow-cells .cell-expand { grid-column: 1; align-self: start; }
+    .trow-cells .author-cell { grid-column: 2; }
+    .trow-cells { align-items: start; }
+    .page { padding: 16px; }
+  }
+  .toast { position: fixed; bottom: max(20px, env(safe-area-inset-bottom, 0px)); left: 50%; transform: translateX(-50%) translateY(20px);
+    background: #18181b; color: #fff; padding: 10px 16px; border-radius: 999px; font-size: 12.5px; opacity: 0; pointer-events: none; transition: opacity 0.18s, transform 0.18s; z-index: 100; }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  code { font-family: var(--mono); }
+  /* OKR hub */
+  .okr-layout { display: flex; flex-direction: column; gap: 28px; max-width: 920px; }
+  .okr-pillars {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+  }
+  @media (max-width: 800px) { .okr-pillars { grid-template-columns: 1fr; } }
+  .okr-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    padding: 16px 18px;
+  }
+  .okr-card h3 {
+    margin: 0 0 8px; font-size: 11px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.06em; color: var(--ink-3);
+  }
+  .okr-card p { margin: 0; font-size: 13.5px; color: var(--ink-2); line-height: 1.5; }
+  .okr-card p strong { color: var(--ink); font-weight: 600; }
+  .okr-banner {
+    background: linear-gradient(135deg, var(--accent-soft) 0%, var(--surface) 55%);
+    border: 1px solid var(--border); border-radius: 8px; padding: 18px 20px;
+    display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 16px 24px;
+  }
+  .okr-banner-main { flex: 1; min-width: min(100%, 240px); }
+  .okr-banner h2 { margin: 0 0 6px; font-size: 16px; font-weight: 600; color: var(--ink); }
+  .okr-banner p { margin: 0; font-size: 13.5px; color: var(--ink-2); line-height: 1.5; }
+  .okr-qtr-count {
+    flex-shrink: 0;
+    max-width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+    box-shadow: var(--shadow-sm);
+  }
+  .okr-qtr-donut {
+    position: relative;
+    width: 108px;
+    height: 108px;
+    margin: 0 auto;
+  }
+  .okr-qtr-svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+  .okr-qtr-track {
+    stroke: var(--border);
+    opacity: 0.85;
+  }
+  .okr-qtr-progress {
+    stroke: var(--accent);
+    stroke-linecap: round;
+    stroke-dasharray: 251.33 251.33;
+    stroke-dashoffset: 251.33;
+    transition: stroke-dashoffset 0.5s ease;
+  }
+  .okr-qtr-donut-label {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    font-family: var(--mono);
+  }
+  .okr-qtr-donut-pct {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+  }
+  .okr-qtr-donut-wd {
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--ink-3);
+    margin-top: 3px;
+    letter-spacing: 0.03em;
+  }
+  .okr-kr-block { margin-top: 8px; }
+  .okr-kr-row {
+    display: grid; grid-template-columns: 1fr auto; gap: 12px 16px;
+    padding: 14px 16px; border-bottom: 1px solid var(--border);
+    background: var(--surface); align-items: start;
+  }
+  .okr-kr-row:last-child { border-bottom: none; }
+  @media (max-width: 640px) { .okr-kr-row { grid-template-columns: 1fr; } }
+  .okr-kr-title { font-weight: 600; font-size: 13.5px; color: var(--ink); margin: 0 0 4px; }
+  .okr-kr-desc { font-size: 13px; color: var(--ink-2); margin: 0; line-height: 1.45; }
+  .okr-confidence-badge {
+    font-family: var(--mono); font-size: 11px; padding: 4px 8px; border-radius: 6px;
+    background: var(--surface-soft); border: 1px solid var(--border); color: var(--ink-3);
+    white-space: nowrap; text-align: center;
+  }
+  .okr-confidence-badge.has-val { color: var(--ink); background: #ecfdf5; border-color: #a7f3d0; }
+  .okr-confidence-badge.warn { background: #fff7ed; border-color: #fed7aa; color: #9a3412; }
+  .okr-list { margin: 0; padding-left: 18px; color: var(--ink-2); font-size: 13.5px; line-height: 1.55; }
+  .okr-list li { margin-bottom: 6px; }
+  .okr-kpi-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;
+  }
+  @media (max-width: 640px) { .okr-kpi-grid { grid-template-columns: 1fr; } }
+  .okr-field { display: flex; flex-direction: column; gap: 4px; }
+  .okr-field label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-3); }
+  .okr-field input, .okr-field textarea, .okr-field select {
+    font: inherit; font-size: 13px; padding: 8px 10px; border-radius: 6px;
+    border: 1px solid var(--border); background: var(--surface); color: var(--ink);
+  }
+  .okr-field input:focus, .okr-field textarea:focus, .okr-field select:focus {
+    outline: none; box-shadow: 0 0 0 2px var(--accent-soft); border-color: var(--accent);
+  }
+  .okr-field textarea { min-height: 72px; resize: vertical; line-height: 1.45; }
+  .okr-field-hint { font-size: 11px; color: var(--ink-4); }
+  .okr-field.alert-below input, .okr-field.alert-below textarea { border-color: var(--hot); box-shadow: 0 0 0 1px rgba(220, 38, 38, 0.12); }
+  .okr-alert { font-size: 11.5px; color: var(--hot); font-weight: 500; margin-top: 2px; }
+  .okr-week-form {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    padding: 18px; display: flex; flex-direction: column; gap: 16px;
+  }
+  .okr-week-row { display: grid; grid-template-columns: 140px 1fr; gap: 12px; align-items: start; }
+  @media (max-width: 540px) { .okr-week-row { grid-template-columns: 1fr; } }
+  .okr-conf-slider { width: 100%; accent-color: var(--accent); }
+  .okr-conf-val { font-family: var(--mono); font-size: 12px; color: var(--ink-3); margin-top: 4px; }
+  .okr-history { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--surface); }
+  .okr-history-head {
+    padding: 10px 14px; background: var(--surface-soft); font-size: 11px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-3);
+    border-bottom: 1px solid var(--border);
+  }
+  .okr-history-item { padding: 14px 16px; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .okr-history-item:last-child { border-bottom: none; }
+  .okr-history-meta { font-family: var(--mono); font-size: 11px; color: var(--ink-4); margin-bottom: 8px; }
+  .okr-history-kr { margin: 6px 0 0; padding-left: 12px; border-left: 2px solid var(--accent-line); color: var(--ink-2); }
+  .okr-principles { font-size: 13px; color: var(--ink-2); line-height: 1.55; margin: 0; }
+  .okr-sustain { font-size: 13px; color: var(--ink-2); margin: 0; line-height: 1.5; }
+  .okr-sustain strong { color: var(--ink); }
+</style>
+</head>
+<body>
+<nav class="topnav" aria-label="Application">
+  <div class="topnav-left">
+    <div class="logo"><div class="logo-mark">R</div>Real Talk Studio <span style="font-weight: 400; color: var(--ink-3)">· Ops hub</span></div>
+    <div style="display:flex;align-items:center;gap:2px;margin-left:4px;padding-left:16px;border-left:1px solid var(--border);height:28px;">
+      <a href="index.html" style="font-size:12.5px;font-weight:500;color:var(--ink-3);text-decoration:none;padding:6px 10px;border-radius:6px;border:1px solid transparent;">Ops hub</a>
+      <a href="inbox.html" style="font-size:12.5px;font-weight:500;color:var(--ink-3);text-decoration:none;padding:6px 10px;border-radius:6px;border:1px solid transparent;">Inbox</a>
+      <a href="okrs.html" style="font-size:12.5px;font-weight:500;color:var(--ink);text-decoration:none;padding:6px 10px;border-radius:6px;background:var(--surface-soft);border:1px solid var(--border);">OKRs</a>
+    </div>
+  </div>
+</nav>
+<main class="page">
+  <div class="page-head">
+    <div>
+      <h1 class="page-title" id="page-title">OKRs</h1>
+      <p class="page-sub" id="page-sub">Q2 2026 objective, key results, and Monday check-ins. Syncs to the hub when configured.</p>
+    </div>
+  </div>
+  <div class="tabs" role="tablist" aria-label="OKR hub views">
+    <button type="button" class="tab tab-current" id="tab-okr" role="tab" aria-selected="true" aria-controls="view-okr" data-view="okr">OKRs</button>
+    <button type="button" class="tab" id="tab-kpis" role="tab" aria-selected="false" aria-controls="view-kpis" data-view="kpis">KPIs</button>
+  </div>
+  <div id="view-okr" class="view-panel" role="tabpanel" aria-labelledby="tab-okr">
+    <div class="okr-layout">
+
+      <div class="okr-pillars">
+        <div class="okr-card">
+          <h3>Mission</h3>
+          <p>Reduce employee/customer harm and business risk by assuring employees are ready for the riskiest conversations.</p>
+        </div>
+        <div class="okr-card">
+          <h3>5–10 year plan</h3>
+          <p>Build Real Talk Studio to ~£5m valuation in 3–5 years through sustainable recurring revenue and this mission. Exit funds a lifestyle buffer plus runway for the next venture.</p>
+        </div>
+        <div class="okr-card">
+          <h3>Annual objective (2026)</h3>
+          <p>Reach <strong>£8–10k MRR</strong> from <strong>4–5 customers</strong> by end of 2026 — the threshold that unlocks hiring, reinvestment, and path to £5m exit. Maintain <strong>12-month runway</strong> throughout.</p>
+        </div>
+      </div>
+
+      <div class="okr-banner">
+        <div class="okr-banner-main">
+          <h2>Q2 objective</h2>
+          <p>Advance an &ldquo;employee harm&rdquo; prospect to <strong>proposal stage</strong> to validate ICP and market fit.</p>
+        </div>
+        <div class="okr-qtr-count" id="okr-qtr-count" role="group" aria-live="polite" title="Monday–Friday only; aligned with calendar Q2 (Apr–Jun)">
+          <div class="okr-qtr-donut">
+            <svg class="okr-qtr-svg" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+              <circle class="okr-qtr-track" cx="50" cy="50" r="40" fill="none" stroke-width="8" />
+              <circle class="okr-qtr-progress" id="okr-qtr-ring-progress" cx="50" cy="50" r="40" fill="none" stroke-width="8" transform="rotate(-90 50 50)" />
+            </svg>
+            <div class="okr-qtr-donut-label">
+              <span class="okr-qtr-donut-pct" id="okr-qtr-pct-center">—</span>
+              <span class="okr-qtr-donut-wd" id="okr-qtr-donut-wd-lbl"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-bar" style="margin-bottom: 0">
+          <div class="section-title">Q2 key results</div>
+        </div>
+        <div class="okr-kr-block table" style="margin-top: 0; padding: 0">
+          <div class="okr-kr-row">
+            <div>
+              <p class="okr-kr-title">KR1 · New ARR customer</p>
+              <p class="okr-kr-desc">Secure one new ARR customer by end of Q2.</p>
+            </div>
+            <div class="okr-confidence-badge" id="okr-kr-badge-1" title="Latest weekly confidence">No check-in yet</div>
+          </div>
+          <div class="okr-kr-row">
+            <div>
+              <p class="okr-kr-title">KR2 · Renewals</p>
+              <p class="okr-kr-desc">Renew two existing clients for next year by end of Q2.</p>
+            </div>
+            <div class="okr-confidence-badge" id="okr-kr-badge-2" title="Latest weekly confidence">No check-in yet</div>
+          </div>
+          <div class="okr-kr-row">
+            <div>
+              <p class="okr-kr-title">KR3 · Discovery conversations</p>
+              <p class="okr-kr-desc">40+ conversations with HR or Compliance decision-makers (or Finance, Legal, People Ops stakeholders) across the quarter (~3/week).</p>
+            </div>
+            <div class="okr-confidence-badge" id="okr-kr-badge-3" title="Latest weekly confidence">No check-in yet</div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-bar" style="margin-bottom: 10px">
+          <div class="section-title">Weekly review <span class="section-counter">Mondays · ~15 min</span></div>
+        </div>
+        <p class="okr-principles" style="margin-bottom: 14px">OKR progress (one sentence per KR), anti-goal slips, and MRR check. Confidence: how likely are you to hit each KR on the current trajectory?</p>
+
+        <div class="okr-week-form">
+          <div class="okr-field">
+            <label for="okr-week-start">Week of (Monday)</label>
+            <input type="date" id="okr-week-start" autocomplete="off">
+          </div>
+
+          <div class="okr-week-row">
+            <div><label class="filter-menu-label" style="display:block;margin-bottom:6px">KR1 confidence</label><input type="range" class="okr-conf-slider" id="okr-conf-1" min="0" max="10" value="5"><div class="okr-conf-val" id="okr-conf-1-lbl">5 · Medium</div></div>
+            <div class="okr-field" style="margin:0">
+              <label for="okr-note-1">KR1 · One sentence</label>
+              <textarea id="okr-note-1" placeholder="Progress on new ARR customer…"></textarea>
+            </div>
+          </div>
+          <div class="okr-week-row">
+            <div><label class="filter-menu-label" style="display:block;margin-bottom:6px">KR2 confidence</label><input type="range" class="okr-conf-slider" id="okr-conf-2" min="0" max="10" value="5"><div class="okr-conf-val" id="okr-conf-2-lbl">5 · Medium</div></div>
+            <div class="okr-field" style="margin:0">
+              <label for="okr-note-2">KR2 · One sentence</label>
+              <textarea id="okr-note-2" placeholder="Renewals pipeline…"></textarea>
+            </div>
+          </div>
+          <div class="okr-week-row">
+            <div><label class="filter-menu-label" style="display:block;margin-bottom:6px">KR3 confidence</label><input type="range" class="okr-conf-slider" id="okr-conf-3" min="0" max="10" value="5"><div class="okr-conf-val" id="okr-conf-3-lbl">5 · Medium</div></div>
+            <div class="okr-field" style="margin:0">
+              <label for="okr-note-3">KR3 · One sentence</label>
+              <textarea id="okr-note-3" placeholder="Conversations this week / trajectory to 40+…"></textarea>
+            </div>
+          </div>
+
+          <div class="okr-field">
+            <label for="okr-anti">Anti-goal slips</label>
+            <textarea id="okr-anti" placeholder="Lumpy deals? Too much non-customer product time? ICP drift?"></textarea>
+          </div>
+          <div class="okr-field">
+            <label for="okr-mrr-week">MRR / revenue note</label>
+            <textarea id="okr-mrr-week" placeholder="Monthly MRR check, pipeline, risks…"></textarea>
+          </div>
+
+          <div>
+            <button type="button" class="btn btn-primary" id="okr-week-save">Save weekly check-in</button>
+          </div>
+        </div>
+
+        <div class="okr-history" style="margin-top: 16px">
+          <div class="okr-history-head">Past check-ins</div>
+          <div id="okr-history-body"></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-bar" style="margin-bottom: 10px">
+          <div class="section-title">Sustain · Success beyond numbers</div>
+        </div>
+        <p class="okr-sustain"><strong>Balance</strong> — right time with family. <strong>Revenue</strong> — ~£3k/month minimum, 12-month runway. <strong>Values</strong> — interesting, value-aligned work reducing harm.</p>
+      </div>
+
+      <div>
+        <div class="section-bar" style="margin-bottom: 10px">
+          <div class="section-title">Operating principles</div>
+        </div>
+        <ul class="okr-list">
+          <li>Every new deal needs a built-in renewal path (credits, tiers, multi-year). No deals shaped to be hard to renew.</li>
+          <li><strong>Lead with mission</strong>, not technology — employee/customer harm (harassment, bullying, vulnerable customers, conduct risk), not avatars or AI features.</li>
+        </ul>
+      </div>
+
+      <div>
+        <div class="section-bar" style="margin-bottom: 10px">
+          <div class="section-title">Anti-goals (Q2)</div>
+        </div>
+        <ul class="okr-list">
+          <li>No chasing one-off deals under £20k, or non-ARR shapes — focus on recurring or multi-year structure. Larger one-offs (£20k+) are runway only if they don&rsquo;t derail Q2 OKRs.</li>
+          <li>No more than <strong>one day per week</strong> on product features not requested by paying customers.</li>
+          <li>Stay on <strong>Compliance + HR ICP</strong> this quarter; reassess end Q2 only if meetings, conversions, or urgency show a clear pattern despite best effort.</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="view-kpis" class="view-panel" role="tabpanel" aria-labelledby="tab-kpis" hidden>
+    <div class="okr-layout">
+      <div>
+        <div class="section-bar" style="margin-bottom: 10px">
+          <div class="section-title">Operational KPIs</div>
+        </div>
+        <p class="okr-sustain" style="margin-bottom: 14px">Targets: <strong>£8–10k MRR</strong> (2026), <strong>4–5</strong> recurring customers, <strong>£1.5–2k MRR</strong> each (~£18–24k ARR per customer). Runway floor <strong>£36k</strong> (12 months); you noted ~£70k currently. Gross margin: flag if below <strong>60%</strong>.</p>
+        <div class="okr-kpi-grid" id="okr-kpi-form">
+          <div class="okr-field">
+            <label for="okr-kpi-mrr">MRR (£)</label>
+            <input type="number" id="okr-kpi-mrr" min="0" step="100" placeholder="e.g. 4500" autocomplete="off">
+            <span class="okr-field-hint">Monthly recurring revenue</span>
+          </div>
+          <div class="okr-field">
+            <label for="okr-kpi-runway">Runway / cash buffer (£)</label>
+            <input type="number" id="okr-kpi-runway" min="0" step="1000" placeholder="e.g. 70000" autocomplete="off">
+            <span class="okr-field-hint" id="okr-runway-hint"></span>
+          </div>
+          <div class="okr-field" id="okr-margin-field">
+            <label for="okr-kpi-margin">Gross margin (%)</label>
+            <input type="number" id="okr-kpi-margin" min="0" max="100" step="0.5" placeholder="e.g. 72" autocomplete="off">
+            <span class="okr-alert" id="okr-margin-alert" hidden>Below 60% — investigate cost of delivery and pricing.</span>
+          </div>
+          <div class="okr-field">
+            <label for="okr-kpi-customers">Recurring revenue customers</label>
+            <input type="number" id="okr-kpi-customers" min="0" step="1" placeholder="e.g. 3" autocomplete="off">
+            <span class="okr-field-hint">Target 4–5 by end 2026</span>
+          </div>
+          <div class="okr-field" style="grid-column: 1 / -1">
+            <label for="okr-kpi-convos">Q2 conversations tally (HR / Compliance / stakeholders)</label>
+            <input type="number" id="okr-kpi-convos" min="0" step="1" placeholder="Running count toward 40+" autocomplete="off">
+          </div>
+        </div>
+        <p style="margin: 14px 0 0"><button type="button" class="btn btn-primary" id="okr-kpi-save">Save KPI snapshot</button></p>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function () {{
+  var TRACKER_KEY = "summer";
+  function apiPath(path) {
+    return (path[0] === "/") ? path : ("/" + path);
+  }
+
+  function apiFetch(path, options) {
+    options = options || {};
+    var headers = new Headers(options.headers || {});
+    headers.set("X-Tracker-Key", TRACKER_KEY);
+    if (options.body && !headers.has("Content-Type")) {
+      headers.set("Content-Type", "application/json");
+    }
+    return fetch(apiPath(path), { credentials: "same-origin", headers: headers, method: options.method || "GET", body: options.body });
+  }
+  function toast(msg) {
+    var t = document.getElementById("toast");
+    if (!t) return;
+    t.textContent = msg;
+    t.classList.add("show");
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function () { t.classList.remove("show"); }, 1400);
+  }
+  function escapeHtml(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+  var OKR_LS = "rts-hub-okr-v1";
+  function okrDefaultState() {
+    return {
+      kpis: { mrrGbp: "", runwayGbp: "", grossMarginPct: "", recurringCustomers: "", conversationsQ2Count: "" },
+      weekly: []
+    };
+  }
+  function okrLoadState() {
+    try {
+      var raw = localStorage.getItem(OKR_LS);
+      if (!raw) return okrDefaultState();
+      var o = JSON.parse(raw);
+      if (!o || typeof o !== "object") return okrDefaultState();
+      if (!o.kpis || typeof o.kpis !== "object") o.kpis = okrDefaultState().kpis;
+      if (!Array.isArray(o.weekly)) o.weekly = [];
+      return o;
+    } catch (e) {
+      return okrDefaultState();
+    }
+  }
+  function okrSaveState(st) {
+    try { localStorage.setItem(OKR_LS, JSON.stringify(st)); } catch (e) {}
+  }
+  function okrMergeRemotePayload(o) {
+    var base = okrDefaultState();
+    if (!o || typeof o !== "object") return base;
+    var keys = ["mrrGbp", "runwayGbp", "grossMarginPct", "recurringCustomers", "conversationsQ2Count"];
+    if (o.kpis && typeof o.kpis === "object" && !Array.isArray(o.kpis)) {
+      keys.forEach(function (key) {
+        if (o.kpis[key] !== undefined && o.kpis[key] !== null && o.kpis[key] !== "") {
+          base.kpis[key] = String(o.kpis[key]);
+        }
+      });
+    }
+    if (Array.isArray(o.weekly)) {
+      base.weekly = o.weekly;
+    }
+    return base;
+  }
+  function okrStateIsEmpty(st) {
+    if (!st) return true;
+    if (Array.isArray(st.weekly) && st.weekly.length > 0) return false;
+    var k = st.kpis || {};
+    var keys = ["mrrGbp", "runwayGbp", "grossMarginPct", "recurringCustomers", "conversationsQ2Count"];
+    for (var i = 0; i < keys.length; i++) {
+      var v = k[keys[i]];
+      if (v !== undefined && v !== "" && v !== null) return false;
+    }
+    return true;
+  }
+  function okrPushRemote(st) {
+    return apiFetch("api/hub/okr", {
+      method: "PUT",
+      body: JSON.stringify(st)
+    }).then(function (r) {
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      return r.json();
+    });
+  }
+  function okrMondayISOFromDate(d) {
+    var x = new Date(d);
+    if (isNaN(x.getTime())) x = new Date();
+    var day = x.getDay();
+    var diff = day === 0 ? -6 : 1 - day;
+    x.setDate(x.getDate() + diff);
+    var y = x.getFullYear();
+    var m = String(x.getMonth() + 1);
+    if (m.length === 1) m = "0" + m;
+    var dd = String(x.getDate());
+    if (dd.length === 1) dd = "0" + dd;
+    return y + "-" + m + "-" + dd;
+  }
+  function okrStartOfDay(d) {
+    var x = new Date(d);
+    if (isNaN(x.getTime())) x = new Date();
+    return new Date(x.getFullYear(), x.getMonth(), x.getDate());
+  }
+  function okrCountWeekdays(start, end) {
+    var s = okrStartOfDay(start);
+    var e = okrStartOfDay(end);
+    if (e < s) return 0;
+    var n = 0;
+    for (var cur = new Date(s.getTime()); cur <= e; cur.setDate(cur.getDate() + 1)) {
+      var day = cur.getDay();
+      if (day !== 0 && day !== 6) n++;
+    }
+    return n;
+  }
+  function okrQ2BoundsForYear(year) {
+    return {
+      start: new Date(year, 3, 1),
+      end: new Date(year, 5, 30)
+    };
+  }
+  function okrUpdateQuarterCount() {
+    var elWrap = document.getElementById("okr-qtr-count");
+    var elRing = document.getElementById("okr-qtr-ring-progress");
+    var elPctCenter = document.getElementById("okr-qtr-pct-center");
+    var elWdLbl = document.getElementById("okr-qtr-donut-wd-lbl");
+    if (!elPctCenter) return;
+    var ringR = 40;
+    var circ = 2 * Math.PI * ringR;
+    var today = okrStartOfDay(new Date());
+    var y = today.getFullYear();
+    var b = okrQ2BoundsForYear(y);
+    var total = okrCountWeekdays(b.start, b.end);
+    if (total < 1) {
+      elPctCenter.textContent = "—";
+      if (elWdLbl) elWdLbl.textContent = "";
+      if (elRing) {
+        elRing.setAttribute("stroke-dasharray", circ + " " + circ);
+        elRing.setAttribute("stroke-dashoffset", String(circ));
+      }
+      if (elWrap) elWrap.removeAttribute("aria-label");
+      return;
+    }
+    var elapsed;
+    if (today < b.start) {
+      elapsed = 0;
+    } else if (today > b.end) {
+      elapsed = total;
+    } else {
+      elapsed = okrCountWeekdays(b.start, today);
+    }
+    var remaining = total - elapsed;
+    if (today > b.end) remaining = 0;
+    var frac = remaining / total;
+    var pct = Math.round(frac * 1000) / 10;
+    var pctStr = String(pct);
+    elPctCenter.textContent = pctStr + "%";
+    if (elWdLbl) {
+      if (today < b.start) elWdLbl.textContent = "until Q2";
+      else if (today > b.end) elWdLbl.textContent = "Q2 complete";
+      else elWdLbl.textContent = String(remaining) + " wd";
+    }
+    if (elRing) {
+      elRing.setAttribute("stroke-dasharray", circ + " " + circ);
+      elRing.setAttribute("stroke-dashoffset", String(circ * (1 - frac)));
+    }
+    if (elWrap) {
+      elWrap.setAttribute(
+        "aria-label",
+        "Q2 weekdays: " + pctStr + " percent of quarter remaining, " + remaining + " weekdays left."
+      );
+    }
+  }
+  function okrConfLabel(n) {
+    var i = parseInt(n, 10);
+    if (isNaN(i) || i < 0) i = 0;
+    if (i > 10) i = 10;
+    var label;
+    if (i <= 2) label = "Very low";
+    else if (i <= 4) label = "Low";
+    else if (i <= 6) label = "Medium";
+    else if (i <= 8) label = "High";
+    else label = "Very high";
+    return i + " · " + label;
+  }
+  function okrRefreshMarginAlert() {
+    var inp = document.getElementById("okr-kpi-margin");
+    var field = document.getElementById("okr-margin-field");
+    var alertEl = document.getElementById("okr-margin-alert");
+    if (!inp || !field || !alertEl) return;
+    var v = parseFloat(inp.value);
+    var bad = !isNaN(v) && v < 60;
+    field.classList.toggle("alert-below", bad);
+    alertEl.hidden = !bad;
+  }
+  function okrRefreshRunwayHint() {
+    var inp = document.getElementById("okr-kpi-runway");
+    var hint = document.getElementById("okr-runway-hint");
+    if (!inp || !hint) return;
+    var v = parseFloat(inp.value);
+    if (isNaN(v) || inp.value === "") {
+      hint.textContent = "12-month floor: £36k";
+      return;
+    }
+    if (v < 36000) {
+      hint.textContent = "Below £36k floor — tighten spend or accelerate revenue.";
+      hint.style.color = "var(--hot)";
+    } else {
+      hint.textContent = "Above £36k floor ✓";
+      hint.style.color = "var(--success)";
+    }
+  }
+  function okrFillKpiForm(st) {
+    var k = st.kpis || {};
+    var el;
+    el = document.getElementById("okr-kpi-mrr"); if (el) el.value = k.mrrGbp !== undefined && k.mrrGbp !== "" ? k.mrrGbp : "";
+    el = document.getElementById("okr-kpi-runway"); if (el) el.value = k.runwayGbp !== undefined && k.runwayGbp !== "" ? k.runwayGbp : "";
+    el = document.getElementById("okr-kpi-margin"); if (el) el.value = k.grossMarginPct !== undefined && k.grossMarginPct !== "" ? k.grossMarginPct : "";
+    el = document.getElementById("okr-kpi-customers"); if (el) el.value = k.recurringCustomers !== undefined && k.recurringCustomers !== "" ? k.recurringCustomers : "";
+    el = document.getElementById("okr-kpi-convos"); if (el) el.value = k.conversationsQ2Count !== undefined && k.conversationsQ2Count !== "" ? k.conversationsQ2Count : "";
+    okrRefreshMarginAlert();
+    okrRefreshRunwayHint();
+  }
+  function okrLatestWeekly(st) {
+    var w = (st.weekly || []).slice();
+    w.sort(function (a, b) { return (b.weekStart || "").localeCompare(a.weekStart || ""); });
+    return w[0] || null;
+  }
+  function okrUpdateKrBadges(st) {
+    var latest = okrLatestWeekly(st);
+    for (var i = 1; i <= 3; i++) {
+      var badge = document.getElementById("okr-kr-badge-" + i);
+      if (!badge) continue;
+      if (!latest || !latest.confidence) {
+        badge.textContent = "No check-in yet";
+        badge.classList.remove("has-val", "warn");
+        continue;
+      }
+      var c = parseInt(latest.confidence["kr" + i], 10);
+      if (isNaN(c)) {
+        badge.textContent = "No check-in yet";
+        badge.classList.remove("has-val", "warn");
+        continue;
+      }
+      badge.textContent = "Confidence " + okrConfLabel(c);
+      badge.classList.add("has-val");
+      badge.classList.toggle("warn", c <= 3);
+    }
+  }
+  function okrRenderHistory(st) {
+    var body = document.getElementById("okr-history-body");
+    if (!body) return;
+    body.innerHTML = "";
+    var w = (st.weekly || []).slice();
+    w.sort(function (a, b) { return (b.weekStart || "").localeCompare(a.weekStart || ""); });
+    if (!w.length) {
+      var empty = document.createElement("div");
+      empty.className = "okr-history-item";
+      empty.style.color = "var(--ink-3)";
+      empty.textContent = "No check-ins yet. Save your first Monday review above.";
+      body.appendChild(empty);
+      return;
+    }
+    w.forEach(function (entry) {
+      var row = document.createElement("div");
+      row.className = "okr-history-item";
+      var meta = document.createElement("div");
+      meta.className = "okr-history-meta";
+      meta.textContent = "Week of " + (entry.weekStart || "—");
+      row.appendChild(meta);
+      for (var i = 1; i <= 3; i++) {
+        var c = entry.confidence && entry.confidence["kr" + i];
+        var note = entry.krNotes && entry.krNotes["kr" + i];
+        var line = document.createElement("div");
+        line.className = "okr-history-kr";
+        var parts = ["KR" + i];
+        if (c !== undefined && c !== "") parts.push("conf. " + okrConfLabel(c));
+        line.innerHTML = "<strong>" + escapeHtml(parts.join(" · ")) + "</strong>" + (note ? " — " + escapeHtml(note) : "");
+        row.appendChild(line);
+      }
+      if (entry.antiGoals) {
+        var ag = document.createElement("div");
+        ag.className = "okr-history-kr";
+        ag.innerHTML = "<strong>Anti-goals</strong> — " + escapeHtml(entry.antiGoals);
+        row.appendChild(ag);
+      }
+      if (entry.mrrCheck) {
+        var mr = document.createElement("div");
+        mr.className = "okr-history-kr";
+        mr.innerHTML = "<strong>MRR</strong> — " + escapeHtml(entry.mrrCheck);
+        row.appendChild(mr);
+      }
+      body.appendChild(row);
+    });
+  }
+  function okrLoadWeekForm(st, weekStart) {
+    var found = null;
+    (st.weekly || []).forEach(function (e) {
+      if (e.weekStart === weekStart) found = e;
+    });
+    if (!found) {
+      for (var i = 1; i <= 3; i++) {
+        var s = document.getElementById("okr-conf-" + i);
+        var l = document.getElementById("okr-conf-" + i + "-lbl");
+        var t = document.getElementById("okr-note-" + i);
+        if (s) s.value = "5";
+        if (l) l.textContent = okrConfLabel(5);
+        if (t) t.value = "";
+      }
+      var anti = document.getElementById("okr-anti");
+      var mrrw = document.getElementById("okr-mrr-week");
+      if (anti) anti.value = "";
+      if (mrrw) mrrw.value = "";
+      return;
+    }
+    for (var j = 1; j <= 3; j++) {
+      var s2 = document.getElementById("okr-conf-" + j);
+      var l2 = document.getElementById("okr-conf-" + j + "-lbl");
+      var t2 = document.getElementById("okr-note-" + j);
+      var cv = found.confidence && found.confidence["kr" + j];
+      var pv = parseInt(cv, 10);
+      if (isNaN(pv)) pv = 5;
+      else pv = Math.max(0, Math.min(10, pv));
+      if (s2) s2.value = String(pv);
+      if (l2) l2.textContent = okrConfLabel(pv);
+      if (t2) t2.value = (found.krNotes && found.krNotes["kr" + j]) || "";
+    }
+    var anti2 = document.getElementById("okr-anti");
+    var mrr2 = document.getElementById("okr-mrr-week");
+    if (anti2) anti2.value = found.antiGoals || "";
+    if (mrr2) mrr2.value = found.mrrCheck || "";
+  }
+  function initOkrHub() {
+    okrUpdateQuarterCount();
+    var weekInput = document.getElementById("okr-week-start");
+    if (!weekInput) return;
+
+    var local = okrLoadState();
+    weekInput.value = okrMondayISOFromDate(new Date());
+    okrFillKpiForm(local);
+    okrUpdateKrBadges(local);
+    okrRenderHistory(local);
+    okrLoadWeekForm(local, weekInput.value);
+
+    apiFetch("api/hub/okr", { method: "GET" })
+      .then(function (r) {
+        if (!r.ok) throw new Error("load " + r.status);
+        return r.json();
+      })
+      .then(function (remoteRaw) {
+        var remote = okrMergeRemotePayload(remoteRaw);
+        var use = remote;
+        if (okrStateIsEmpty(remote) && !okrStateIsEmpty(local)) {
+          use = local;
+          okrPushRemote(use).catch(function () {});
+        }
+        okrSaveState(use);
+        okrFillKpiForm(use);
+        okrUpdateKrBadges(use);
+        okrRenderHistory(use);
+        okrLoadWeekForm(use, weekInput.value);
+      })
+      .catch(function () {
+        /* keep local UI; same as offline / wrong key */
+      });
+
+    var marginInp = document.getElementById("okr-kpi-margin");
+    if (marginInp) marginInp.addEventListener("input", okrRefreshMarginAlert);
+    var runwayInp = document.getElementById("okr-kpi-runway");
+    if (runwayInp) runwayInp.addEventListener("input", okrRefreshRunwayHint);
+
+    for (var si = 1; si <= 3; si++) {
+      (function (idx) {
+        var s = document.getElementById("okr-conf-" + idx);
+        var l = document.getElementById("okr-conf-" + idx + "-lbl");
+        if (!s || !l) return;
+        s.addEventListener("input", function () {
+          l.textContent = okrConfLabel(s.value);
+        });
+      })(si);
+    }
+
+    weekInput.addEventListener("change", function () {
+      var st2 = okrLoadState();
+      okrLoadWeekForm(st2, weekInput.value);
+    });
+
+    var saveKpi = document.getElementById("okr-kpi-save");
+    if (saveKpi) {
+      saveKpi.addEventListener("click", function () {
+        var st3 = okrLoadState();
+        var g = function (id) {
+          var e = document.getElementById(id);
+          return e && e.value !== "" ? e.value : "";
+        };
+        st3.kpis = {
+          mrrGbp: g("okr-kpi-mrr"),
+          runwayGbp: g("okr-kpi-runway"),
+          grossMarginPct: g("okr-kpi-margin"),
+          recurringCustomers: g("okr-kpi-customers"),
+          conversationsQ2Count: g("okr-kpi-convos")
+        };
+        okrSaveState(st3);
+        okrPushRemote(st3)
+          .then(function () { toast("KPI snapshot saved"); })
+          .catch(function () {
+            toast("Saved locally only — could not sync (check connection & key)");
+          });
+      });
+    }
+
+    var saveWeek = document.getElementById("okr-week-save");
+    if (saveWeek) {
+      saveWeek.addEventListener("click", function () {
+        var st4 = okrLoadState();
+        var ws = weekInput.value || okrMondayISOFromDate(new Date());
+        var entry = {
+          weekStart: ws,
+          confidence: {},
+          krNotes: {},
+          antiGoals: (document.getElementById("okr-anti") || {}).value || "",
+          mrrCheck: (document.getElementById("okr-mrr-week") || {}).value || ""
+        };
+        for (var wi = 1; wi <= 3; wi++) {
+          var sc = document.getElementById("okr-conf-" + wi);
+          var tn = document.getElementById("okr-note-" + wi);
+          entry.confidence["kr" + wi] = sc ? parseInt(sc.value, 10) || 5 : 5;
+          entry.krNotes["kr" + wi] = tn ? tn.value.trim() : "";
+        }
+        var list = st4.weekly || [];
+        var replaced = false;
+        for (var ri = 0; ri < list.length; ri++) {
+          if (list[ri].weekStart === ws) {
+            list[ri] = entry;
+            replaced = true;
+            break;
+          }
+        }
+        if (!replaced) list.push(entry);
+        st4.weekly = list;
+        okrSaveState(st4);
+        okrUpdateKrBadges(st4);
+        okrRenderHistory(st4);
+        var msg = replaced ? "Week updated" : "Check-in saved";
+        okrPushRemote(st4)
+          .then(function () { toast(msg); })
+          .catch(function () {
+            toast(msg + " (local only — sync failed)");
+          });
+      });
+    }
+  }
+
+  function setHubView(view) {
+    var vo = document.getElementById("view-okr");
+    var vk = document.getElementById("view-kpis");
+    var tko = document.getElementById("tab-okr");
+    var tkp = document.getElementById("tab-kpis");
+    var pt = document.getElementById("page-title");
+    var ps = document.getElementById("page-sub");
+    function tabReset() {
+      if (tko) { tko.classList.remove("tab-current"); tko.setAttribute("aria-selected", "false"); }
+      if (tkp) { tkp.classList.remove("tab-current"); tkp.setAttribute("aria-selected", "false"); }
+    }
+    if (view === "kpis") {
+      if (vo) vo.hidden = true;
+      if (vk) vk.hidden = false;
+      tabReset();
+      if (tkp) { tkp.classList.add("tab-current"); tkp.setAttribute("aria-selected", "true"); }
+      if (pt) pt.textContent = "KPIs";
+      if (ps) ps.textContent = "Operational metrics: MRR, runway, margin, customers, and conversation tally. Same snapshot as OKR hub sync.";
+      okrRefreshMarginAlert();
+      okrRefreshRunwayHint();
+    } else {
+      if (vk) vk.hidden = true;
+      if (vo) vo.hidden = false;
+      tabReset();
+      if (tko) { tko.classList.add("tab-current"); tko.setAttribute("aria-selected", "true"); }
+      if (pt) pt.textContent = "OKRs";
+      if (ps) ps.textContent = "Q2 2026 objective, key results, and Monday check-ins. Syncs to the hub when configured.";
+      okrUpdateQuarterCount();
+    }
+  }
+
+  document.querySelectorAll(".tabs [data-view]").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      setHubView(btn.getAttribute("data-view") || "okr");
+    });
+  });
+  initOkrHub();
+})();
+</script>
+</body>
+</html>

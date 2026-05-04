@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inbox — Real Talk Studio Ops Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --accent-line: #bfdbfe;
+    --bg: #fafafa;
+    --surface: #ffffff;
+    --surface-soft: #f4f4f5;
+    --border: #e4e4e7;
+    --border-mid: #d4d4d8;
+    --ink: #18181b;
+    --ink-2: #3f3f46;
+    --ink-3: #71717a;
+    --ink-4: #a1a1aa;
+    --ink-5: #d4d4d8;
+    --accent: #2563eb;
+    --accent-2: #1d4ed8;
+    --accent-soft: #eff6ff;
+    --success: #16a34a;
+    --warn: #d97706;
+    --hot: #dc2626;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-lg: 0 4px 12px rgba(0,0,0,0.06), 0 24px 48px rgba(0,0,0,0.08);
+    --sans: "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  html, body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 13.5px;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+  a { color: var(--accent); }
+  .topnav {
+    height: 52px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 30;
+  }
+  .topnav-left { display: flex; align-items: center; gap: 24px; }
+  .logo {
+    display: inline-flex; align-items: center; gap: 9px;
+    font-weight: 600; font-size: 14px; color: var(--ink); letter-spacing: -0.01em;
+  }
+  .logo-mark {
+    width: 22px; height: 22px;
+    background: var(--ink); border-radius: 5px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--surface); font-size: 13px; font-weight: 600;
+  }
+  .app-switch { display: flex; align-items: center; gap: 2px; margin-left: 4px; padding-left: 16px; border-left: 1px solid var(--border); height: 28px; }
+  .app-switch a {
+    font-size: 12.5px; font-weight: 500; text-decoration: none;
+    padding: 6px 10px; border-radius: 6px;
+  }
+  .app-switch a.current {
+    color: var(--ink); background: var(--surface-soft); border: 1px solid var(--border);
+  }
+  .app-switch a:not(.current) { color: var(--ink-3); border: 1px solid transparent; }
+  .app-switch a:not(.current):hover { color: var(--ink); background: var(--surface-soft); }
+  .page { max-width: 1400px; margin: 0 auto; padding: 24px 24px 80px; }
+  .page-head { margin-bottom: 20px; }
+  .page-title { font-size: 22px; font-weight: 600; letter-spacing: -0.02em; margin: 0; }
+  .page-sub { font-size: 13.5px; color: var(--ink-3); margin: 6px 0 0; }
+  .filter-menu-bar {
+    margin: 0 0 20px;
+    display: flex; flex-wrap: wrap; align-items: flex-end; gap: 16px 24px;
+    padding: 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: var(--shadow-sm);
+  }
+  .filter-menu-field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .filter-menu-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-3); }
+  .filter-input {
+    height: 34px; padding: 0 10px; font: inherit; font-size: 13px;
+    border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--ink);
+    min-width: 200px;
+  }
+  .filter-input:focus { outline: none; box-shadow: 0 0 0 2px var(--accent-soft); border-color: var(--accent); }
+  .toggle { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; color: var(--ink-3); font-size: 12.5px; }
+  .toggle-track {
+    width: 28px; height: 16px; background: var(--ink-5); border-radius: 999px; position: relative; transition: background 0.15s;
+  }
+  .toggle-track::after {
+    content: ""; position: absolute; width: 12px; height: 12px; background: white; border-radius: 50%;
+    top: 2px; left: 2px; transition: left 0.15s; box-shadow: var(--shadow-sm);
+  }
+  .toggle.on .toggle-track { background: var(--ink); }
+  .toggle.on .toggle-track::after { left: 14px; }
+  .kanban {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    align-items: start;
+  }
+  @media (max-width: 768px) {
+    .kanban { grid-template-columns: 1fr; }
+  }
+  .kb-col {
+    background: var(--surface-soft);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+  }
+  .kb-col-head {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--ink-3);
+    display: flex; justify-content: space-between; align-items: center;
+    gap: 8px;
+  }
+  .kb-col-count {
+    font-family: var(--mono); font-size: 11px; color: var(--ink-4);
+    background: var(--surface); border: 1px solid var(--border); padding: 1px 7px; border-radius: 10px;
+  }
+  .kb-col-body {
+    padding: 10px;
+    flex: 1;
+    min-height: 120px;
+    transition: background 0.15s;
+  }
+  .kb-col-body.drag-over { background: var(--accent-soft); }
+  .kb-empty {
+    text-align: center; color: var(--ink-4); font-size: 12px; padding: 24px 8px;
+  }
+  .inbox-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 10px;
+    box-shadow: var(--shadow-sm);
+    cursor: grab;
+    font-size: 13px;
+  }
+  .inbox-card:active { cursor: grabbing; }
+  .inbox-card.dragging { opacity: 0.55; }
+  .inbox-card.unstarred-flag {
+    font-size: 10px; color: var(--ink-4); margin-bottom: 8px; padding-bottom: 6px;
+    border-bottom: 1px dashed var(--border);
+  }
+  .inbox-card-title-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; min-width: 0; }
+  .inbox-card-title { font-weight: 600; color: var(--ink); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .presence-dot {
+    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+    background: var(--ink-5);
+  }
+  .presence-dot.online { background: var(--success); }
+  .presence-dot.reachable { background: var(--warn); }
+  .presence-dot.offline { background: var(--ink-3); }
+  .inbox-meta { font-size: 12px; color: var(--ink-3); margin-bottom: 6px; line-height: 1.35; }
+  .inbox-last { font-size: 11px; font-family: var(--mono); color: var(--ink-2); margin-bottom: 6px; }
+  .inbox-last .lbl-me { color: var(--accent); font-weight: 500; }
+  .inbox-last .lbl-them { color: var(--ink-2); font-weight: 500; }
+  .inbox-snippet {
+    font-size: 12px; color: var(--ink-2);
+    line-height: 1.4;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+  .inbox-footer { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; margin-top: 6px; }
+  .inbox-footer a { font-size: 11.5px; font-weight: 500; }
+  .notes-btn {
+    font: inherit; font-size: 11px; font-weight: 500; padding: 4px 8px;
+    border-radius: 6px; border: 1px solid var(--border); background: var(--surface-soft); color: var(--ink-2); cursor: pointer;
+  }
+  .notes-btn:hover { border-color: var(--border-mid); color: var(--ink); }
+  .notes-wrap { margin-top: 8px; display: none; }
+  .notes-wrap.open { display: block; }
+  .notes-wrap textarea {
+    width: 100%; min-height: 64px; font: inherit; font-size: 12px; padding: 8px;
+    border: 1px solid var(--border); border-radius: 6px; resize: vertical;
+  }
+  .notes-wrap textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+  .mobile-col-move {
+    display: none;
+    margin-top: 8px;
+  }
+  @media (max-width: 768px) {
+    .mobile-col-move { display: block; }
+    .mobile-col-move select {
+      width: 100%; height: 34px; font: inherit; font-size: 12px;
+      border: 1px solid var(--border); border-radius: 6px; padding: 0 8px; background: var(--surface);
+    }
+  }
+  .empty-state {
+    text-align: center; padding: 48px 24px;
+    color: var(--ink-2); max-width: 420px; margin: 40px auto;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  }
+  .empty-state h2 { margin: 0 0 10px; font-size: 16px; color: var(--ink); }
+  .toast {
+    position: fixed; bottom: max(20px, env(safe-area-inset-bottom, 0px)); left: 50%; transform: translateX(-50%) translateY(20px);
+    background: #18181b; color: #fff; padding: 10px 16px; border-radius: 999px; font-size: 12.5px;
+    opacity: 0; pointer-events: none; transition: opacity 0.18s, transform 0.18s; z-index: 100;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+<nav class="topnav" aria-label="Application">
+  <div class="topnav-left">
+    <div class="logo"><div class="logo-mark">R</div>Real Talk Studio <span style="font-weight: 400; color: var(--ink-3)">· Ops hub</span></div>
+    <div class="app-switch">
+      <a href="index.html">Ops hub</a>
+      <a href="inbox.html" class="current">Inbox</a>
+      <a href="okrs.html">OKRs</a>
+    </div>
+  </div>
+</nav>
+
+<main class="page">
+  <div class="page-head">
+    <h1 class="page-title">Inbox</h1>
+    <p class="page-sub">Starred LinkedIn threads — synced daily at 07:00 UK. Drag cards between columns or use the move control on mobile.</p>
+  </div>
+
+  <div class="filter-menu-bar" role="toolbar" aria-label="Inbox filters">
+    <label class="toggle" id="tog-unstar"><span class="toggle-track" aria-hidden="true"></span> Hide unstarred</label>
+    <div class="filter-menu-field" style="flex:1;min-width:180px;max-width:320px">
+      <label class="filter-menu-label" for="inbox-search">Search</label>
+      <input type="search" id="inbox-search" class="filter-input" placeholder="Name, role, company, snippet…" autocomplete="off">
+    </div>
+  </div>
+
+  <div id="board-empty" class="empty-state" hidden>
+    <h2>No threads yet</h2>
+    <p>The daily sync runs at <strong>07:00 UK</strong>. After the first run from your scheduled task, starred conversations will show up here in a kanban by triage column.</p>
+  </div>
+
+  <div id="kanban" class="kanban" hidden></div>
+</main>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+  var LS_HIDE = "inbox-kanban-hide-unstarred";
+  var LS_SEARCH = "inbox-kanban-search";
+
+  var COLS = [
+    { key: "new", label: "New" },
+    { key: "my_move", label: "My move" },
+    { key: "their_move", label: "Their move" },
+    { key: "booked", label: "Booked / qualified" },
+    { key: "archive", label: "Archive" }
+  ];
+
+  var allThreads = [];
+  var draggingId = null;
+  var dragSourceCol = null;
+
+  function toast(msg) {
+    var t = document.getElementById("toast");
+    if (!t) return;
+    t.textContent = msg;
+    t.classList.add("show");
+    setTimeout(function () { t.classList.remove("show"); }, 2600);
+  }
+
+  function readFilters() {
+    return {
+      hideUnstarred: localStorage.getItem(LS_HIDE) === "1",
+      search: (localStorage.getItem(LS_SEARCH) || "").trim().toLowerCase()
+    };
+  }
+
+  function writeFilter(key, val) {
+    if (val) localStorage.setItem(key, val);
+    else localStorage.removeItem(key);
+  }
+
+  function relDate(iso) {
+    if (!iso) return "—";
+    var parts = iso.split("-");
+    if (parts.length !== 3) return iso;
+    var d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+    if (isNaN(d.getTime())) return iso;
+    var now = new Date();
+    var startToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    var startThat = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    var diffMs = startToday - startThat;
+    var diffD = Math.round(diffMs / 86400000);
+    if (diffD === 0) return "today";
+    if (diffD === 1) return "1d ago";
+    if (diffD > 1 && diffD < 14) return diffD + "d ago";
+    if (diffD >= 14) {
+      return d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+    }
+    if (diffD === -1) return "tomorrow";
+    return iso;
+  }
+
+  function participantTitle(t) {
+    if (!t.is_group) return t.title || "—";
+    var p = t.participants || [];
+    if (!p.length) return t.title || "Group";
+    if (p.length <= 2) return p.join(", ");
+    return p.slice(0, 2).join(", ") + " +" + (p.length - 2);
+  }
+
+  function filterThreads(list, f) {
+    return list.filter(function (t) {
+      if (f.hideUnstarred && !t.starred) return false;
+      if (f.search) {
+        var blob = [t.title, t.role, t.company, t.last_message_snippet, participantTitle(t)].join(" ").toLowerCase();
+        if (blob.indexOf(f.search) === -1) return false;
+      }
+      return true;
+    });
+  }
+
+  function sortInColumn(a, b) {
+    var da = a.last_message_at || "";
+    var db = b.last_message_at || "";
+    if (da > db) return -1;
+    if (da < db) return 1;
+    return (a.thread_id || "").localeCompare(b.thread_id || "");
+  }
+
+  function saveNotes(threadId, notes) {
+    return fetch("/api/inbox/notes", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ thread_id: threadId, notes: notes })
+    }).then(function (r) {
+      if (!r.ok) throw new Error("notes " + r.status);
+      return r.json();
+    });
+  }
+
+  function moveThread(threadId, column, prevColumn) {
+    return fetch("/api/inbox/move", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ thread_id: threadId, column: column })
+    }).then(function (r) {
+      if (!r.ok) throw new Error("move " + r.status);
+      return r.json();
+    }).catch(function (err) {
+      var th = allThreads.find(function (x) { return x.thread_id === threadId; });
+      if (th) th.column = prevColumn;
+      render();
+      toast("Could not move — try again");
+      throw err;
+    });
+  }
+
+  function render() {
+    var f = readFilters();
+    var filtered = filterThreads(allThreads, f);
+    var emptyBoard = document.getElementById("board-empty");
+    var board = document.getElementById("kanban");
+    if (!allThreads.length) {
+      emptyBoard.hidden = false;
+      board.hidden = true;
+      return;
+    }
+    emptyBoard.hidden = true;
+    board.hidden = false;
+
+    board.innerHTML = "";
+    COLS.forEach(function (col) {
+      var inCol = filtered.filter(function (t) { return t.column === col.key; }).sort(sortInColumn);
+      var wrap = document.createElement("div");
+      wrap.className = "kb-col";
+      wrap.dataset.column = col.key;
+
+      var head = document.createElement("div");
+      head.className = "kb-col-head";
+      head.innerHTML = "<span>" + col.label + '</span><span class="kb-col-count">' + (inCol.length ? String(inCol.length) : "—") + "</span>";
+      wrap.appendChild(head);
+
+      var body = document.createElement("div");
+      body.className = "kb-col-body";
+      body.dataset.column = col.key;
+
+      body.addEventListener("dragover", function (e) {
+        e.preventDefault();
+        body.classList.add("drag-over");
+      });
+      body.addEventListener("dragleave", function (e) {
+        if (e.target === body) body.classList.remove("drag-over");
+      });
+      body.addEventListener("drop", function (e) {
+        e.preventDefault();
+        body.classList.remove("drag-over");
+        var id = e.dataTransfer.getData("text/plain");
+        if (!id) return;
+        var th = allThreads.find(function (x) { return x.thread_id === id; });
+        if (!th || th.column === col.key) return;
+        var prev = th.column;
+        th.column = col.key;
+        render();
+        moveThread(id, col.key, prev).catch(function () {});
+      });
+
+      if (!inCol.length) {
+        var ph = document.createElement("div");
+        ph.className = "kb-empty";
+        ph.textContent = "—";
+        body.appendChild(ph);
+      } else {
+        inCol.forEach(function (t) {
+          body.appendChild(cardEl(t));
+        });
+      }
+
+      wrap.appendChild(body);
+      board.appendChild(wrap);
+    });
+  }
+
+  function cardEl(t) {
+    var card = document.createElement("div");
+    card.className = "inbox-card";
+    card.draggable = true;
+    card.dataset.threadId = t.thread_id;
+    card.dataset.column = t.column;
+
+    card.addEventListener("dragstart", function (e) {
+      draggingId = t.thread_id;
+      dragSourceCol = t.column;
+      card.classList.add("dragging");
+      e.dataTransfer.setData("text/plain", t.thread_id);
+      e.dataTransfer.effectAllowed = "move";
+    });
+    card.addEventListener("dragend", function () {
+      card.classList.remove("dragging");
+      draggingId = null;
+      document.querySelectorAll(".kb-col-body.drag-over").forEach(function (el) { el.classList.remove("drag-over"); });
+    });
+
+    var html = "";
+    if (!t.starred) {
+      html += '<div class="inbox-card unstarred-flag">Unstarred on LinkedIn</div>';
+    }
+    var pres = (t.presence || "").toLowerCase();
+    var dotClass = "presence-dot";
+    if (pres === "online") dotClass += " online";
+    else if (pres === "reachable") dotClass += " reachable";
+    else if (pres === "offline") dotClass += " offline";
+
+    html += '<div class="inbox-card-title-row"><span class="' + dotClass + '" title="' + (t.presence || "unknown") + '"></span>';
+    html += '<span class="inbox-card-title">' + escapeHtml(participantTitle(t)) + "</span></div>";
+
+    var meta = "";
+    if (t.role || t.company) {
+      meta = escapeHtml(t.role || "") + (t.role && t.company ? " · " : "") + escapeHtml(t.company || "");
+    } else {
+      meta = '<span style="color:var(--ink-4)">No role / company yet</span>';
+    }
+    html += '<div class="inbox-meta">' + meta + "</div>";
+
+    var who = t.last_sender === "me" ? "You" : "Them";
+    var whoClass = t.last_sender === "me" ? "lbl-me" : "lbl-them";
+    html += '<div class="inbox-last"><span class="' + whoClass + '">' + who + "</span> · " + escapeHtml(relDate(t.last_message_at)) + "</div>";
+
+    var sn = t.last_message_snippet || "";
+    html += '<div class="inbox-snippet">' + escapeHtml(sn) + "</div>";
+
+    var threadUrl = "https://www.linkedin.com/messaging/thread/" + encodeURIComponent(t.thread_id) + "/";
+    html += '<div class="inbox-footer"><a href="' + threadUrl + '" target="_blank" rel="noopener">Open in LinkedIn</a>';
+    html += '<button type="button" class="notes-btn" data-notes-toggle>Notes</button></div>';
+
+    html += '<div class="notes-wrap"><textarea data-notes placeholder="Notes…">' + escapeHtml(t.notes || "") + "</textarea></div>";
+
+    html += '<div class="mobile-col-move"><label class="filter-menu-label" style="margin-bottom:4px">Move to</label><select data-mobile-move>';
+    COLS.forEach(function (c) {
+      html += '<option value="' + c.key + '"' + (c.key === t.column ? " selected" : "") + ">" + escapeHtml(c.label) + "</option>";
+    });
+    html += "</select></div>";
+
+    card.innerHTML = html;
+
+    var notesToggle = card.querySelector("[data-notes-toggle]");
+    var notesWrap = card.querySelector(".notes-wrap");
+    var notesTa = card.querySelector("[data-notes]");
+    if (notesToggle && notesWrap) {
+      notesToggle.addEventListener("click", function () {
+        notesWrap.classList.toggle("open");
+        if (notesWrap.classList.contains("open") && notesTa) notesTa.focus();
+      });
+    }
+    if (notesTa) {
+      var saveTimer = null;
+      function doSave() {
+        var v = notesTa.value;
+        t.notes = v;
+        saveNotes(t.thread_id, v).then(function () { toast("Notes saved"); }).catch(function () { toast("Could not save notes"); });
+      }
+      notesTa.addEventListener("blur", doSave);
+      notesTa.addEventListener("keydown", function (e) {
+        if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+          e.preventDefault();
+          doSave();
+        }
+      });
+    }
+    var mob = card.querySelector("[data-mobile-move]");
+    if (mob) {
+      mob.addEventListener("change", function () {
+        var next = mob.value;
+        if (next === t.column) return;
+        var prev = t.column;
+        t.column = next;
+        render();
+        moveThread(t.thread_id, next, prev).catch(function () {});
+      });
+    }
+
+    return card;
+  }
+
+  function escapeHtml(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function initToolbar() {
+    var fu = document.getElementById("tog-unstar");
+    var search = document.getElementById("inbox-search");
+    if (fu) {
+      if (readFilters().hideUnstarred) fu.classList.add("on");
+      fu.addEventListener("click", function () {
+        fu.classList.toggle("on");
+        writeFilter(LS_HIDE, fu.classList.contains("on") ? "1" : "");
+        render();
+      });
+    }
+    if (search) {
+      search.value = localStorage.getItem(LS_SEARCH) || "";
+      search.addEventListener("input", function () {
+        var v = search.value.trim();
+        if (v) localStorage.setItem(LS_SEARCH, v);
+        else localStorage.removeItem(LS_SEARCH);
+        render();
+      });
+    }
+  }
+
+  function load() {
+    fetch("/api/inbox/list")
+      .then(function (r) {
+        if (!r.ok) throw new Error("list " + r.status);
+        return r.json();
+      })
+      .then(function (data) {
+        allThreads = data.threads || [];
+        render();
+      })
+      .catch(function () {
+        toast("Could not load inbox");
+        allThreads = [];
+        render();
+      });
+  }
+
+  initToolbar();
+  load();
+})();
+</script>
+</body>
+</html>

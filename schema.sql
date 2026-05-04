@@ -15,3 +15,26 @@ CREATE TABLE IF NOT EXISTS hub_blob (
   json       TEXT NOT NULL,
   updated_at INTEGER NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS inbox_threads (
+  thread_id              TEXT PRIMARY KEY,
+  title                  TEXT NOT NULL,
+  is_group               INTEGER NOT NULL DEFAULT 0,
+  participants_json      TEXT,
+  role                   TEXT,
+  company                TEXT,
+  profile_url            TEXT,
+  presence               TEXT,
+  last_message_at        TEXT,
+  last_sender            TEXT,
+  last_message_snippet   TEXT,
+  column                 TEXT NOT NULL DEFAULT 'new',
+  notes                  TEXT,
+  starred                INTEGER NOT NULL DEFAULT 1,
+  first_seen_at          TEXT NOT NULL,
+  last_synced_at         TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_inbox_column ON inbox_threads(column);
+CREATE INDEX IF NOT EXISTS idx_inbox_starred ON inbox_threads(starred);
+CREATE INDEX IF NOT EXISTS idx_inbox_last_message ON inbox_threads(last_message_at DESC);

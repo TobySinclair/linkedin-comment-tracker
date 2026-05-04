@@ -1,8 +1,15 @@
-# Pages project: bind D1 in the dashboard, or set database_id from `wrangler d1 create`.
-name = "linkedin-tracker"
+# Pages project name — must match Workers & Pages → project name (Wrangler / dashboard).
+# *.pages.dev hostname is set at project creation and does not change; see README.
+name = "realtalkstudio-business-ops-tool"
 compatibility_date = "2024-12-20"
 pages_build_output_dir = "."
 
+# Secrets: TRACKER_KEY is required for the app; inbox sync accepts the same value.
+# Optionally set INBOX_SYNC_TOKEN to override what /api/inbox/sync expects (otherwise TRACKER_KEY is used).
+# Sync may send X-Sync-Token or X-Tracker-Key. Local: .dev.vars
+
+# D1 display name in Cloudflare (wrangler d1 execute <this>). Renaming the DB in the dashboard
+# does not change database_id; update database_name here if you rename the D1 resource.
 [[d1_databases]]
 binding = "DB"
 database_name = "linkedin-tracker"
