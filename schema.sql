@@ -8,3 +8,10 @@ CREATE TABLE IF NOT EXISTS card_status (
 );
 
 CREATE INDEX IF NOT EXISTS idx_card_status_audience ON card_status (audience);
+
+-- Single-row JSON documents for the ops hub (OKRs, KPIs, weekly check-ins).
+CREATE TABLE IF NOT EXISTS hub_blob (
+  doc_id     TEXT PRIMARY KEY,
+  json       TEXT NOT NULL,
+  updated_at INTEGER NOT NULL
+);
