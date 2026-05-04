@@ -426,7 +426,15 @@
   }
   .okr-history-item { padding: 14px 16px; border-bottom: 1px solid var(--border); font-size: 13px; }
   .okr-history-item:last-child { border-bottom: none; }
-  .okr-history-meta { font-family: var(--mono); font-size: 11px; color: var(--ink-4); margin-bottom: 8px; }
+  .okr-history-item-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .okr-history-meta { font-family: var(--mono); font-size: 11px; color: var(--ink-4); margin-bottom: 0; flex: 1; min-width: 0; }
+  .okr-history-edit { flex-shrink: 0; font-size: 12px; padding: 4px 10px; }
   .okr-history-kr { margin: 6px 0 0; padding-left: 12px; border-left: 2px solid var(--accent-line); color: var(--ink-2); }
   .okr-principles { font-size: 13px; color: var(--ink-2); line-height: 1.55; margin: 0; }
   .okr-sustain { font-size: 13px; color: var(--ink-2); margin: 0; line-height: 1.5; }
@@ -527,7 +535,7 @@
         </div>
         <p class="okr-principles" style="margin-bottom: 14px">OKR progress (one sentence per KR), anti-goal slips, and MRR check. Confidence: how likely are you to hit each KR on the current trajectory?</p>
 
-        <div class="okr-week-form">
+        <div class="okr-week-form" id="okr-week-form">
           <div class="okr-field">
             <label for="okr-week-start">Week of (Monday)</label>
             <input type="date" id="okr-week-start" autocomplete="off">
@@ -901,6 +909,34 @@
       badge.classList.toggle("warn", c <= 3);
     }
   }
+  function okrRefreshWeekSaveButtonLabel() {
+    var weekInput = document.getElementById("okr-week-start");
+    var btn = document.getElementById("okr-week-save");
+    if (!weekInput || !btn) return;
+    var ws = weekInput.value;
+    var st = okrLoadState();
+    var exists = false;
+    (st.weekly || []).forEach(function (e) {
+      if (e.weekStart === ws) exists = true;
+    });
+    btn.textContent = exists ? "Update check-in" : "Save weekly check-in";
+  }
+  function okrBeginEditCheckIn(weekStart) {
+    if (!weekStart) return;
+    setHubView("okr");
+    var weekInput = document.getElementById("okr-week-start");
+    var formEl = document.getElementById("okr-week-form");
+    if (!weekInput) return;
+    weekInput.value = weekStart;
+    okrLoadWeekForm(okrLoadState(), weekStart);
+    okrRefreshWeekSaveButtonLabel();
+    toast("Editing check-in — change fields, then save.");
+    if (formEl) {
+      setTimeout(function () {
+        formEl.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 80);
+    }
+  }
   function okrRenderHistory(st) {
     var body = document.getElementById("okr-history-body");
     if (!body) return;
@@ -918,10 +954,26 @@
     w.forEach(function (entry) {
       var row = document.createElement("div");
       row.className = "okr-history-item";
+      var head = document.createElement("div");
+      head.className = "okr-history-item-head";
       var meta = document.createElement("div");
       meta.className = "okr-history-meta";
       meta.textContent = "Week of " + (entry.weekStart || "—");
-      row.appendChild(meta);
+      head.appendChild(meta);
+      if (entry.weekStart) {
+        var editBtn = document.createElement("button");
+        editBtn.type = "button";
+        editBtn.className = "btn okr-history-edit";
+        editBtn.textContent = "Edit";
+        editBtn.setAttribute("aria-label", "Load this check-in into the form to edit");
+        (function (ws) {
+          editBtn.addEventListener("click", function () {
+            okrBeginEditCheckIn(ws);
+          });
+        })(entry.weekStart);
+        head.appendChild(editBtn);
+      }
+      row.appendChild(head);
       for (var i = 1; i <= 3; i++) {
         var c = entry.confidence && entry.confidence["kr" + i];
         var note = entry.krNotes && entry.krNotes["kr" + i];
@@ -995,6 +1047,7 @@
     okrUpdateKrBadges(local);
     okrRenderHistory(local);
     okrLoadWeekForm(local, weekInput.value);
+    okrRefreshWeekSaveButtonLabel();
 
     apiFetch("api/hub/okr", { method: "GET" })
       .then(function (r) {
@@ -1013,6 +1066,7 @@
         okrUpdateKrBadges(use);
         okrRenderHistory(use);
         okrLoadWeekForm(use, weekInput.value);
+        okrRefreshWeekSaveButtonLabel();
       })
       .catch(function () {
         /* keep local UI; same as offline / wrong key */
@@ -1039,6 +1093,7 @@
     weekInput.addEventListener("change", function () {
       var st2 = okrLoadState();
       okrLoadWeekForm(st2, weekInput.value);
+      okrRefreshWeekSaveButtonLabel();
     });
 
     var saveKpi = document.getElementById("okr-kpi-save");
@@ -1097,6 +1152,7 @@
         okrSaveState(st4);
         okrUpdateKrBadges(st4);
         okrRenderHistory(st4);
+        okrRefreshWeekSaveButtonLabel();
         var msg = replaced ? "Week updated" : "Check-in saved";
         okrPushRemote(st4)
           .then(function () { toast(msg); })
