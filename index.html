@@ -262,6 +262,7 @@
   code { font-family: var(--mono); }
 
   .hub-actions-hidden .topnav-queue-only { display: none !important; }
+  .run-notes { display: none !important; }
 </style>
 </head>
 <body>
@@ -365,7 +366,7 @@
   <div class="wrap">
   <div id="queue-list" class="queue-list"></div>
 
-  <!-- NEWEST-DAY-INSERT: prepend <section class="day" data-date="YYYY-MM-DD"> with <h2> (hidden) + cards. Each card: .card-head, dl.meta, optional .post-content, .comment, .actions. Page flattens into #queue-list and shows date on each row. -->
+  <!-- NEWEST-DAY-INSERT: prepend <section class="day" data-date="YYYY-MM-DD"> with <h2> (hidden) + cards. Each card: .card-head, dl.meta, optional .post-content, .comment, .actions. Optional trailing .run-notes (hidden/stripped in UI). Page flattens into #queue-list and shows date on each row. -->
 <section class="day" data-date="2026-05-06-pm">
   <h2>2026-05-06 (afternoon scan) &mdash; leadership-development-doesn&rsquo;t-stick / connective tissue, Consumer Duty governance test (wealth management), GRC compliance-theatre satirical post, FCA AI Live Testing Cohort 2 architecture, neurodivergent manager &amp; difficult conversations, tick-box training fails Queensland reasonable-steps defence, mastering hard conversations LinkedIn Live</h2>
 
@@ -579,19 +580,6 @@
     </div>
   </div>
 
-  <div class="run-notes">
-    <h3>Run notes &mdash; 2026-05-06 (afternoon scan)</h3>
-    <ul>
-      <li>This is a second scan run on 2026-05-06; the earlier scan today already produced a 6-card section above. New section uses date <code>2026-05-06-pm</code> to keep <code>data-id</code> slugs deterministic and avoid colliding with morning candidates while still grouping under today.</li>
-      <li>LinkedIn content search past-week filter is heavily capped &mdash; nearly every query returned only 3 visible posts before the &ldquo;Are these results helpful?&rdquo; footer, and aggressive scroll did not expand the list. Search budget effectively limits to 3 candidates per query, so coverage came from query breadth (16 searches across A/B/C) rather than depth on any one query.</li>
-      <li>Searches run: workplace investigation; three lines of defence; Consumer Duty; non-financial misconduct; knowing-doing gap; Worker Protection Act + reasonable steps; compliance theatre; difficult conversations + manager; line manager + capability; Consumer Duty + board; SMCR / COCON; Dear CEO + FCA; tick box compliance; harassment training + reasonable steps; manager training + doesn&rsquo;t work / isn&rsquo;t enough; leadership development + doesn&rsquo;t stick.</li>
-      <li>Audience A (CHRO) was the thinnest bucket today &mdash; only Lindsey Alt (Virta Health) cleared the bar as a clean in-house Path 2 champion. Several promising titles (e.g. Kim Smart MSc, Yolanda Pemberton) were already covered in earlier 2026-05-xx sections and so were skipped via the dedupe pass on the last 7 days of <code>data-id</code> values.</li>
-      <li>Audience B (ICP) was richer: Martin Jones (UK wealth, governance test), Pierre-Paul Ferland (GRC, compliance-theatre satire), Paul Merrison (Tetrate, FCA AI Live Testing Cohort 2). Reactions are modest but each post is a substantive practitioner take with a clean angle for a peer comment.</li>
-      <li>Audience C (Influencer / stage): strongest pick is Nicola Richardson (21 reactions, 36 comments) on the brilliant-in-a-crisis-but-avoids-difficult-conversations pattern &mdash; high comment density and a framing that maps directly onto our pitch. Antonino Meduri&rsquo;s Queensland reasonable-steps case is the best UK-relevant law-firm post we surfaced this run despite the AU jurisdiction. Megan Duff&rsquo;s LinkedIn Live was kept on the list specifically because the registered-attendees pool is the real audience for a comment.</li>
-      <li>No post-URL extraction attempted &mdash; LinkedIn blocks <code>chrome-extension://</code> JS access on tabs and timestamps don&rsquo;t expose anchors for non-owner viewers, per the standing skill note. All links default to people-search URLs, which is the documented expected default.</li>
-      <li>Did NOT post any comments. Toby reviews and posts manually.</li>
-    </ul>
-  </div>
 </section>
 
 <section class="day" data-date="2026-05-06">
@@ -778,18 +766,6 @@
     </div>
   </div>
 
-  <div class="run-notes">
-    <h3>Run notes &mdash; 2026-05-06</h3>
-    <ul>
-      <li>Yield: 6 candidates &mdash; 1 CHRO / 2 ICP / 3 Influencer. Slightly under-target on the CHRO bucket; over-target on Influencer. CHRO practitioner content was thin in the past-week feed today &mdash; most regulation-named searches (Worker Protection Act, NFM, ERA, Acas) returned vendor / law-firm content with low engagement and the practitioner-language searches (employee relations casework, dignity at work, line-manager capability) either returned no results or off-territory content (apprenticeships, India POSH, Singapore HR jobs). Julie Darmudas serves as the A pick because she explicitly wears the Chartered HR Practitioner hat alongside her SMF role and her Monday-morning manager-readiness frame is straight Path 1 / HR Policy &amp; Compliance language.</li>
-      <li>Strongest pick of the run: Julie Darmudas&rsquo; Week 17 NFM post. 1st-degree connection, exactly the message we want to amplify, low engagement so the comment will land cleanly.</li>
-      <li>Audience C stage of the week: Catherine McDonald &mdash; 117+ reactions, 48 comments, 13 reposts on a knowing-doing-gap leak post that frames training failure in our exact vocabulary. Worth a separate Track-2 sweep of her comment thread next run for HRBPs, L&amp;D heads and ops leaders endorsing the post.</li>
-      <li>Tracy Hall + Stacey Edmonds pairing is unusual: Tracy is the practitioner voice rejecting compliance training, Stacey is a category-adjacent vendor riding her message. Comment on both deliberately differentiates Real Talk&rsquo;s position without naming the product.</li>
-      <li>Searches that yielded little: &ldquo;workplace investigation&rdquo; lessons (mostly South Africa and Mills &amp; Reeve podcast), &ldquo;employee relations&rdquo; casework &ldquo;we learned&rdquo; (no results), &ldquo;reasonable steps&rdquo; evidence harassment (vendor-only), &ldquo;line manager&rdquo; capability gap (apprenticeship recruiters), &ldquo;dignity at work&rdquo; policy (off-territory geographies), Lewis Silkin company page (recent posts didn&rsquo;t load past page header).</li>
-      <li>Automation note: Chrome extension disconnected once mid-run on a get_page_text call; recovered on retry. No loss of data.</li>
-      <li>Dedupe check: Julie Darmudas, Tejinder Johal, Kim Smart, Catherine McDonald, Tracy Hall, Stacey Edmonds &mdash; none appear in the last 7 days&rsquo; data-id list. Yolanda Pemberton, Maame Agyarkwa, Patrick McGovern surfaced in searches but already logged in 2026-05-05 / 2026-05-04 / 2026-04-29 respectively; skipped.</li>
-    </ul>
-  </div>
 </section>
 
 <section class="day" data-date="2026-05-05">
@@ -4945,6 +4921,9 @@
     var list = document.getElementById("queue-list");
     var wrap = document.querySelector(".wrap");
     if (!list || !wrap) return;
+    [].forEach.call(wrap.querySelectorAll(".run-notes"), function (rn) {
+      if (rn.parentNode) rn.parentNode.removeChild(rn);
+    });
     [].forEach.call(wrap.querySelectorAll("section.day"), function (sec) {
       var d = sec.getAttribute("data-date") || "";
       [].forEach.call(sec.querySelectorAll(".card[data-id]"), function (card) {
