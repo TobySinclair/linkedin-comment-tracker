@@ -263,42 +263,6 @@
 
   .hub-actions-hidden .topnav-queue-only { display: none !important; }
   .run-notes { display: none !important; }
-
-  .linkedin-assist {
-    background: var(--accent-soft);
-    border-bottom: 1px solid #bfdbfe;
-    padding: 10px 24px;
-    font-size: 13px;
-    color: var(--ink-2);
-  }
-  .linkedin-assist[hidden] { display: none !important; }
-  .linkedin-assist-row {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 12px;
-    margin-bottom: 8px;
-  }
-  .linkedin-assist-row:last-child { margin-bottom: 0; }
-  .linkedin-assist-lead { margin: 0; flex: 1; line-height: 1.45; }
-  .linkedin-assist-connect-wrap { margin-top: 8px; }
-  .linkedin-assist-connect-wrap .field-label { margin-bottom: 6px; }
-  .linkedin-assist-ta {
-    width: 100%;
-    max-width: 720px;
-    font-family: var(--sans);
-    font-size: 13px;
-    line-height: 1.45;
-    padding: 8px 10px;
-    border: 1px solid var(--border-mid);
-    border-radius: 6px;
-    resize: vertical;
-    min-height: 64px;
-    background: var(--surface);
-    color: var(--ink);
-    margin-bottom: 8px;
-  }
-  .linkedin-assist-count { font-family: var(--mono); font-size: 10.5px; color: var(--ink-3); font-weight: 400; }
 </style>
 </head>
 <body>
@@ -318,17 +282,6 @@
   </div>
 </nav>
 <div class="queue-strip" aria-live="polite">Queue <span class="tab-count" id="tab-today-count">0</span> open</div>
-<div id="linkedin-assist" class="linkedin-assist" hidden>
-  <div class="linkedin-assist-row">
-    <p class="linkedin-assist-lead" id="linkedin-assist-lead"></p>
-    <button type="button" class="btn" id="linkedin-assist-dismiss" aria-label="Dismiss LinkedIn helper">Dismiss</button>
-  </div>
-  <div class="linkedin-assist-connect-wrap" id="linkedin-assist-connect-wrap" hidden>
-    <div class="field-label">Connection note <span class="linkedin-assist-count" id="linkedin-assist-count"></span></div>
-    <textarea id="linkedin-assist-connect" class="linkedin-assist-ta" readonly rows="3" aria-label="Suggested connection request note"></textarea>
-    <button type="button" class="btn" id="linkedin-assist-copy-connect">Copy connect note</button>
-  </div>
-</div>
 <main class="page">
   <div class="page-head">
     <div>
@@ -413,7 +366,7 @@
   <div class="wrap">
   <div id="queue-list" class="queue-list"></div>
 
-  <!-- NEWEST-DAY-INSERT: prepend <section class="day" data-date="YYYY-MM-DD"> with <h2> (hidden) + cards. Each card: .card-head, dl.meta, optional .post-content, .comment, .actions. Optional data-post-url on .card or <dt>Post URL</dt> for open-in-LinkedIn; else Link is used (often people search). Optional trailing .run-notes (hidden/stripped in UI). Page flattens into #queue-list. -->
+  <!-- NEWEST-DAY-INSERT: prepend <section class="day" data-date="YYYY-MM-DD"> with <h2> (hidden) + cards. Each card: .card-head, dl.meta, optional .post-content, .comment, .actions. Optional trailing .run-notes (hidden/stripped in UI). Page flattens into #queue-list and shows date on each row. -->
 <section class="day" data-date="2026-05-06-evening">
   <h2>2026-05-06 (evening scan) &mdash; compliance-training-by-button-mash design failure, compliance fatigue when everything is critical, CHRO hiring brief and the psychological-courage gap</h2>
 
@@ -4838,6 +4791,14 @@
     }
     return "";
   }
+  function getDraftCommentPlainText(card) {
+    if (!card) return "";
+    var box = card.querySelector(".comment:not(.connection)");
+    if (!box) return "";
+    var t = (box.textContent || "").replace(/^\s*Draft comment\s*/i, "").trim();
+    if (!t) return "";
+    return t.replace(/\s+/g, " ");
+  }
   function getLinkHrefFromCard(card) {
     var body = card.querySelector(".card-body dl.meta");
     if (!body) return "";
@@ -4855,107 +4816,12 @@
     }
     return "";
   }
-  function getNavigateUrlForCard(card) {
-    var du = card.getAttribute("data-post-url");
-    if (du) {
-      du = String(du).trim();
-      if (du) return du;
-    }
-    var pu = getMetaValue(card, "Post URL");
-    if (/^https?:\/\//i.test(pu)) return pu.trim();
-    return getLinkHrefFromCard(card);
-  }
-  function isAllowedLinkedInNavigationUrl(href) {
-    try {
-      var u = new URL(href, "https://www.linkedin.com/");
-      if (u.protocol !== "http:" && u.protocol !== "https:") return false;
-      var h = u.hostname.toLowerCase();
-      if (h === "linkedin.com" || h === "www.linkedin.com") return true;
-      if (h.endsWith(".linkedin.com")) return true;
-      if (h === "lnkd.in") return true;
-      return false;
-    } catch (e) {
-      return false;
-    }
-  }
-  function getDraftCommentFromCard(card) {
-    var body = card.querySelector(".card-body");
-    var com = body ? body.querySelector(".comment") : card.querySelector(".comment");
-    if (!com) return "";
-    var clone = com.cloneNode(true);
-    var rm = clone.querySelectorAll(".comment-label, .comment-full");
-    for (var i = 0; i < rm.length; i++) rm[i].remove();
-    return clone.textContent.replace(/\s+/g, " ").trim();
-  }
   function getPersonNameFromCard(card) {
     var a = card.querySelector(".trow-cells .author, .author-cell .author, .name-stack .author");
     if (a) return a.textContent.trim();
     var h3 = card.querySelector(".card-head .who h3");
     if (h3) return stripLeadingNumber(h3.textContent.trim());
     return "";
-  }
-  function truncateConnectContext(s, n) {
-    s = String(s || "").replace(/\s+/g, " ").trim();
-    if (s.length <= n) return s;
-    return s.slice(0, n - 1) + "\u2026";
-  }
-  function buildConnectionNoteForCard(card) {
-    var name = getPersonNameFromCard(card) || "";
-    var parts = name.split(/\s+/).filter(Boolean);
-    var first = parts.length ? parts[0] : "there";
-    var topic = truncateConnectContext(getMetaValue(card, "Post topic"), 90);
-    var note = "Hi " + first + " — I left a comment on your recent post";
-    if (topic) note += " re: " + topic;
-    note += ". Happy to connect.";
-    if (note.length > 280) {
-      note = "Hi " + first + " — I commented on your recent post. Happy to connect.";
-    }
-    if (note.length > 280) note = note.slice(0, 277) + "\u2026";
-    return note;
-  }
-  function runLinkedInAssistFlow(card, action) {
-    var assist = document.getElementById("linkedin-assist");
-    var url = getNavigateUrlForCard(card);
-    var draft = getDraftCommentFromCard(card);
-    var opened = false;
-    if (url && isAllowedLinkedInNavigationUrl(url)) {
-      var w = window.open(url, "_blank", "noopener,noreferrer");
-      opened = !!w;
-    }
-    if (draft) {
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(draft).catch(function () { fallbackCopy(draft); });
-      } else {
-        fallbackCopy(draft);
-      }
-    }
-    var lead = [];
-    if (draft) lead.push("Draft comment copied — paste on the post.");
-    else lead.push("No draft text found on this card.");
-    if (opened) lead.push("LinkedIn opened in a new tab.");
-    else if (url && !isAllowedLinkedInNavigationUrl(url)) lead.push("Link not opened (only LinkedIn URLs are allowed).");
-    else if (!url) lead.push("No URL on this card — add data-post-url or a Post URL field for a direct jump.");
-    else lead.push("If the tab did not open, allow popups or use Open \u2192 on the row.");
-
-    if (assist) {
-      assist.hidden = false;
-      assist.scrollIntoView({ block: "nearest", behavior: "smooth" });
-      var elLead = document.getElementById("linkedin-assist-lead");
-      if (elLead) elLead.textContent = lead.join(" ");
-      var wrap = document.getElementById("linkedin-assist-connect-wrap");
-      var ta = document.getElementById("linkedin-assist-connect");
-      var cnt = document.getElementById("linkedin-assist-count");
-      if (action === "comment-and-connect") {
-        var cn = buildConnectionNoteForCard(card);
-        if (wrap) wrap.hidden = false;
-        if (ta) ta.value = cn;
-        if (cnt) cnt.textContent = "(" + cn.length + "/280)";
-      } else {
-        if (wrap) wrap.hidden = true;
-        if (ta) ta.value = "";
-        if (cnt) cnt.textContent = "";
-      }
-    }
   }
   function getDirectoryPayloadFromCard(card) {
     return {
@@ -5050,8 +4916,8 @@
     var eng = getMetaValue(card, "Engagement");
     var post = getMetaValue(card, "Post topic");
     if (!post) post = getMetaValue(card, "Post");
-    var comment = getDraftCommentFromCard(card);
-    if (!comment) comment = "—";
+    var comEl = body.querySelector(".comment");
+    var comment = comEl ? comEl.textContent.trim() : "—";
     var av = document.getElementById("drawer-av");
     if (av) {
       av.textContent = authorInitials(name);
@@ -5572,6 +5438,27 @@
     toast._t = setTimeout(function () { t.classList.remove("show"); }, 1400);
   }
 
+  function onFindOnLinkedInClick(e) {
+    var a = e.target.closest("a[href*='linkedin.com']");
+    if (!a) return;
+    if (a.textContent.trim() !== "Find on LinkedIn") return;
+    var card = a.closest(".card[data-id]");
+    if (!card) return;
+    var text = getDraftCommentPlainText(card);
+    if (!text) {
+      toast("No draft comment to copy");
+      return;
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () {
+        toast("Comment copied");
+      }, function () {
+        fallbackCopy(text);
+      });
+    } else {
+      fallbackCopy(text);
+    }
+  }
 
   function onActionClick(e) {
     var btn = e.target.closest(".actions .btn");
@@ -5603,9 +5490,6 @@
     }
 
     if (action === "comment-only" || action === "comment-and-connect" || action === "skip") {
-      if (action === "comment-only" || action === "comment-and-connect") {
-        runLinkedInAssistFlow(card, action);
-      }
       setStatus(card, action);
       updateCounts();
       var msg = action === "comment-only" ? "Marked: comment only"
@@ -5735,6 +5619,7 @@
     if (c) toggleCard(c);
   });
   document.addEventListener("click", function (e) {
+    onFindOnLinkedInClick(e);
     onActionClick(e);
     onCardHeadToggle(e);
   });
@@ -5767,29 +5652,6 @@
     });
     hideDone.addEventListener("keydown", function (e) {
       if (e.key === "Enter" || e.key === " ") { e.preventDefault(); hideDone.click(); }
-    });
-  }
-  var assistDismiss = document.getElementById("linkedin-assist-dismiss");
-  if (assistDismiss) {
-    assistDismiss.addEventListener("click", function () {
-      var a = document.getElementById("linkedin-assist");
-      if (a) a.hidden = true;
-    });
-  }
-  var assistCopyConn = document.getElementById("linkedin-assist-copy-connect");
-  if (assistCopyConn) {
-    assistCopyConn.addEventListener("click", function () {
-      var ta = document.getElementById("linkedin-assist-connect");
-      var v = ta && ta.value ? ta.value : "";
-      if (!v) return;
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(v).then(function () {
-          toast("Connect note copied");
-        }, function () { fallbackCopy(v); toast("Connect note copied"); });
-      } else {
-        fallbackCopy(v);
-        toast("Connect note copied");
-      }
     });
   }
   tickClock();
