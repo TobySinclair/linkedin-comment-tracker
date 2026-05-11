@@ -81,7 +81,23 @@
   .status[data-status="todo"]{color:var(--todo);background:var(--todo-bg);border-color:#e0e0d8}
   .status[data-status="posted"]{color:var(--posted);background:var(--posted-bg);border-color:#cfe7d8}
   .status[data-status="archived"]{color:var(--archived);background:var(--archived-bg);border-color:#e0e0d8}
-  .post-body{white-space:pre-wrap;font:15px/1.6 var(--sans);margin:0;padding:0;border:0;background:none;color:var(--ink)}
+  .post-fold{margin:0}
+  .post-body{white-space:pre-wrap;word-break:break-word;font:15px/1.6 var(--sans);margin:0;padding:0;border:0;background:none;color:var(--ink);display:block;width:100%}
+  .card.is-collapsed .post-body{
+    display:-webkit-box;
+    -webkit-box-orient:vertical;
+    -webkit-line-clamp:2;
+    line-clamp:2;
+    overflow:hidden;
+  }
+  .card.is-collapsed .critique{display:none}
+  .post-toggle{
+    margin-top:10px;font:12.5px/1.35 var(--sans);padding:0;border:none;background:none;color:var(--hub-accent);
+    cursor:pointer;font-weight:500;text-decoration:underline;text-underline-offset:3px;text-align:left;
+  }
+  .post-toggle:hover{color:var(--ink)}
+  .post-toggle:focus-visible{outline:2px solid var(--hub-accent);outline-offset:2px;border-radius:2px}
+  .post-toggle:disabled,.post-toggle[hidden]{display:none !important}
   .critique{margin-top:14px;padding:10px 14px;background:#f6f6f1;border-left:3px solid var(--line);border-radius:0 6px 6px 0;font-size:13px;color:var(--mute);font-style:italic}
   .critique strong{font-style:normal;color:var(--ink);font-weight:600}
   .meta{margin-top:14px;display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:12px;color:var(--mute)}
@@ -119,7 +135,7 @@
 <header>
   <div class="top">
     <h1>LinkedIn post ideas</h1>
-    <div class="sub">Draft copy for your feed, aligned to ICP buyers (Compliance, HR risk, L&amp;D). Newest day first. Fill this page from your automation job, then copy into LinkedIn. Status and filters are remembered in this browser only.</div>
+    <div class="sub">Draft copy for your feed, aligned to ICP buyers (Compliance, HR risk, L&amp;D). Newest day first. Each card shows the first two lines of the post until you expand. Fill this page from your automation job, then copy into LinkedIn. Status and filters are remembered in this browser only.</div>
   </div>
   <div class="filters" id="filters">
     <div class="filter-group" data-filter="status">
@@ -483,7 +499,87 @@ It is finally how a manager can train.
     });
     var empty = document.getElementById('emptyState');
     if (empty) empty.classList.toggle('show', visible === 0);
+    requestAnimationFrame(refreshAccordionButtons);
   }
+
+  function measurePostOverflow(body){
+    var style = getComputedStyle(body);
+    var lh = parseFloat(style.lineHeight);
+    if (isNaN(lh) || style.lineHeight === 'normal'){
+      lh = parseFloat(style.fontSize) * 1.6;
+    }
+    var w = body.getBoundingClientRect().width;
+    if (w < 8) return false;
+    var clone = body.cloneNode(true);
+    clone.style.cssText = 'position:absolute;left:-9999px;top:0;visibility:hidden;width:' + w + 'px;white-space:pre-wrap;word-break:break-word;display:block;height:auto;max-height:none;overflow:visible;margin:0;padding:0;border:0;font-size:' + style.fontSize + ';font-family:' + style.fontFamily + ';line-height:' + style.lineHeight + ';';
+    document.body.appendChild(clone);
+    var fullH = clone.scrollHeight;
+    document.body.removeChild(clone);
+    return fullH > lh * 2 + 1;
+  }
+
+  function setupPostAccordions(){
+    document.querySelectorAll('.card').forEach(function(card){
+      var body = card.querySelector(':scope > .post-body');
+      if (!body) return;
+      var fold = document.createElement('div');
+      fold.className = 'post-fold';
+      body.parentNode.insertBefore(fold, body);
+      fold.appendChild(body);
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'post-toggle';
+      fold.appendChild(btn);
+      card.classList.add('is-collapsed');
+      if (measurePostOverflow(body)){
+        btn.hidden = false;
+        btn.textContent = 'Show full post';
+        btn.setAttribute('aria-expanded', 'false');
+        btn.setAttribute('aria-label', 'Show full post text');
+      } else {
+        btn.hidden = true;
+        card.classList.remove('is-collapsed');
+        btn.setAttribute('aria-expanded', 'true');
+      }
+    });
+  }
+
+  function refreshAccordionButtons(){
+    document.querySelectorAll('.card').forEach(function(card){
+      var fold = card.querySelector('.post-fold');
+      if (!fold) return;
+      var body = fold.querySelector('.post-body');
+      var btn = fold.querySelector('.post-toggle');
+      if (!body || !btn) return;
+      if (card.classList.contains('hidden')) return;
+      var userExpanded = !card.classList.contains('is-collapsed');
+      var need = measurePostOverflow(body);
+      if (!need){
+        btn.hidden = true;
+        card.classList.remove('is-collapsed');
+        btn.setAttribute('aria-expanded', 'true');
+        return;
+      }
+      btn.hidden = false;
+      if (userExpanded){
+        card.classList.remove('is-collapsed');
+        btn.setAttribute('aria-expanded', 'true');
+        btn.textContent = 'Show hook only';
+        btn.setAttribute('aria-label', 'Collapse to hook only');
+      } else {
+        card.classList.add('is-collapsed');
+        btn.setAttribute('aria-expanded', 'false');
+        btn.textContent = 'Show full post';
+        btn.setAttribute('aria-label', 'Show full post text');
+      }
+    });
+  }
+
+  var accResizeTimer;
+  window.addEventListener('resize', function(){
+    clearTimeout(accResizeTimer);
+    accResizeTimer = setTimeout(refreshAccordionButtons, 120);
+  });
 
   document.querySelectorAll('.card').forEach(applyCardStatus);
   ['status','icp','score','date'].forEach(function(g){
@@ -492,6 +588,7 @@ It is finally how a manager can train.
     });
   });
   applyFilters();
+  setupPostAccordions();
 
   function resetAllFilters(){
     filters.status = 'all';
@@ -544,6 +641,17 @@ It is finally how a manager can train.
       var group = pill.parentElement.getAttribute('data-filter');
       var value = pill.getAttribute('data-value');
       setFilter(group, value);
+      return;
+    }
+    if (t.classList && t.classList.contains('post-toggle')){
+      var cardP = t.closest('.card');
+      if (cardP && !t.hidden){
+        cardP.classList.toggle('is-collapsed');
+        var collapsed = cardP.classList.contains('is-collapsed');
+        t.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+        t.textContent = collapsed ? 'Show full post' : 'Show hook only';
+        t.setAttribute('aria-label', collapsed ? 'Show full post text' : 'Collapse to hook only');
+      }
       return;
     }
     if (t.classList && t.classList.contains('status')){
