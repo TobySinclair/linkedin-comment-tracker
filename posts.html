@@ -1,33 +1,63 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>LinkedIn post drafts — Toby Sinclair</title>
+<title>LinkedIn post ideas — Real Talk Studio Ops Hub</title>
+<meta name="description" content="ICP-aligned LinkedIn post drafts and ideas. Filter by status, buyer, and date; copy to clipboard; track Posted and Archived in this browser.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#fafaf7;--ink:#1a1a1a;--mute:#6b6b6b;--card:#fff;--line:#e5e5e0;--accent:#0a66c2;
-    --todo:#6b6b6b;--todo-bg:#f1f1ee;
-    --posted:#1f7a4d;--posted-bg:#e8f5ee;
-    --archived:#9aa0a6;--archived-bg:#f4f4f0;
+    --nav-h:52px;
+    --bg:#fafafa;--ink:#18181b;--mute:#71717a;--card:#fff;--line:#e4e4e7;--accent:#0a66c2;
+    --hub-accent:#2563eb;
+    --surface-soft:#f4f4f5;
+    --border:#e4e4e7;
+    --sans:"Geist",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    --todo:#52525b;--todo-bg:#f4f4f5;
+    --posted:#15803d;--posted-bg:#dcfce7;
+    --archived:#71717a;--archived-bg:#f4f4f5;
     --score-high:#1f7a4d;--score-high-bg:#e8f5ee;
     --score-mid:#a85a16;--score-mid-bg:#fff1e6;
     --score-low:#b53030;--score-low-bg:#ffeaea;
   }
   *{box-sizing:border-box}
-  body{margin:0;font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink)}
-  header{padding:24px 20px 16px;border-bottom:1px solid var(--line);background:var(--card);position:sticky;top:0;z-index:10}
+  body{margin:0;font:15px/1.55 var(--sans);background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;}
+  .skip-link{
+    position:absolute;left:-9999px;top:12px;z-index:100;padding:8px 14px;background:var(--ink);color:#fff;text-decoration:none;border-radius:6px;font-size:13px;
+  }
+  .skip-link:focus{left:12px;outline:2px solid var(--hub-accent);outline-offset:2px}
+  a{color:var(--hub-accent)}
+  .topnav{
+    height:var(--nav-h);background:var(--card);border-bottom:1px solid var(--border);
+    padding:0 24px;display:flex;align-items:center;position:sticky;top:0;z-index:30;
+  }
+  .topnav-left{display:flex;align-items:center;gap:24px}
+  .logo{display:inline-flex;align-items:center;gap:9px;font-weight:600;font-size:14px;color:var(--ink);letter-spacing:-0.01em}
+  .logo-mark{
+    width:22px;height:22px;background:var(--ink);border-radius:5px;
+    display:flex;align-items:center;justify-content:center;color:var(--card);font-size:13px;font-weight:600;
+  }
+  .app-switch{display:flex;align-items:center;gap:2px;margin-left:4px;padding-left:16px;border-left:1px solid var(--border);height:28px}
+  .app-switch a{font-size:12.5px;font-weight:500;text-decoration:none;padding:6px 10px;border-radius:6px}
+  .app-switch a.current{color:var(--ink);background:var(--surface-soft);border:1px solid var(--border)}
+  .app-switch a:not(.current){color:var(--mute);border:1px solid transparent}
+  .app-switch a:not(.current):hover{color:var(--ink);background:var(--surface-soft)}
+  header{padding:20px 24px 14px;border-bottom:1px solid var(--line);background:var(--card);position:sticky;top:var(--nav-h);z-index:20}
   header .top{max-width:780px;margin:0 auto}
-  header h1{margin:0;font-size:20px}
-  header .sub{margin-top:4px;color:var(--mute);font-size:14px}
-  .filters{max-width:780px;margin:14px auto 0;display:flex;flex-wrap:wrap;gap:14px 22px;align-items:center}
+  header h1{margin:0;font-size:22px;font-weight:600;letter-spacing:-0.02em}
+  header .sub{margin-top:6px;color:var(--mute);font-size:13.5px;line-height:1.45;max-width:42em}
+  .filters{max-width:780px;margin:14px auto 0;display:flex;flex-wrap:wrap;gap:14px 22px;align-items:center;padding:0 4px}
   .filter-group{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
   .filter-label{font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--mute);font-weight:600;margin-right:4px}
-  .filter-pill{font:12px/1 inherit;padding:6px 10px;border:1px solid var(--line);background:#fff;border-radius:999px;cursor:pointer;color:var(--ink)}
-  .filter-pill:hover{background:#f4f4ef}
+  .filter-pill{font:12px/1 var(--sans);padding:6px 10px;border:1px solid var(--line);background:var(--card);border-radius:999px;cursor:pointer;color:var(--ink)}
+  .filter-pill:hover{background:var(--surface-soft)}
+  .filter-pill:focus-visible{outline:2px solid var(--hub-accent);outline-offset:2px}
   .filter-pill.active{background:var(--ink);color:#fff;border-color:var(--ink)}
   .filter-pill .count{opacity:0.7;margin-left:4px;font-variant-numeric:tabular-nums}
-  main{max-width:780px;margin:0 auto;padding:24px 20px 80px}
+  main{max-width:780px;margin:0 auto;padding:24px 24px 80px}
   section.day{margin-bottom:48px}
   section.day h2{font-size:15px;text-transform:uppercase;letter-spacing:0.06em;color:var(--mute);margin:0 0 16px;font-weight:600}
   section.day.empty{display:none}
@@ -38,7 +68,7 @@
   .card-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:12px}
   .card-head h3{margin:0;font-size:16px;flex:1}
   .badges{display:flex;flex-direction:column;align-items:flex-end;gap:6px;white-space:nowrap}
-  .badge{font-size:11px;text-transform:uppercase;letter-spacing:0.05em;padding:3px 8px;border-radius:999px;background:#eef3fb;color:var(--accent);font-weight:600}
+  .badge{font-size:11px;text-transform:uppercase;letter-spacing:0.05em;padding:3px 8px;border-radius:999px;background:#eff6ff;color:var(--hub-accent);font-weight:600}
   .badge.compliance{background:#e8f5ee;color:#1f7a4d}
   .badge.hr-risk{background:#fff1e6;color:#a85a16}
   .badge.l-and-d{background:#f4ecff;color:#6b3fc4}
@@ -46,30 +76,50 @@
   .score.high{background:var(--score-high-bg);color:var(--score-high)}
   .score.mid{background:var(--score-mid-bg);color:var(--score-mid)}
   .score.low{background:var(--score-low-bg);color:var(--score-low)}
-  .status{font:11px/1 inherit;text-transform:uppercase;letter-spacing:0.05em;padding:4px 10px;border-radius:999px;border:1px solid var(--line);cursor:pointer;font-weight:600}
+  .status{font:11px/1 var(--sans);text-transform:uppercase;letter-spacing:0.05em;padding:4px 10px;border-radius:999px;border:1px solid var(--line);cursor:pointer;font-weight:600}
+  .status:focus-visible{outline:2px solid var(--hub-accent);outline-offset:2px}
   .status[data-status="todo"]{color:var(--todo);background:var(--todo-bg);border-color:#e0e0d8}
   .status[data-status="posted"]{color:var(--posted);background:var(--posted-bg);border-color:#cfe7d8}
   .status[data-status="archived"]{color:var(--archived);background:var(--archived-bg);border-color:#e0e0d8}
-  .post-body{white-space:pre-wrap;font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;margin:0;padding:0;border:0;background:none;color:var(--ink)}
+  .post-body{white-space:pre-wrap;font:15px/1.6 var(--sans);margin:0;padding:0;border:0;background:none;color:var(--ink)}
   .critique{margin-top:14px;padding:10px 14px;background:#f6f6f1;border-left:3px solid var(--line);border-radius:0 6px 6px 0;font-size:13px;color:var(--mute);font-style:italic}
   .critique strong{font-style:normal;color:var(--ink);font-weight:600}
   .meta{margin-top:14px;display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:12px;color:var(--mute)}
   .meta .created{font-variant-numeric:tabular-nums}
   .actions{display:flex;gap:8px;flex-wrap:wrap}
-  .btn{font:13px/1 inherit;padding:7px 12px;border:1px solid var(--line);background:#fff;border-radius:6px;cursor:pointer;color:var(--ink)}
-  .btn:hover{background:#f4f4ef}
-  .empty-state{display:none;text-align:center;padding:60px 20px;color:var(--mute);font-size:14px}
+  .btn{font:13px/1 var(--sans);padding:7px 12px;border:1px solid var(--line);background:var(--card);border-radius:6px;cursor:pointer;color:var(--ink)}
+  .btn:hover{background:var(--surface-soft)}
+  .btn:focus-visible{outline:2px solid var(--hub-accent);outline-offset:2px}
+  .btn.btn-primary{margin-top:14px;background:var(--ink);color:#fff;border-color:var(--ink)}
+  .btn.btn-primary:hover{background:#27272a;border-color:#27272a}
+  .run-notes{display:none !important}
+  .empty-state{display:none;text-align:center;padding:48px 20px 60px;color:var(--mute);font-size:14px;max-width:360px;margin:0 auto}
   .empty-state.show{display:block}
+  .empty-state p{margin:0 0 4px;line-height:1.5}
+  .empty-state .hint{font-size:13px;color:var(--mute);margin-bottom:16px}
   @media (max-width:560px){
     .filters{flex-direction:column;align-items:flex-start;gap:10px}
   }
 </style>
 </head>
 <body>
+<a href="#main-posts" class="skip-link">Skip to content</a>
+<nav class="topnav" aria-label="Application">
+  <div class="topnav-left">
+    <div class="logo"><div class="logo-mark">R</div>Real Talk Studio <span style="font-weight:400;color:var(--mute)">· Ops hub</span></div>
+    <div class="app-switch">
+      <a href="index.html">Comment Tracker</a>
+      <a href="inbox.html">Inbox</a>
+      <a href="posts.html" class="current">Post ideas</a>
+      <a href="okrs.html">OKRs</a>
+      <a href="contacts.html">Contacts</a>
+    </div>
+  </div>
+</nav>
 <header>
   <div class="top">
-    <h1>LinkedIn post drafts</h1>
-    <div class="sub">Toby Sinclair — daily ICP-product autopilot. Newest day at top.</div>
+    <h1>LinkedIn post ideas</h1>
+    <div class="sub">Draft copy for your feed, aligned to ICP buyers (Compliance, HR risk, L&amp;D). Newest day first. Fill this page from your automation job, then copy into LinkedIn. Status and filters are remembered in this browser only.</div>
   </div>
   <div class="filters" id="filters">
     <div class="filter-group" data-filter="status">
@@ -101,7 +151,7 @@
     </div>
   </div>
 </header>
-<main>
+<main id="main-posts">
 <!-- NEWEST-DAY-INSERT-BELOW -->
 <section class="day" data-date="2026-05-11">
   <h2>2026-05-11</h2>
@@ -317,7 +367,11 @@ It is finally how a manager can train.
     </div>
   </div>
 </section>
-<div class="empty-state" id="emptyState">No posts match the current filters.</div>
+<div class="empty-state" id="emptyState" role="status" aria-live="polite">
+    <p><strong>No posts match these filters.</strong></p>
+    <p class="hint">Widen the date range or set Status, ICP, and Score to All.</p>
+    <button type="button" class="btn btn-primary" id="resetFilters">Reset filters</button>
+  </div>
 </main>
 <script>
 (function(){
@@ -344,6 +398,8 @@ It is finally how a manager can train.
     if (btn){
       btn.setAttribute('data-status', s);
       btn.textContent = STATUS_LABEL[s];
+      btn.setAttribute('title', 'Cycle status: To Do → Posted → Archived');
+      btn.setAttribute('aria-label', 'Post status: ' + STATUS_LABEL[s] + '. Click to cycle.');
     }
     card.setAttribute('data-status', s);
     card.classList.toggle('is-posted', s === 'posted');
@@ -369,14 +425,27 @@ It is finally how a manager can train.
     applyFilters();
   }
 
+  function parseCreatedYMD(s){
+    var parts = s.split('-');
+    if (parts.length !== 3) return null;
+    var y = parseInt(parts[0], 10), mo = parseInt(parts[1], 10) - 1, d = parseInt(parts[2], 10);
+    if (isNaN(y) || isNaN(mo) || isNaN(d)) return null;
+    return new Date(y, mo, d);
+  }
+  function startOfLocalDay(dt){
+    return new Date(dt.getFullYear(), dt.getMonth(), dt.getDate());
+  }
   function withinDate(card){
     if (filters.date === 'all') return true;
     var d = card.getAttribute('data-date-created');
     if (!d) return true;
-    var cardDate = new Date(d + 'T00:00:00');
-    var now = new Date();
-    var days = Math.floor((now - cardDate) / 86400000);
-    return days <= parseInt(filters.date, 10);
+    var cardDay = parseCreatedYMD(d);
+    if (!cardDay) return true;
+    var maxDays = parseInt(filters.date, 10);
+    var todayStart = startOfLocalDay(new Date());
+    var diffDays = Math.round((todayStart - cardDay) / 86400000);
+    if (diffDays < 0) return false;
+    return diffDays <= maxDays;
   }
 
   function matchesScore(card){
@@ -424,6 +493,50 @@ It is finally how a manager can train.
   });
   applyFilters();
 
+  function resetAllFilters(){
+    filters.status = 'all';
+    filters.icp = 'all';
+    filters.score = 'all';
+    filters.date = 'all';
+    saveJSON(FILTER_KEY, filters);
+    ['status','icp','score','date'].forEach(function(g){
+      document.querySelectorAll('.filter-group[data-filter="' + g + '"] .filter-pill').forEach(function(p){
+        p.classList.toggle('active', p.getAttribute('data-value') === filters[g]);
+      });
+    });
+    applyFilters();
+  }
+  var resetBtn = document.getElementById('resetFilters');
+  if (resetBtn) resetBtn.addEventListener('click', resetAllFilters);
+
+  function copyPostText(btn, text){
+    if (navigator.clipboard && window.isSecureContext){
+      navigator.clipboard.writeText(text).then(function(){
+        var old = btn.textContent;
+        btn.textContent = 'Copied';
+        setTimeout(function(){ btn.textContent = old; }, 1200);
+      }).catch(function(){ fallbackCopy(btn, text); });
+    } else {
+      fallbackCopy(btn, text);
+    }
+  }
+  function fallbackCopy(btn, text){
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'absolute';
+    ta.style.left = '-9999px';
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+      document.execCommand('copy');
+      var old = btn.textContent;
+      btn.textContent = 'Copied';
+      setTimeout(function(){ btn.textContent = old; }, 1200);
+    } catch (err) {}
+    document.body.removeChild(ta);
+  }
+
   document.addEventListener('click', function(e){
     var t = e.target;
     var pill = t.closest && t.closest('.filter-pill');
@@ -442,14 +555,9 @@ It is finally how a manager can train.
       var card2 = t.closest('.card');
       if (card2){
         var body = card2.querySelector('.post-body');
-        if (body && navigator.clipboard){
-          navigator.clipboard.writeText(body.innerText).then(function(){
-            var old = t.textContent;
-            t.textContent = 'Copied';
-            setTimeout(function(){ t.textContent = old; }, 1200);
-          });
-        }
+        if (body) copyPostText(t, body.innerText);
       }
+      return;
     }
   });
 })();
