@@ -49,14 +49,19 @@
   header .top{max-width:780px;margin:0 auto}
   header h1{margin:0;font-size:22px;font-weight:600;letter-spacing:-0.02em}
   header .sub{margin-top:6px;color:var(--mute);font-size:13.5px;line-height:1.45;max-width:42em}
-  .filters{max-width:780px;margin:14px auto 0;display:flex;flex-wrap:wrap;gap:14px 22px;align-items:center;padding:0 4px}
-  .filter-group{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-  .filter-label{font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--mute);font-weight:600;margin-right:4px}
-  .filter-pill{font:12px/1 var(--sans);padding:6px 10px;border:1px solid var(--line);background:var(--card);border-radius:999px;cursor:pointer;color:var(--ink)}
-  .filter-pill:hover{background:var(--surface-soft)}
-  .filter-pill:focus-visible{outline:2px solid var(--hub-accent);outline-offset:2px}
-  .filter-pill.active{background:var(--ink);color:#fff;border-color:var(--ink)}
-  .filter-pill .count{opacity:0.7;margin-left:4px;font-variant-numeric:tabular-nums}
+  .filters{max-width:780px;margin:14px auto 0;display:flex;flex-wrap:wrap;gap:16px 22px;align-items:flex-end;padding:0 4px}
+  .filter-field{display:flex;flex-direction:column;gap:4px;min-width:0}
+  .filter-label{font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:var(--mute);font-weight:600}
+  .filter-select{
+    min-width:158px;max-width:100%;height:36px;padding:0 32px 0 10px;
+    font:inherit;font-size:13px;color:var(--ink);background-color:var(--card);
+    border:1px solid var(--line);border-radius:6px;cursor:pointer;
+    appearance:none;-webkit-appearance:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2371717a' d='M2.5 4.5L6 8l3.5-3.5'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;background-position:right 10px center;
+  }
+  .filter-select:hover{border-color:#d4d4d8}
+  .filter-select:focus{outline:none;box-shadow:0 0 0 2px rgba(37,99,235,0.18);border-color:var(--hub-accent)}
   main{max-width:780px;margin:0 auto;padding:24px 24px 80px}
   section.day{margin-bottom:48px}
   section.day h2{font-size:15px;text-transform:uppercase;letter-spacing:0.06em;color:var(--mute);margin:0 0 16px;font-weight:600}
@@ -65,9 +70,10 @@
   .card.hidden{display:none}
   .card.is-archived{opacity:0.55}
   .card.is-posted{border-color:#cfe7d8}
-  .card-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:12px}
-  .card-head h3{margin:0;font-size:16px;flex:1}
-  .badges{display:flex;flex-direction:column;align-items:flex-end;gap:6px;white-space:nowrap}
+  .badges{
+    display:flex;flex-direction:row;flex-wrap:wrap;align-items:center;gap:8px;
+    margin-top:16px;padding-top:14px;border-top:1px solid var(--line);
+  }
   .badge{font-size:11px;text-transform:uppercase;letter-spacing:0.05em;padding:3px 8px;border-radius:999px;background:#eff6ff;color:var(--hub-accent);font-weight:600}
   .badge.compliance{background:#e8f5ee;color:#1f7a4d}
   .badge.hr-risk{background:#fff1e6;color:#a85a16}
@@ -86,8 +92,8 @@
   .card.is-collapsed .post-body{
     display:-webkit-box;
     -webkit-box-orient:vertical;
-    -webkit-line-clamp:2;
-    line-clamp:2;
+    -webkit-line-clamp:3;
+    line-clamp:3;
     overflow:hidden;
   }
   .card.is-collapsed .critique{display:none}
@@ -114,7 +120,8 @@
   .empty-state p{margin:0 0 4px;line-height:1.5}
   .empty-state .hint{font-size:13px;color:var(--mute);margin-bottom:16px}
   @media (max-width:560px){
-    .filters{flex-direction:column;align-items:flex-start;gap:10px}
+    .filters{flex-direction:column;align-items:stretch;gap:12px}
+    .filter-select{min-width:0;width:100%}
   }
 </style>
 </head>
@@ -135,35 +142,43 @@
 <header>
   <div class="top">
     <h1>LinkedIn post ideas</h1>
-    <div class="sub">Draft copy for your feed, aligned to ICP buyers (Compliance, HR risk, L&amp;D). Newest day first. Each card shows the first two lines of the post until you expand. Fill this page from your automation job, then copy into LinkedIn. Status and filters are remembered in this browser only.</div>
+    <div class="sub">Draft copy for your feed, aligned to ICP buyers (Compliance, HR risk, L&amp;D). Newest day first; within each day, posts sort by score highest to lowest. Each card shows the first three lines of the post until you expand. Fill this page from your automation job, then copy into LinkedIn. Status and filters are remembered in this browser only.</div>
   </div>
-  <div class="filters" id="filters">
-    <div class="filter-group" data-filter="status">
-      <span class="filter-label">Status</span>
-      <button class="filter-pill active" data-value="all">All <span class="count"></span></button>
-      <button class="filter-pill" data-value="todo">To Do <span class="count"></span></button>
-      <button class="filter-pill" data-value="posted">Posted <span class="count"></span></button>
-      <button class="filter-pill" data-value="archived">Archived <span class="count"></span></button>
+  <div class="filters" id="filters" role="toolbar" aria-label="Filter posts">
+    <div class="filter-field">
+      <label class="filter-label" for="filter-status">Status</label>
+      <select id="filter-status" class="filter-select" data-filter="status">
+        <option value="all">All</option>
+        <option value="todo">To Do</option>
+        <option value="posted">Posted</option>
+        <option value="archived">Archived</option>
+      </select>
     </div>
-    <div class="filter-group" data-filter="icp">
-      <span class="filter-label">ICP</span>
-      <button class="filter-pill active" data-value="all">All</button>
-      <button class="filter-pill" data-value="compliance">Compliance</button>
-      <button class="filter-pill" data-value="hr-risk">HR Risk</button>
-      <button class="filter-pill" data-value="l-and-d">L&amp;D</button>
+    <div class="filter-field">
+      <label class="filter-label" for="filter-icp">ICP</label>
+      <select id="filter-icp" class="filter-select" data-filter="icp">
+        <option value="all">All</option>
+        <option value="compliance">Compliance</option>
+        <option value="hr-risk">HR Risk</option>
+        <option value="l-and-d">L&amp;D</option>
+      </select>
     </div>
-    <div class="filter-group" data-filter="score">
-      <span class="filter-label">Score</span>
-      <button class="filter-pill active" data-value="all">All</button>
-      <button class="filter-pill" data-value="8">8+</button>
-      <button class="filter-pill" data-value="7">7+</button>
-      <button class="filter-pill" data-value="below7">Below 7</button>
+    <div class="filter-field">
+      <label class="filter-label" for="filter-score">Score</label>
+      <select id="filter-score" class="filter-select" data-filter="score">
+        <option value="all">All</option>
+        <option value="8">8+</option>
+        <option value="7">7+</option>
+        <option value="below7">Below 7</option>
+      </select>
     </div>
-    <div class="filter-group" data-filter="date">
-      <span class="filter-label">Date</span>
-      <button class="filter-pill active" data-value="all">All</button>
-      <button class="filter-pill" data-value="7">Last 7 days</button>
-      <button class="filter-pill" data-value="30">Last 30 days</button>
+    <div class="filter-field">
+      <label class="filter-label" for="filter-date">Date</label>
+      <select id="filter-date" class="filter-select" data-filter="date">
+        <option value="all">All</option>
+        <option value="7">Last 7 days</option>
+        <option value="30">Last 30 days</option>
+      </select>
     </div>
   </div>
 </header>
@@ -173,14 +188,6 @@
   <h2>2026-05-11</h2>
 
   <div class="card" data-id="2026-05-11-01-compliance-audit-nightmare" data-theme="compliance" data-icp="compliance" data-date-created="2026-05-11" data-score="7">
-    <div class="card-head">
-      <h3>01. The 22-year-old in the audit interview</h3>
-      <div class="badges">
-        <span class="badge compliance">HEAD OF COMPLIANCE</span>
-        <span class="score mid">7/10</span>
-        <button class="status" data-status="todo" data-action="status">To Do</button>
-      </div>
-    </div>
     <pre class="post-body">A Head of Compliance told me last week she has nightmares about live audit interviews.
 
 Not the document review. Not the policy walk-through.
@@ -209,17 +216,14 @@ The only credible evidence the programme works is a transcript of a realistic co
         <button class="btn" data-action="copy">Copy</button>
       </div>
     </div>
+    <div class="badges">
+      <span class="badge compliance">HEAD OF COMPLIANCE</span>
+      <span class="score mid">7/10</span>
+      <button class="status" data-status="todo" data-action="status">To Do</button>
+    </div>
   </div>
 
   <div class="card" data-id="2026-05-11-02-compliance-screenshot-not-evidence" data-theme="compliance" data-icp="compliance" data-date-created="2026-05-11" data-score="8">
-    <div class="card-head">
-      <h3>02. You have a screenshot. You do not have evidence.</h3>
-      <div class="badges">
-        <span class="badge compliance">HEAD OF COMPLIANCE</span>
-        <span class="score high">8/10</span>
-        <button class="status" data-status="todo" data-action="status">To Do</button>
-      </div>
-    </div>
     <pre class="post-body">The certificate says yes. The tribunal will ask: how do you know?
 
 I sat with a General Counsel last month who had just lost a harassment case.
@@ -252,17 +256,14 @@ Stop collecting attendance. Start collecting evidence.
         <button class="btn" data-action="copy">Copy</button>
       </div>
     </div>
+    <div class="badges">
+      <span class="badge compliance">HEAD OF COMPLIANCE</span>
+      <span class="score high">8/10</span>
+      <button class="status" data-status="todo" data-action="status">To Do</button>
+    </div>
   </div>
 
   <div class="card" data-id="2026-05-11-03-hr-risk-customer-crossed-the-line" data-theme="hr-risk" data-icp="hr-risk" data-date-created="2026-05-11" data-score="7">
-    <div class="card-head">
-      <h3>03. A customer crossed a line. Nobody knew what to do.</h3>
-      <div class="badges">
-        <span class="badge hr-risk">CHRO / HR RISK</span>
-        <span class="score mid">7/10</span>
-        <button class="status" data-status="todo" data-action="status">To Do</button>
-      </div>
-    </div>
     <pre class="post-body">A customer crossed a line. Nobody on the team knew what to do.
 
 Twenty-two-year-old on the desk. Comment from a regular. Mid-shift. Three other customers in earshot.
@@ -297,17 +298,14 @@ Practice does.
         <button class="btn" data-action="copy">Copy</button>
       </div>
     </div>
+    <div class="badges">
+      <span class="badge hr-risk">CHRO / HR RISK</span>
+      <span class="score mid">7/10</span>
+      <button class="status" data-status="todo" data-action="status">To Do</button>
+    </div>
   </div>
 
   <div class="card" data-id="2026-05-11-04-hr-risk-disclosure-at-450pm" data-theme="hr-risk" data-icp="hr-risk" data-date-created="2026-05-11" data-score="8">
-    <div class="card-head">
-      <h3>04. A disclosure at 4.50pm on a Friday</h3>
-      <div class="badges">
-        <span class="badge hr-risk">CHRO / HR RISK</span>
-        <span class="score high">8/10</span>
-        <button class="status" data-status="todo" data-action="status">To Do</button>
-      </div>
-    </div>
     <pre class="post-body">A manager I spoke to last month had a disclosure land on her desk on a Friday at 4.50pm.
 
 She had thirty minutes before her train. She had no notes. She had two children to collect.
@@ -338,17 +336,14 @@ The only thing that builds the muscle is a realistic scenario, run before the re
         <button class="btn" data-action="copy">Copy</button>
       </div>
     </div>
+    <div class="badges">
+      <span class="badge hr-risk">CHRO / HR RISK</span>
+      <span class="score high">8/10</span>
+      <button class="status" data-status="todo" data-action="status">To Do</button>
+    </div>
   </div>
 
   <div class="card" data-id="2026-05-11-05-l-and-d-first-real-conversation" data-theme="l-and-d" data-icp="l-and-d" data-date-created="2026-05-11" data-score="6">
-    <div class="card-head">
-      <h3>05. The first difficult conversation is the real one</h3>
-      <div class="badges">
-        <span class="badge l-and-d">L&amp;D / MANAGER DEV</span>
-        <span class="score low">6/10</span>
-        <button class="status" data-status="todo" data-action="status">To Do</button>
-      </div>
-    </div>
     <pre class="post-body">The first difficult conversation most managers ever have is the real one.
 
 Performance warning. Grievance response. Return-to-work after a long absence.
@@ -381,6 +376,11 @@ It is finally how a manager can train.
         <button class="btn" data-action="copy">Copy</button>
       </div>
     </div>
+    <div class="badges">
+      <span class="badge l-and-d">L&amp;D / MANAGER DEV</span>
+      <span class="score low">6/10</span>
+      <button class="status" data-status="todo" data-action="status">To Do</button>
+    </div>
   </div>
 </section>
 <div class="empty-state" id="emptyState" role="status" aria-live="polite">
@@ -406,6 +406,15 @@ It is finally how a manager can train.
 
   var statuses = loadJSON(STATUS_KEY, {});
   var filters = loadJSON(FILTER_KEY, { status:'all', icp:'all', score:'all', date:'all' });
+  var ALLOWED_FILTERS = {
+    status:['all','todo','posted','archived'],
+    icp:['all','compliance','hr-risk','l-and-d'],
+    score:['all','8','7','below7'],
+    date:['all','7','30']
+  };
+  ['status','icp','score','date'].forEach(function(g){
+    if (ALLOWED_FILTERS[g].indexOf(filters[g]) === -1) filters[g] = 'all';
+  });
 
   function applyCardStatus(card){
     var id = card.getAttribute('data-id');
@@ -435,10 +444,28 @@ It is finally how a manager can train.
   function setFilter(group, value){
     filters[group] = value;
     saveJSON(FILTER_KEY, filters);
-    document.querySelectorAll('.filter-group[data-filter="' + group + '"] .filter-pill').forEach(function(p){
-      p.classList.toggle('active', p.getAttribute('data-value') === value);
-    });
+    var sel = document.querySelector('.filter-select[data-filter="' + group + '"]');
+    if (sel && sel.value !== value) sel.value = value;
     applyFilters();
+  }
+
+  function syncFilterSelectsFromState(){
+    ['status','icp','score','date'].forEach(function(g){
+      var sel = document.querySelector('.filter-select[data-filter="' + g + '"]');
+      if (sel) sel.value = filters[g];
+    });
+  }
+
+  function updateStatusOptionCounts(counts){
+    var sel = document.getElementById('filter-status');
+    if (!sel) return;
+    var base = { all:'All', todo:'To Do', posted:'Posted', archived:'Archived' };
+    ['all','todo','posted','archived'].forEach(function(v){
+      var opt = sel.querySelector('option[value="' + v + '"]');
+      if (!opt) return;
+      var n = v === 'all' ? counts.all : (counts[v] || 0);
+      opt.textContent = base[v] + ' (' + n + ')';
+    });
   }
 
   function parseCreatedYMD(s){
@@ -487,12 +514,7 @@ It is finally how a manager can train.
       card.classList.toggle('hidden', !show);
       if (show) visible++;
     });
-    document.querySelectorAll('.filter-group[data-filter="status"] .filter-pill').forEach(function(p){
-      var v = p.getAttribute('data-value');
-      var c = counts[v];
-      var span = p.querySelector('.count');
-      if (span) span.textContent = c != null ? '(' + c + ')' : '';
-    });
+    updateStatusOptionCounts(counts);
     document.querySelectorAll('section.day').forEach(function(sec){
       var anyVisible = sec.querySelectorAll('.card:not(.hidden)').length > 0;
       sec.classList.toggle('empty', !anyVisible);
@@ -515,7 +537,7 @@ It is finally how a manager can train.
     document.body.appendChild(clone);
     var fullH = clone.scrollHeight;
     document.body.removeChild(clone);
-    return fullH > lh * 2 + 1;
+    return fullH > lh * 3 + 1;
   }
 
   function setupPostAccordions(){
@@ -581,12 +603,25 @@ It is finally how a manager can train.
     accResizeTimer = setTimeout(refreshAccordionButtons, 120);
   });
 
-  document.querySelectorAll('.card').forEach(applyCardStatus);
-  ['status','icp','score','date'].forEach(function(g){
-    document.querySelectorAll('.filter-group[data-filter="' + g + '"] .filter-pill').forEach(function(p){
-      p.classList.toggle('active', p.getAttribute('data-value') === filters[g]);
+  function sortCardsByScoreDesc(){
+    document.querySelectorAll('section.day').forEach(function(sec){
+      var cards = [].slice.call(sec.querySelectorAll(':scope > .card'));
+      if (cards.length < 2) return;
+      cards.sort(function(a, b){
+        var sa = parseInt(a.getAttribute('data-score') || '0', 10);
+        var sb = parseInt(b.getAttribute('data-score') || '0', 10);
+        if (sb !== sa) return sb - sa;
+        var ida = a.getAttribute('data-id') || '';
+        var idb = b.getAttribute('data-id') || '';
+        return ida.localeCompare(idb);
+      });
+      cards.forEach(function(c){ sec.appendChild(c); });
     });
-  });
+  }
+
+  sortCardsByScoreDesc();
+  document.querySelectorAll('.card').forEach(applyCardStatus);
+  syncFilterSelectsFromState();
   applyFilters();
   setupPostAccordions();
 
@@ -596,11 +631,7 @@ It is finally how a manager can train.
     filters.score = 'all';
     filters.date = 'all';
     saveJSON(FILTER_KEY, filters);
-    ['status','icp','score','date'].forEach(function(g){
-      document.querySelectorAll('.filter-group[data-filter="' + g + '"] .filter-pill').forEach(function(p){
-        p.classList.toggle('active', p.getAttribute('data-value') === filters[g]);
-      });
-    });
+    syncFilterSelectsFromState();
     applyFilters();
   }
   var resetBtn = document.getElementById('resetFilters');
@@ -634,15 +665,16 @@ It is finally how a manager can train.
     document.body.removeChild(ta);
   }
 
+  var filtersEl = document.getElementById('filters');
+  if (filtersEl) filtersEl.addEventListener('change', function(e){
+    var t = e.target;
+    if (t.classList && t.classList.contains('filter-select')){
+      setFilter(t.getAttribute('data-filter'), t.value);
+    }
+  });
+
   document.addEventListener('click', function(e){
     var t = e.target;
-    var pill = t.closest && t.closest('.filter-pill');
-    if (pill){
-      var group = pill.parentElement.getAttribute('data-filter');
-      var value = pill.getAttribute('data-value');
-      setFilter(group, value);
-      return;
-    }
     if (t.classList && t.classList.contains('post-toggle')){
       var cardP = t.closest('.card');
       if (cardP && !t.hidden){
