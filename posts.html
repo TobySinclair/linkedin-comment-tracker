@@ -5,45 +5,101 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>LinkedIn post drafts — Toby Sinclair</title>
 <style>
-  :root{--bg:#fafaf7;--ink:#1a1a1a;--mute:#6b6b6b;--card:#fff;--line:#e5e5e0;--accent:#0a66c2}
+  :root{
+    --bg:#fafaf7;--ink:#1a1a1a;--mute:#6b6b6b;--card:#fff;--line:#e5e5e0;--accent:#0a66c2;
+    --todo:#6b6b6b;--todo-bg:#f1f1ee;
+    --posted:#1f7a4d;--posted-bg:#e8f5ee;
+    --archived:#9aa0a6;--archived-bg:#f4f4f0;
+  }
   *{box-sizing:border-box}
   body{margin:0;font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink)}
-  header{padding:24px 20px;border-bottom:1px solid var(--line);background:var(--card);position:sticky;top:0;z-index:10}
+  header{padding:24px 20px 16px;border-bottom:1px solid var(--line);background:var(--card);position:sticky;top:0;z-index:10}
+  header .top{max-width:780px;margin:0 auto}
   header h1{margin:0;font-size:20px}
   header .sub{margin-top:4px;color:var(--mute);font-size:14px}
+  .filters{max-width:780px;margin:14px auto 0;display:flex;flex-wrap:wrap;gap:14px 22px;align-items:center}
+  .filter-group{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+  .filter-label{font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--mute);font-weight:600;margin-right:4px}
+  .filter-pill{font:12px/1 inherit;padding:6px 10px;border:1px solid var(--line);background:#fff;border-radius:999px;cursor:pointer;color:var(--ink)}
+  .filter-pill:hover{background:#f4f4ef}
+  .filter-pill.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .filter-pill .count{opacity:0.7;margin-left:4px;font-variant-numeric:tabular-nums}
   main{max-width:780px;margin:0 auto;padding:24px 20px 80px}
   section.day{margin-bottom:48px}
   section.day h2{font-size:15px;text-transform:uppercase;letter-spacing:0.06em;color:var(--mute);margin:0 0 16px;font-weight:600}
+  section.day.empty{display:none}
   .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:20px 22px;margin-bottom:16px}
+  .card.hidden{display:none}
+  .card.is-archived{opacity:0.55}
+  .card.is-posted{border-color:#cfe7d8}
   .card-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:12px}
-  .card-head h3{margin:0;font-size:16px}
-  .badge{font-size:11px;text-transform:uppercase;letter-spacing:0.05em;padding:3px 8px;border-radius:999px;background:#eef3fb;color:var(--accent);font-weight:600;white-space:nowrap}
+  .card-head h3{margin:0;font-size:16px;flex:1}
+  .badges{display:flex;flex-direction:column;align-items:flex-end;gap:6px;white-space:nowrap}
+  .badge{font-size:11px;text-transform:uppercase;letter-spacing:0.05em;padding:3px 8px;border-radius:999px;background:#eef3fb;color:var(--accent);font-weight:600}
   .badge.compliance{background:#e8f5ee;color:#1f7a4d}
   .badge.hr-risk{background:#fff1e6;color:#a85a16}
   .badge.l-and-d{background:#f4ecff;color:#6b3fc4}
+  .status{font:11px/1 inherit;text-transform:uppercase;letter-spacing:0.05em;padding:4px 10px;border-radius:999px;border:1px solid var(--line);cursor:pointer;font-weight:600}
+  .status[data-status="todo"]{color:var(--todo);background:var(--todo-bg);border-color:#e0e0d8}
+  .status[data-status="posted"]{color:var(--posted);background:var(--posted-bg);border-color:#cfe7d8}
+  .status[data-status="archived"]{color:var(--archived);background:var(--archived-bg);border-color:#e0e0d8}
   .post-body{white-space:pre-wrap;font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;margin:0;padding:0;border:0;background:none;color:var(--ink)}
-  .actions{margin-top:14px;display:flex;gap:8px;flex-wrap:wrap}
+  .meta{margin-top:14px;display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:12px;color:var(--mute)}
+  .meta .created{font-variant-numeric:tabular-nums}
+  .actions{display:flex;gap:8px;flex-wrap:wrap}
   .btn{font:13px/1 inherit;padding:7px 12px;border:1px solid var(--line);background:#fff;border-radius:6px;cursor:pointer;color:var(--ink)}
   .btn:hover{background:#f4f4ef}
   .run-notes{margin-top:24px;padding:14px 16px;background:#fff;border:1px dashed var(--line);border-radius:8px;font-size:13px;color:var(--mute)}
   .run-notes h3{margin:0 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:0.05em;color:var(--mute)}
   .run-notes ul{margin:0;padding-left:18px}
+  .empty-state{display:none;text-align:center;padding:60px 20px;color:var(--mute);font-size:14px}
+  .empty-state.show{display:block}
+  @media (max-width:560px){
+    .filters{flex-direction:column;align-items:flex-start;gap:10px}
+  }
 </style>
 </head>
 <body>
 <header>
-  <h1>LinkedIn post drafts</h1>
-  <div class="sub">Toby Sinclair — daily ICP-product autopilot. Newest day at top.</div>
+  <div class="top">
+    <h1>LinkedIn post drafts</h1>
+    <div class="sub">Toby Sinclair — daily ICP-product autopilot. Newest day at top.</div>
+  </div>
+  <div class="filters" id="filters">
+    <div class="filter-group" data-filter="status">
+      <span class="filter-label">Status</span>
+      <button class="filter-pill active" data-value="all">All <span class="count"></span></button>
+      <button class="filter-pill" data-value="todo">To Do <span class="count"></span></button>
+      <button class="filter-pill" data-value="posted">Posted <span class="count"></span></button>
+      <button class="filter-pill" data-value="archived">Archived <span class="count"></span></button>
+    </div>
+    <div class="filter-group" data-filter="icp">
+      <span class="filter-label">ICP</span>
+      <button class="filter-pill active" data-value="all">All</button>
+      <button class="filter-pill" data-value="compliance">Compliance</button>
+      <button class="filter-pill" data-value="hr-risk">HR Risk</button>
+      <button class="filter-pill" data-value="l-and-d">L&amp;D</button>
+    </div>
+    <div class="filter-group" data-filter="date">
+      <span class="filter-label">Date</span>
+      <button class="filter-pill active" data-value="all">All</button>
+      <button class="filter-pill" data-value="7">Last 7 days</button>
+      <button class="filter-pill" data-value="30">Last 30 days</button>
+    </div>
+  </div>
 </header>
 <main>
 <!-- NEWEST-DAY-INSERT-BELOW -->
 <section class="day" data-date="2026-05-11">
   <h2>2026-05-11</h2>
 
-  <div class="card" data-id="2026-05-11-01-compliance-audit-nightmare" data-theme="compliance">
+  <div class="card" data-id="2026-05-11-01-compliance-audit-nightmare" data-theme="compliance" data-icp="compliance" data-date-created="2026-05-11">
     <div class="card-head">
       <h3>01. The 22-year-old in the audit interview</h3>
-      <span class="badge compliance">HEAD OF COMPLIANCE</span>
+      <div class="badges">
+        <span class="badge compliance">HEAD OF COMPLIANCE</span>
+        <button class="status" data-status="todo" data-action="status">To Do</button>
+      </div>
     </div>
     <pre class="post-body">A Head of Compliance told me last week she has nightmares about live audit interviews.
 
@@ -66,15 +122,21 @@ The person and the moment will be in that room.
 The only credible evidence the programme works is a transcript of a realistic conversation.
 
 #compliance #ConsumerDuty</pre>
-    <div class="actions">
-      <button class="btn" data-action="copy">Copy</button>
+    <div class="meta">
+      <span class="created">Created 2026-05-11</span>
+      <div class="actions">
+        <button class="btn" data-action="copy">Copy</button>
+      </div>
     </div>
   </div>
 
-  <div class="card" data-id="2026-05-11-02-compliance-screenshot-not-evidence" data-theme="compliance">
+  <div class="card" data-id="2026-05-11-02-compliance-screenshot-not-evidence" data-theme="compliance" data-icp="compliance" data-date-created="2026-05-11">
     <div class="card-head">
       <h3>02. You have a screenshot. You do not have evidence.</h3>
-      <span class="badge compliance">HEAD OF COMPLIANCE</span>
+      <div class="badges">
+        <span class="badge compliance">HEAD OF COMPLIANCE</span>
+        <button class="status" data-status="todo" data-action="status">To Do</button>
+      </div>
     </div>
     <pre class="post-body">The certificate says yes. The tribunal will ask: how do you know?
 
@@ -101,15 +163,21 @@ That is what a regulator reads. That is what a judge reads.
 Stop collecting attendance. Start collecting evidence.
 
 #compliance #WorkerProtectionAct</pre>
-    <div class="actions">
-      <button class="btn" data-action="copy">Copy</button>
+    <div class="meta">
+      <span class="created">Created 2026-05-11</span>
+      <div class="actions">
+        <button class="btn" data-action="copy">Copy</button>
+      </div>
     </div>
   </div>
 
-  <div class="card" data-id="2026-05-11-03-hr-risk-customer-crossed-the-line" data-theme="hr-risk">
+  <div class="card" data-id="2026-05-11-03-hr-risk-customer-crossed-the-line" data-theme="hr-risk" data-icp="hr-risk" data-date-created="2026-05-11">
     <div class="card-head">
       <h3>03. A customer crossed a line. Nobody knew what to do.</h3>
-      <span class="badge hr-risk">CHRO / HR RISK</span>
+      <div class="badges">
+        <span class="badge hr-risk">CHRO / HR RISK</span>
+        <button class="status" data-status="todo" data-action="status">To Do</button>
+      </div>
     </div>
     <pre class="post-body">A customer crossed a line. Nobody on the team knew what to do.
 
@@ -138,15 +206,21 @@ Workshops do not give you that evidence. E-learning does not give you that evide
 Practice does.
 
 #WorkerProtectionAct #HR</pre>
-    <div class="actions">
-      <button class="btn" data-action="copy">Copy</button>
+    <div class="meta">
+      <span class="created">Created 2026-05-11</span>
+      <div class="actions">
+        <button class="btn" data-action="copy">Copy</button>
+      </div>
     </div>
   </div>
 
-  <div class="card" data-id="2026-05-11-04-hr-risk-disclosure-at-450pm" data-theme="hr-risk">
+  <div class="card" data-id="2026-05-11-04-hr-risk-disclosure-at-450pm" data-theme="hr-risk" data-icp="hr-risk" data-date-created="2026-05-11">
     <div class="card-head">
       <h3>04. A disclosure at 4.50pm on a Friday</h3>
-      <span class="badge hr-risk">CHRO / HR RISK</span>
+      <div class="badges">
+        <span class="badge hr-risk">CHRO / HR RISK</span>
+        <button class="status" data-status="todo" data-action="status">To Do</button>
+      </div>
     </div>
     <pre class="post-body">A manager I spoke to last month had a disclosure land on her desk on a Friday at 4.50pm.
 
@@ -171,15 +245,21 @@ A scripted reply is not training. A workshop two years ago is not preparation.
 The only thing that builds the muscle is a realistic scenario, run before the real one lands.
 
 #HR #whistleblowing</pre>
-    <div class="actions">
-      <button class="btn" data-action="copy">Copy</button>
+    <div class="meta">
+      <span class="created">Created 2026-05-11</span>
+      <div class="actions">
+        <button class="btn" data-action="copy">Copy</button>
+      </div>
     </div>
   </div>
 
-  <div class="card" data-id="2026-05-11-05-l-and-d-first-real-conversation" data-theme="l-and-d">
+  <div class="card" data-id="2026-05-11-05-l-and-d-first-real-conversation" data-theme="l-and-d" data-icp="l-and-d" data-date-created="2026-05-11">
     <div class="card-head">
       <h3>05. The first difficult conversation is the real one</h3>
-      <span class="badge l-and-d">L&amp;D / MANAGER DEV</span>
+      <div class="badges">
+        <span class="badge l-and-d">L&amp;D / MANAGER DEV</span>
+        <button class="status" data-status="todo" data-action="status">To Do</button>
+      </div>
     </div>
     <pre class="post-body">The first difficult conversation most managers ever have is the real one.
 
@@ -206,42 +286,162 @@ That is how a footballer trains. That is how a surgeon trains.
 It is finally how a manager can train.
 
 #LeadershipDevelopment #ManagerDevelopment</pre>
-    <div class="actions">
-      <button class="btn" data-action="copy">Copy</button>
+    <div class="meta">
+      <span class="created">Created 2026-05-11</span>
+      <div class="actions">
+        <button class="btn" data-action="copy">Copy</button>
+      </div>
     </div>
   </div>
 
   <div class="run-notes">
     <h3>Run notes — 2026-05-11 (rewrite v2 — ICP-product only)</h3>
     <ul>
-      <li>Rewired the ghostwriter per Toby's direction. Founder-led slots (redundancy / loneliness / parenting / contrarian) removed — Toby will write those manually from real lived experience. All slots now ICP-product.</li>
-      <li>5 slots per day, even split across the three ICP profiles. Today: 2 Head of Compliance, 2 CHRO/HR Risk (Path 1), 1 L&amp;D/Manager Development (Path 2). Going forward, rotate the extra slot so each ICP gets a 2/2/1 spread across a 3-day cycle.</li>
-      <li>Every post anchored in a specific scene or quoted moment from the buyer's world (the audit interview, the harassment grievance, the 4.50pm disclosure, the new manager's first real conversation) rather than feature-shouting. The buyer is the protagonist of the emotional arc.</li>
-      <li>Real Talk Studio / Pressure Test product names deliberately omitted. The category-defining moves (testing, evidence, transcripts, practice) carry the product without naming it — closer to the "not just shouting features" brief.</li>
-      <li>Hook formats used: shocking quote ("how do you know?"), visceral scene ("A customer crossed a line."), scene-set with a real person ("A Head of Compliance told me last week..."), confession ("She did the worst version of the right thing."), plain truth ("The first difficult conversation most managers ever have is the real one.").</li>
+      <li>Rewired the ghostwriter per Toby's direction. Founder-led slots removed — Toby will write those manually. All slots now ICP-product.</li>
+      <li>5 slots per day, even split across the three ICP profiles. Today: 2 Head of Compliance, 2 CHRO/HR Risk, 1 L&amp;D. Going forward, rotate the extra slot so each ICP gets a 2/2/1 spread across a 3-day cycle.</li>
+      <li>Every post anchored in a specific scene or quoted moment from the buyer's world rather than feature-shouting. The buyer is the protagonist of the emotional arc.</li>
+      <li>Real Talk Studio / Pressure Test names deliberately omitted. Category-defining moves (testing, evidence, transcripts, practice) carry the product without naming it.</li>
       <li>All posts UK spelling, straight quotes, no em dashes, 180–210 words. No CTAs.</li>
+      <li>Tracker upgrade: each card now has a status (To Do / Posted / Archived) and a created date. Filters added for status, ICP, and date range. Status changes persist in this browser via localStorage.</li>
     </ul>
   </div>
 </section>
+<div class="empty-state" id="emptyState">No posts match the current filters.</div>
 </main>
 <script>
-document.addEventListener('click', function(e){
-  const t = e.target;
-  if (!t.classList || !t.classList.contains('btn')) return;
-  const action = t.getAttribute('data-action');
-  const card = t.closest('.card');
-  if (!card) return;
-  if (action === 'copy') {
-    const body = card.querySelector('.post-body');
-    if (body && navigator.clipboard) {
-      navigator.clipboard.writeText(body.innerText).then(() => {
-        const old = t.textContent;
-        t.textContent = 'Copied';
-        setTimeout(() => { t.textContent = old; }, 1200);
-      });
-    }
+(function(){
+  var STATUS_KEY = 'ttf_status_v1';
+  var FILTER_KEY = 'ttf_filters_v1';
+  var STATUS_ORDER = ['todo','posted','archived'];
+  var STATUS_LABEL = { todo:'To Do', posted:'Posted', archived:'Archived' };
+
+  function loadJSON(key, fallback){
+    try { var v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
+    catch(e){ return fallback; }
   }
-});
+  function saveJSON(key, val){
+    try { localStorage.setItem(key, JSON.stringify(val)); } catch(e){}
+  }
+
+  var statuses = loadJSON(STATUS_KEY, {});
+  var filters = loadJSON(FILTER_KEY, { status:'all', icp:'all', date:'all' });
+
+  function applyCardStatus(card){
+    var id = card.getAttribute('data-id');
+    var s = statuses[id] || 'todo';
+    var btn = card.querySelector('.status');
+    if (btn){
+      btn.setAttribute('data-status', s);
+      btn.textContent = STATUS_LABEL[s];
+    }
+    card.setAttribute('data-status', s);
+    card.classList.toggle('is-posted', s === 'posted');
+    card.classList.toggle('is-archived', s === 'archived');
+  }
+
+  function cycleStatus(card){
+    var id = card.getAttribute('data-id');
+    var current = statuses[id] || 'todo';
+    var next = STATUS_ORDER[(STATUS_ORDER.indexOf(current) + 1) % STATUS_ORDER.length];
+    statuses[id] = next;
+    saveJSON(STATUS_KEY, statuses);
+    applyCardStatus(card);
+    applyFilters();
+  }
+
+  function setFilter(group, value){
+    filters[group] = value;
+    saveJSON(FILTER_KEY, filters);
+    document.querySelectorAll('.filter-group[data-filter="' + group + '"] .filter-pill').forEach(function(p){
+      p.classList.toggle('active', p.getAttribute('data-value') === value);
+    });
+    applyFilters();
+  }
+
+  function withinDate(card){
+    if (filters.date === 'all') return true;
+    var d = card.getAttribute('data-date-created');
+    if (!d) return true;
+    var cardDate = new Date(d + 'T00:00:00');
+    var now = new Date();
+    var days = Math.floor((now - cardDate) / 86400000);
+    return days <= parseInt(filters.date, 10);
+  }
+
+  function applyFilters(){
+    var counts = { all:0, todo:0, posted:0, archived:0 };
+    var visible = 0;
+    document.querySelectorAll('.card').forEach(function(card){
+      var status = card.getAttribute('data-status') || 'todo';
+      var icp = card.getAttribute('data-icp') || '';
+      counts.all++;
+      counts[status] = (counts[status] || 0) + 1;
+      var matchStatus = filters.status === 'all' || filters.status === status;
+      var matchIcp = filters.icp === 'all' || filters.icp === icp;
+      var matchDate = withinDate(card);
+      var show = matchStatus && matchIcp && matchDate;
+      card.classList.toggle('hidden', !show);
+      if (show) visible++;
+    });
+    // Update counts on status pills
+    document.querySelectorAll('.filter-group[data-filter="status"] .filter-pill').forEach(function(p){
+      var v = p.getAttribute('data-value');
+      var c = counts[v];
+      var span = p.querySelector('.count');
+      if (span) span.textContent = c != null ? '(' + c + ')' : '';
+    });
+    // Hide empty day sections
+    document.querySelectorAll('section.day').forEach(function(sec){
+      var anyVisible = sec.querySelectorAll('.card:not(.hidden)').length > 0;
+      sec.classList.toggle('empty', !anyVisible);
+    });
+    // Empty state
+    var empty = document.getElementById('emptyState');
+    if (empty) empty.classList.toggle('show', visible === 0);
+  }
+
+  // Init
+  document.querySelectorAll('.card').forEach(applyCardStatus);
+  ['status','icp','date'].forEach(function(g){
+    document.querySelectorAll('.filter-group[data-filter="' + g + '"] .filter-pill').forEach(function(p){
+      p.classList.toggle('active', p.getAttribute('data-value') === filters[g]);
+    });
+  });
+  applyFilters();
+
+  // Click handler
+  document.addEventListener('click', function(e){
+    var t = e.target;
+    // Filter pill
+    var pill = t.closest && t.closest('.filter-pill');
+    if (pill){
+      var group = pill.parentElement.getAttribute('data-filter');
+      var value = pill.getAttribute('data-value');
+      setFilter(group, value);
+      return;
+    }
+    // Status button
+    if (t.classList && t.classList.contains('status')){
+      var card = t.closest('.card');
+      if (card) cycleStatus(card);
+      return;
+    }
+    // Copy
+    if (t.getAttribute && t.getAttribute('data-action') === 'copy'){
+      var card2 = t.closest('.card');
+      if (card2){
+        var body = card2.querySelector('.post-body');
+        if (body && navigator.clipboard){
+          navigator.clipboard.writeText(body.innerText).then(function(){
+            var old = t.textContent;
+            t.textContent = 'Copied';
+            setTimeout(function(){ t.textContent = old; }, 1200);
+          });
+        }
+      }
+    }
+  });
+})();
 </script>
 </body>
 </html>
