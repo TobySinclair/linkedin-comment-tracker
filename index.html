@@ -368,6 +368,20 @@
   <div id="queue-list" class="queue-list"></div>
 
   <!-- NEWEST-DAY-INSERT: prepend <section class="day" data-date="YYYY-MM-DD"> with <h2> (hidden) + cards. Each card: .card-head, dl.meta, optional .post-content, .comment, .actions. Optional trailing .run-notes (hidden/stripped in UI). Page flattens into #queue-list and shows date on each row. -->
+<section class="day" data-date="2026-05-15-pm">
+  <h2>2026-05-15 (Friday afternoon) &mdash; second scheduled run of the day; same blocker as the morning attempt &mdash; Claude-in-Chrome extension still not paired to this account, so list_connected_browsers returned empty and no LinkedIn navigation, keyword search, watchlist scan or comment mining was possible. No candidates produced. Logging the second failure of the day so Toby sees the cadence is firing but the infrastructure gap persists; once the extension is signed back in the next run will resume the standard ~50-search sweep across Paths 1&ndash;5, Audience B Track 1+2 and Audience C with no skill changes required.</h2>
+  <div class="run-notes">
+    <h3>Run notes &mdash; 2026-05-15-pm</h3>
+    <ul>
+      <li><strong>Infra failure repeats (loud):</strong> mcp__Claude_in_Chrome__list_connected_browsers returned an empty array on this run too. Same root cause as the 2026-05-15 morning section above &mdash; the Chrome extension is not connected to toby@tobysinclair.com on any machine that's currently reachable. Without a paired browser the run cannot navigate to https://www.linkedin.com/feed/, run the past-week keyword searches, scan the named-account watchlist (Lewis Silkin / CIPD / People Management / Big 4 etc.), or comment-mine high-engagement vendor / law-firm posts for Audience A and B practitioners.</li>
+      <li><strong>What's fine:</strong> repo clone succeeded cleanly from main using the inlined PAT into /tmp/tracker-1778874760 with no auth or filesystem issues; Cloudflare Pages deploy pipeline is unaffected; Cloudflare D1 status persistence (/api/statuses) is untouched so Done/Skip records from prior days continue to overlay correctly on page load.</li>
+      <li><strong>Dedup state preserved:</strong> last 7 days of data-id slugs were read before the failure (2026-05-08 through 2026-05-14 plus the morning 2026-05-15 section). 36 prior candidates logged across that window. No duplicate person or post will be re-surfaced when the scan resumes &mdash; the dedup window is intact.</li>
+      <li><strong>What to fix:</strong> Toby to open Chrome on his Mac with the Claude-in-Chrome extension signed in to toby@tobysinclair.com before the next scheduled run. Once a browser is paired the standard cadence resumes: ~30 searches across Audience A (with Path 5 sampled first as the highest-conversion path), 12 across Audience B Track 1 plus aggressive Track 2 comment-mining, watchlist scan plus 4&ndash;6 modifier searches for Audience C, target of 6&ndash;9 candidates total.</li>
+      <li><strong>Output discipline held:</strong> per skill instructions, no local-file fallback attempted, no cowork directory mount requested. Only artefact of this run is this section in committed HTML so the gap is visible in commit history.</li>
+    </ul>
+  </div>
+</section>
+
 <section class="day" data-date="2026-05-15">
   <h2>2026-05-15 (Friday) &mdash; scheduled run aborted before any LinkedIn scan: the Claude-in-Chrome extension was not connected, so tabs_context_mcp / navigate / find were all unavailable and the run could not search LinkedIn, mine comment sections, or pull post URLs. No candidates produced this run. Logging the failure here so the gap shows in commit history; next run should resume normal CHRO / ICP / Influencer cadence once the extension is reachable.</h2>
   <div class="run-notes">
