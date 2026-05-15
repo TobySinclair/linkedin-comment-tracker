@@ -368,6 +368,20 @@
   <div id="queue-list" class="queue-list"></div>
 
   <!-- NEWEST-DAY-INSERT: prepend <section class="day" data-date="YYYY-MM-DD"> with <h2> (hidden) + cards. Each card: .card-head, dl.meta, optional .post-content, .comment, .actions. Optional trailing .run-notes (hidden/stripped in UI). Page flattens into #queue-list and shows date on each row. -->
+<section class="day" data-date="2026-05-15">
+  <h2>2026-05-15 (Friday) &mdash; scheduled run aborted before any LinkedIn scan: the Claude-in-Chrome extension was not connected, so tabs_context_mcp / navigate / find were all unavailable and the run could not search LinkedIn, mine comment sections, or pull post URLs. No candidates produced this run. Logging the failure here so the gap shows in commit history; next run should resume normal CHRO / ICP / Influencer cadence once the extension is reachable.</h2>
+  <div class="run-notes">
+    <h3>Run notes &mdash; 2026-05-15</h3>
+    <ul>
+      <li><strong>Infra failure (loud):</strong> mcp__Claude_in_Chrome__tabs_context_mcp returned "Claude in Chrome is not connected" on every retry. mcp__Claude_in_Chrome__list_connected_browsers returned an empty array. With no connected browser this session could not navigate to linkedin.com/feed/, run keyword searches, scan the Audience C watchlist, or comment-mine high-engagement posts.</li>
+      <li><strong>Repo clone OK:</strong> tracker repo cloned cleanly from main to /tmp/tracker-1778874164 using the inlined PAT &mdash; no auth issues, no leftover-directory issues. Cloudflare Pages deploy pipeline is unaffected.</li>
+      <li><strong>Status persistence unaffected:</strong> Done/Skip records continue to live in Cloudflare D1 via /api/statuses. Prior days' cards still overlay correctly; this empty section will simply show no TODO cards.</li>
+      <li><strong>What to fix:</strong> Toby needs to confirm Chrome is open with the Claude extension signed in before the next scheduled run. Once a browser is paired the standard 50-search sweep across Paths 1&ndash;5, Audience B Track 1+2 and Audience C resumes with no skill changes required.</li>
+      <li><strong>Recent-run context preserved:</strong> last 7 days' data-ids were read from index.html before the failure, so duplicate-avoidance state is intact for the next run &mdash; no person from 2026-05-07 through 2026-05-14 should be re-surfaced when the scan resumes.</li>
+      <li><strong>Output discipline:</strong> per skill instructions, no local-file fallback was attempted &mdash; the only artefact of this run is this section in the committed HTML.</li>
+    </ul>
+  </div>
+</section>
 <section class="day" data-date="2026-05-14-evening">
   <h2>2026-05-14 (Thursday evening) &mdash; seven-candidate run weighted heavily to Audience C influencer / consultant stages with one direct CHRO and one Audience B compliance practitioner picked up. Strongest single pick: Inderpreet Kaur's Barnett Waddingham April Governance Pulse at 14 reactions running the Consumer Duty Year 2 must-move-from-progress-to-outcome-driven-reporting frame &mdash; very on-thesis. Audience A practitioner pickings were thin this run: most line-manager / manager-training searches surfaced US-centric content (California PAGA, Texas hospitality) or recruiter job posts; Oksana Lukash (4x CPO biotech) is the cleanest direct CHRO hit on manager-readiness-before-headcount. Audience B was also lean &mdash; the NFM / Worker Protection / FCA whistleblowing clusters were dominated by vendor / law-firm thought leadership this week and Audience B Track 1 produced only one solid practitioner (Laura Scott, insurance internal auditor) on vulnerable customers / Consumer Duty. Run notes below flag the dry searches and the bias against UK practitioners on past-week sorted-by-date.</h2>
 
