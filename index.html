@@ -213,6 +213,7 @@
   .card:hover .trow-cells .open-btn, .card:hover .trow-cells .drawer-open-btn { opacity: 1; }
   .status-done { color: var(--success); font-weight: 500; display: inline-flex; align-items: center; gap: 4px; }
   .badge { display: inline-block; font-size: 10.5px; font-weight: 600; padding: 2px 7px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .badge.watchlist { background: #fefce8; color: #854d0e; border: 1px solid #fde68a; }
   .badge.chro { background: #faf5ff; color: #7e22ce; border: 1px solid #e9d5ff; }
   .badge.icp { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
   .badge.influencer { background: #fff7ed; color: #9a3412; border: 1px solid #fed7aa; }
@@ -342,6 +343,7 @@
         <label for="filter-audience" class="filter-menu-label">Audience</label>
         <select id="filter-audience" class="filter-select" aria-label="Audience">
           <option value="all">All</option>
+          <option value="watchlist">Watchlist</option>
           <option value="chro">CHRO</option>
           <option value="icp">ICP</option>
           <option value="influencer">Infl.</option>
@@ -7733,7 +7735,7 @@
   }
   function updateFilterSelectLabels() {
     var cards = [].slice.call(document.querySelectorAll(".card[data-id]"));
-    var n = cards.length, todo = 0, cOnly = 0, cConn = 0, skipC = 0, chro = 0, icp = 0, infl = 0;
+    var n = cards.length, todo = 0, cOnly = 0, cConn = 0, skipC = 0, wl = 0, chro = 0, icp = 0, infl = 0;
     var byDate = Object.create(null);
     for (var i = 0; i < cards.length; i++) {
       var card = cards[i];
@@ -7742,6 +7744,7 @@
       if (card.dataset.status === "comment-and-connect") cConn++;
       if (card.dataset.status === "skip") skipC++;
       var a = card.dataset.audience;
+      if (a === "watchlist") wl++;
       if (a === "chro") chro++;
       if (a === "icp") icp++;
       if (a === "influencer") infl++;
@@ -7759,6 +7762,7 @@
     var fa = document.getElementById("filter-audience");
     if (fa) {
       setFilterOptionText(fa, "all", "All");
+      setFilterOptionText(fa, "watchlist", "Watchlist (" + wl + ")");
       setFilterOptionText(fa, "chro", "CHRO (" + chro + ")");
       setFilterOptionText(fa, "icp", "ICP (" + icp + ")");
       setFilterOptionText(fa, "influencer", "Infl. (" + infl + ")");
