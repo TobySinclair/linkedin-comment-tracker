@@ -7,11 +7,15 @@
 CREATE TABLE IF NOT EXISTS card_status (
   data_id    TEXT PRIMARY KEY,
   status     TEXT NOT NULL CHECK (status IN ('skip', 'comment-only', 'comment-and-connect')),
-  audience   TEXT CHECK (audience IS NULL OR audience IN ('chro', 'icp', 'influencer')),
+  audience   TEXT CHECK (audience IS NULL OR audience IN ('chro', 'icp', 'influencer', 'watchlist')),
   updated_at INTEGER NOT NULL
 );
 
 CREATE INDEX IF NOT EXISTS idx_card_status_audience ON card_status (audience);
+
+-- Existing remote/local D1 DBs created before watchlist: SQLite cannot relax a CHECK
+-- in place. To migrate, recreate card_status with the new audience CHECK (copy rows,
+-- drop, rename) or apply a one-off SQL migration that rebuilds the table.
 
 -- One row per UTC calendar day the user saved a Comment / +Connect mark (streak + backfill).
 CREATE TABLE IF NOT EXISTS engagement_days (
@@ -70,3 +74,19 @@ CREATE TABLE IF NOT EXISTS directory_contact (
 );
 
 CREATE INDEX IF NOT EXISTS idx_directory_last ON directory_contact (last_interaction_at DESC);
+
+-- OpenAI-generated LinkedIn post drafts (merged into posts.html client-side).
+CREATE TABLE IF NOT EXISTS linkedin_post_draft (
+  data_id      TEXT PRIMARY KEY,
+  day          TEXT NOT NULL,
+  icp          TEXT NOT NULL CHECK (icp IN ('compliance', 'hr-risk', 'l-and-d')),
+  register     TEXT CHECK (register IS NULL OR register IN ('A', 'B', 'C')),
+  one_point    TEXT,
+  hook_format  TEXT,
+  score        INTEGER NOT NULL,
+  critique     TEXT NOT NULL,
+  body         TEXT NOT NULL,
+  created_at   INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_linkedin_post_draft_day ON linkedin_post_draft (day DESC);

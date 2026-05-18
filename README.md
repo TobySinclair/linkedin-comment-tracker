@@ -24,15 +24,17 @@ Per [Cloudflare Pages known issues ↗](https://developers.cloudflare.com/pages/
    `npx wrangler d1 execute linkedin-tracker --remote --file=schema.sql`
 7. In the **Pages** project: **Settings** → **Functions** → **D1 database bindings** → add binding name **`DB`**, select that D1 database. Do this for **Production** and **Preview** if you use preview deployments.
 8. **Settings** → **Environment variables** (Production + Preview): set **`TRACKER_KEY`** to a long random string.
-9. After deploy, smoke test against your real **`https://<project>.pages.dev`** (from the dashboard):  
-   `curl -H "X-Tracker-Key: <your key>" "https://<project>.pages.dev/api/statuses"`  
-   should return `{}` (or a JSON object of id → status after you use the UI).
-10. In each HTML file that calls the API (`index.html`, `inbox.html`, `okrs.html`), set the `TRACKER_KEY` variable in the `<script>` to the same value, commit, and push. Redeploy (or let auto-deploy run).
+9. For **AI post drafts** on `posts.html`: add **`OPENAI_API_KEY`** (OpenAI API key). Model and temperature are fixed in code (`functions/api/posts/generate.js`).
+10. After deploy, smoke test against your real **`https://<project>.pages.dev`** (from the dashboard):  
+    `curl -H "X-Tracker-Key: <your key>" "https://<project>.pages.dev/api/statuses"`  
+    should return `{}` (or a JSON object of id → status after you use the UI).
+11. In each HTML file that calls the API (`index.html`, `inbox.html`, `okrs.html`, **`posts.html`** for generate/drafts), set the `TRACKER_KEY` variable in the `<script>` to the same value, commit, and push. Redeploy (or let auto-deploy run).
 
 **Local preview:** from this directory, you can use `npx wrangler pages dev .` with a `.dev.vars` file:
 
 ```
 TRACKER_KEY=local-dev-key
+OPENAI_API_KEY=sk-...
 ```
 
 and a local D1 (see [D1 local development](https://developers.cloudflare.com/d1/best-practices/local-development/)) after binding `DB` in `wrangler.toml` with a real or placeholder `database_id` and `wrangler d1 execute linkedin-tracker --local --file=schema.sql` (replace `linkedin-tracker` if your `database_name` differs).
@@ -46,12 +48,15 @@ A daily job can write new day sections to `index.html` and push to `main` so Pag
 ## API
 
 - `GET /api/statuses` — JSON map of `data_id` → `status` (only cards with a stored status; `todo` is implicit when absent). Header: `X-Tracker-Key`.
-- `PUT /api/statuses/<id>` — body `{"status":"comment-only|comment-and-connect|skip|done|todo","audience":null}` — `audience` optional: `chro`, `icp`, `influencer`. `todo` removes the row.
+- `PUT /api/statuses/<id>` — body `{"status":"comment-only|comment-and-connect|skip|done|todo","audience":null}` — `audience` optional: `chro`, `icp`, `influencer`, `watchlist`. `todo` removes the row.
 - `DELETE /api/statuses/<id>` — remove row (reset to TODO in the UI).
 
 All mutating methods require `X-Tracker-Key` or they return 401.
 
-## Future (not implemented)
+**Post ideas (`posts.html`)**
+
+- `POST /api/posts/generate` — JSON body: `mode` (`daily-mix`, `register-a`, `register-b`, `register-c`), optional `count` (1–15; ignored for `daily-mix`), optional `icp` (`all` or a single ICP; hidden in the UI for daily mix), optional `extraInstructions`. Header: `X-Tracker-Key`. Requires Pages env **`OPENAI_API_KEY`** (model/temperature are set in code). Writes to D1 and returns `{ ok, day, posts }`.
+- `GET /api/posts/drafts?days=90` — Lists stored drafts for merge into the page. Header: `X-Tracker-Key`.
 
 - Optional `notes` and `created_at` columns on `card_status` for per-card notes and time-to-action metrics.
 - Cloudflare Access in front of the site for real SSO; keep `TRACKER_KEY` as an additional layer for the API or replace with session-based checks later.

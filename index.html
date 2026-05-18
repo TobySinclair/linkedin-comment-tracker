@@ -217,6 +217,7 @@
   .badge.chro { background: #faf5ff; color: #7e22ce; border: 1px solid #e9d5ff; }
   .badge.icp { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
   .badge.influencer { background: #fff7ed; color: #9a3412; border: 1px solid #fed7aa; }
+  .badge.watchlist { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; }
   .meta { display: grid; grid-template-columns: auto 1fr; gap: 6px 16px; font-size: 13.5px; margin: 12px 0 16px; }
   .meta dt { color: var(--ink-3); font-weight: 500; } .meta dd { margin: 0; }
   .comment { background: var(--accent-soft); border-left: 3px solid var(--accent); border-radius: 0 6px 6px 0; padding: 12px 14px; font-size: 14px; line-height: 1.6; }
@@ -347,6 +348,7 @@
           <option value="chro">CHRO</option>
           <option value="icp">ICP</option>
           <option value="influencer">Infl.</option>
+          <option value="watchlist">Watchlist</option>
         </select>
       </div>
     </div>
@@ -8234,7 +8236,12 @@
       if (a) {
         var s = document.createElement("span");
         s.className = "badge " + a;
-        s.textContent = a === "influencer" ? "Influencer" : a.toUpperCase();
+        s.textContent =
+          a === "influencer"
+            ? "Influencer"
+            : a === "watchlist"
+              ? "Watchlist"
+              : a.toUpperCase();
         bdg.appendChild(s);
       }
     }
@@ -8435,7 +8442,7 @@
   }
   function updateFilterSelectLabels() {
     var cards = [].slice.call(document.querySelectorAll(".card[data-id]"));
-    var n = cards.length, todo = 0, cOnly = 0, cConn = 0, skipC = 0, wl = 0, chro = 0, icp = 0, infl = 0;
+    var n = cards.length, todo = 0, cOnly = 0, cConn = 0, skipC = 0, chro = 0, icp = 0, infl = 0, wl = 0;
     var byDate = Object.create(null);
     for (var i = 0; i < cards.length; i++) {
       var card = cards[i];
@@ -8444,10 +8451,10 @@
       if (card.dataset.status === "comment-and-connect") cConn++;
       if (card.dataset.status === "skip") skipC++;
       var a = card.dataset.audience;
-      if (a === "watchlist") wl++;
       if (a === "chro") chro++;
       if (a === "icp") icp++;
       if (a === "influencer") infl++;
+      if (a === "watchlist") wl++;
       var d = card.getAttribute("data-date");
       if (d) byDate[d] = (byDate[d] || 0) + 1;
     }

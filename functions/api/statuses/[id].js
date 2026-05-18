@@ -8,7 +8,7 @@ const VALID_STATUS = new Set([
   "comment-and-connect",
 ]);
 const STORED = new Set(["skip", "comment-only", "comment-and-connect"]);
-const AUDIENCE = new Set(["chro", "icp", "influencer"]);
+const AUDIENCE = new Set(["chro", "icp", "influencer", "watchlist"]);
 
 /**
  * PUT /api/statuses/:id
@@ -62,7 +62,10 @@ async function handlePut(ctx, dataId) {
   if (body && body.audience != null && body.audience !== "") {
     const a = String(body.audience);
     if (!AUDIENCE.has(a)) {
-      return jsonError(400, "audience must be chro, icp, or influencer");
+      return jsonError(
+        400,
+        "audience must be chro, icp, influencer, or watchlist"
+      );
     }
     audience = a;
   }

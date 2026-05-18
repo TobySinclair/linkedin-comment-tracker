@@ -119,6 +119,25 @@
   .empty-state.show{display:block}
   .empty-state p{margin:0 0 4px;line-height:1.5}
   .empty-state .hint{font-size:13px;color:var(--mute);margin-bottom:16px}
+  .generate-panel{max-width:780px;margin:18px auto 0;padding:0 4px}
+  .generate-panel-inner{
+    padding:16px 18px;background:var(--surface-soft);border:1px solid var(--line);border-radius:10px;
+  }
+  .generate-panel .gen-title{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--mute);margin:0 0 12px}
+  .generate-row{display:flex;flex-wrap:wrap;gap:12px 16px;align-items:flex-end;margin-bottom:12px}
+  .generate-row .filter-field{margin:0}
+  .gen-count{width:72px;height:36px;padding:0 10px;font:inherit;font-size:13px;border:1px solid var(--line);border-radius:6px;background:var(--card)}
+  .gen-textarea{
+    width:100%;min-height:72px;margin-top:10px;padding:10px 12px;font:inherit;font-size:13px;
+    border:1px solid var(--line);border-radius:8px;background:var(--card);resize:vertical;
+  }
+  .generate-hint{font-size:12px;color:var(--mute);margin:8px 0 0;line-height:1.45;max-width:50em}
+  .generate-status{font-size:13px;margin:12px 0 0;min-height:1.35em}
+  .generate-status.is-error{color:var(--score-low)}
+  .post-author-meta{
+    font-size:12px;color:var(--mute);line-height:1.45;margin:0 0 12px;padding-bottom:12px;
+    border-bottom:1px dashed var(--line);
+  }
   @media (max-width:560px){
     .filters{flex-direction:column;align-items:stretch;gap:12px}
     .filter-select{min-width:0;width:100%}
@@ -180,6 +199,40 @@
         <option value="7">Last 7 days</option>
         <option value="30">Last 30 days</option>
       </select>
+    </div>
+  </div>
+  <div class="generate-panel" id="generatePanel">
+    <div class="generate-panel-inner">
+      <p class="gen-title">Generate drafts (OpenAI)</p>
+      <div class="generate-row">
+        <button type="button" class="btn btn-primary" id="generatePostsBtn">Generate posts</button>
+        <div class="filter-field">
+          <label class="filter-label" for="gen-mode">Post type</label>
+          <select id="gen-mode" class="filter-select" aria-describedby="gen-type-hint">
+            <option value="daily-mix">Daily mix (9 · 3+3+3)</option>
+            <option value="register-a">Register A (scene thesis)</option>
+            <option value="register-b">Register B (how-to)</option>
+            <option value="register-c">Register C (company stance)</option>
+          </select>
+        </div>
+        <div class="filter-field" id="gen-count-wrap">
+          <label class="filter-label" for="gen-count">Count</label>
+          <input type="number" id="gen-count" class="gen-count" min="1" max="15" value="3" />
+        </div>
+        <div class="filter-field" id="gen-icp-wrap">
+          <label class="filter-label" for="gen-icp">ICP</label>
+          <select id="gen-icp" class="filter-select">
+            <option value="all">All (rotate)</option>
+            <option value="compliance">Compliance</option>
+            <option value="hr-risk">HR Risk</option>
+            <option value="l-and-d">L&amp;D</option>
+          </select>
+        </div>
+      </div>
+      <p class="generate-hint" id="gen-type-hint">Every run includes the default voice block server-side. Add angles or news hooks below only if you need them.</p>
+      <label class="filter-label" for="gen-extra" style="display:block;margin-top:10px">Extra instructions (optional)</label>
+      <textarea id="gen-extra" class="gen-textarea" placeholder="e.g. lean into Worker Protection Act / EU AI Act / a specific buyer scenario"></textarea>
+      <p class="generate-status" id="generateStatus" role="status" aria-live="polite"></p>
     </div>
   </div>
 </header>
@@ -2290,6 +2343,9 @@ That is not the business we are in.
 </main>
 <script>
 (function(){
+  /** Same value as Cloudflare TRACKER_KEY (Pages env). */
+  var TRACKER_KEY = 'summer';
+
   var STATUS_KEY = 'ttf_status_v1';
   var FILTER_KEY = 'ttf_filters_v2';
   var STATUS_ORDER = ['todo','posted','archived'];
@@ -2524,7 +2580,218 @@ That is not the business we are in.
   applyFilters();
   setupPostAccordions();
 
-  function resetAllFilters(){
+  function apiFetch(path, options){
+    var headers = new Headers(options && options.headers);
+    headers.set('X-Tracker-Key', TRACKER_KEY);
+    return fetch(path, {
+      credentials: 'same-origin',
+      headers: headers,
+      method: (options && options.method) || 'GET',
+      body: options && options.body
+    });
+  }
+
+  function icpBadgeLabel(icp){
+    if (icp === 'compliance') return 'HEAD OF COMPLIANCE';
+    if (icp === 'hr-risk') return 'CHRO / HR RISK';
+    return 'L&D / MANAGER DEV';
+  }
+
+  function scoreChipClass(score){
+    var s = parseInt(score, 10) || 0;
+    if (s >= 8) return 'high';
+    if (s >= 6) return 'mid';
+    return 'low';
+  }
+
+  function ensureDaySection(dayStr){
+    var main = document.getElementById('main-posts');
+    if (!main) return null;
+    var existing = main.querySelector('section.day[data-date="' + dayStr + '"]');
+    if (existing) return existing;
+    var sec = document.createElement('section');
+    sec.className = 'day';
+    sec.setAttribute('data-date', dayStr);
+    var h2 = document.createElement('h2');
+    h2.textContent = dayStr;
+    sec.appendChild(h2);
+    var firstDay = main.querySelector('section.day');
+    var emptyState = document.getElementById('emptyState');
+    if (firstDay) main.insertBefore(sec, firstDay);
+    else if (emptyState) main.insertBefore(sec, emptyState);
+    else main.appendChild(sec);
+    return sec;
+  }
+
+  function buildCardFromDraft(row){
+    var card = document.createElement('div');
+    card.className = 'card';
+    card.setAttribute('data-id', row.data_id);
+    card.setAttribute('data-theme', row.icp);
+    card.setAttribute('data-icp', row.icp);
+    card.setAttribute('data-date-created', row.day);
+    card.setAttribute('data-score', String(parseInt(row.score, 10) || 0));
+    if (row.register) card.setAttribute('data-register', row.register);
+
+    var author = document.createElement('div');
+    author.className = 'post-author-meta';
+    author.setAttribute('aria-label', 'Draft reference');
+    author.textContent = (row.register ? 'Register ' + row.register + ' · ' : '') + (row.one_point || '');
+
+    var bodyEl = document.createElement('pre');
+    bodyEl.className = 'post-body';
+    bodyEl.textContent = row.body || '';
+
+    var critique = document.createElement('div');
+    critique.className = 'critique';
+    var strong = document.createElement('strong');
+    strong.textContent = 'Critique:';
+    critique.appendChild(strong);
+    critique.appendChild(document.createTextNode(' ' + (row.critique || '')));
+
+    var meta = document.createElement('div');
+    meta.className = 'meta';
+    var created = document.createElement('span');
+    created.className = 'created';
+    created.textContent = 'Created ' + row.day;
+    var actions = document.createElement('div');
+    actions.className = 'actions';
+    var copyBtn = document.createElement('button');
+    copyBtn.type = 'button';
+    copyBtn.className = 'btn';
+    copyBtn.setAttribute('data-action', 'copy');
+    copyBtn.textContent = 'Copy';
+    actions.appendChild(copyBtn);
+    meta.appendChild(created);
+    meta.appendChild(actions);
+
+    var badges = document.createElement('div');
+    badges.className = 'badges';
+    var badge = document.createElement('span');
+    badge.className = 'badge ' + row.icp;
+    badge.textContent = icpBadgeLabel(row.icp);
+    var scoreEl = document.createElement('span');
+    var sc = parseInt(row.score, 10) || 0;
+    scoreEl.className = 'score ' + scoreChipClass(sc);
+    scoreEl.textContent = sc + '/10';
+    var statusBtn = document.createElement('button');
+    statusBtn.type = 'button';
+    statusBtn.className = 'status';
+    statusBtn.setAttribute('data-status', 'todo');
+    statusBtn.setAttribute('data-action', 'status');
+    statusBtn.textContent = 'To Do';
+    badges.appendChild(badge);
+    badges.appendChild(scoreEl);
+    badges.appendChild(statusBtn);
+
+    card.appendChild(author);
+    card.appendChild(bodyEl);
+    card.appendChild(critique);
+    card.appendChild(meta);
+    card.appendChild(badges);
+    return card;
+  }
+
+  function injectDraftRows(rows){
+    if (!rows || !rows.length) return;
+    rows.forEach(function(row){
+      if (document.querySelector('.card[data-id="' + row.data_id + '"]')) return;
+      var sec = ensureDaySection(row.day);
+      if (!sec) return;
+      var card = buildCardFromDraft(row);
+      sec.appendChild(card);
+      applyCardStatus(card);
+    });
+    sortCardsByScoreDesc();
+    setupPostAccordions();
+    applyFilters();
+  }
+
+  function mergeDraftsFromApi(){
+    apiFetch('/api/posts/drafts?days=180')
+      .then(function(res){
+        if (!res.ok) return null;
+        return res.json();
+      })
+      .then(function(data){
+        if (!data || !data.posts) return;
+        injectDraftRows(data.posts);
+      })
+      .catch(function(){});
+  }
+
+  function syncGenModeUi(){
+    var modeEl = document.getElementById('gen-mode');
+    var countWrap = document.getElementById('gen-count-wrap');
+    var icpWrap = document.getElementById('gen-icp-wrap');
+    if (!modeEl) return;
+    var isDaily = modeEl.value === 'daily-mix';
+    if (countWrap) countWrap.style.display = isDaily ? 'none' : '';
+    if (icpWrap) icpWrap.style.display = isDaily ? 'none' : '';
+  }
+
+  mergeDraftsFromApi();
+
+  var genModeEl = document.getElementById('gen-mode');
+  if (genModeEl) genModeEl.addEventListener('change', syncGenModeUi);
+  syncGenModeUi();
+
+  var genBtn = document.getElementById('generatePostsBtn');
+  var genStatus = document.getElementById('generateStatus');
+  if (genBtn){
+    genBtn.addEventListener('click', function(){
+      var mode = document.getElementById('gen-mode');
+      var count = document.getElementById('gen-count');
+      var icp = document.getElementById('gen-icp');
+      var extra = document.getElementById('gen-extra');
+      if (genStatus){
+        genStatus.textContent = '';
+        genStatus.classList.remove('is-error');
+      }
+      var payload = {
+        mode: mode ? mode.value : 'daily-mix',
+        count: count ? parseInt(count.value, 10) : 3,
+        icp: icp ? icp.value : 'all',
+        extraInstructions: extra ? extra.value : ''
+      };
+      genBtn.disabled = true;
+      apiFetch('/api/posts/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+        .then(function(res){
+          return res.json().then(function(data){
+            return { ok: res.ok, status: res.status, data: data };
+          });
+        })
+        .then(function(result){
+          if (!result.ok){
+            var msg = (result.data && result.data.error) ? result.data.error : 'Generation failed';
+            if (genStatus){
+              genStatus.classList.add('is-error');
+              genStatus.textContent = msg + (result.status ? ' (' + result.status + ')' : '');
+            }
+            return;
+          }
+          if (result.data && result.data.posts){
+            injectDraftRows(result.data.posts);
+            if (genStatus){
+              genStatus.textContent = 'Added ' + result.data.posts.length + ' draft(s) for ' + (result.data.day || '') + '.';
+            }
+          }
+        })
+        .catch(function(){
+          if (genStatus){
+            genStatus.classList.add('is-error');
+            genStatus.textContent = 'Network error.';
+          }
+        })
+        .then(function(){
+          genBtn.disabled = false;
+        });
+    });
+  }
     filters.status = 'all';
     filters.icp = 'all';
     filters.score = 'all';
