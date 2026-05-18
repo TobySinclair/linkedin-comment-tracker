@@ -71,25 +71,41 @@ async function handlePut(ctx, dataId) {
   }
 
   const now = Math.floor(Date.now() / 1000);
-  await ctx.env.DB.prepare(
-    `INSERT INTO card_status (data_id, status, audience, updated_at)
-     VALUES (?1, ?2, ?3, ?4)
-     ON CONFLICT (data_id) DO UPDATE SET
-       status = excluded.status,
-       audience = excluded.audience,
-       updated_at = excluded.updated_at`
-  )
-    .bind(dataId, status, audience, now)
-    .run();
-
-  if (status === "comment-only" || status === "comment-and-connect") {
-    const dayKey = new Date(now * 1000).toISOString().slice(0, 10);
+  try {
     await ctx.env.DB.prepare(
-      `INSERT INTO engagement_days (day, touch_count) VALUES (?1, 1)
-       ON CONFLICT(day) DO UPDATE SET touch_count = touch_count + 1`
+      `INSERT INTO card_status (data_id, status, audience, updated_at)
+       VALUES (?1, ?2, ?3, ?4)
+       ON CONFLICT (data_id) DO UPDATE SET
+         status = excluded.status,
+         audience = excluded.audience,
+         updated_at = excluded.updated_at`
     )
-      .bind(dayKey)
+      .bind(dataId, status, audience, now)
       .run();
+
+    if (status === "comment-only" || status === "comment-and-connect") {
+      const dayKey = new Date(now * 1000).toISOString().slice(0, 10);
+      await ctx.env.DB.prepare(
+        `INSERT INTO engagement_days (day, touch_count) VALUES (?1, 1)
+         ON CONFLICT(day) DO UPDATE SET touch_count = touch_count + 1`
+      )
+        .bind(dayKey)
+        .run();
+    }
+  } catch (e) {
+    const msg = e && e.message ? String(e.message) : "";
+    if (
+      msg.includes("CHECK constraint") &&
+      (audience === "watchlist" ||
+        msg.includes("audience") ||
+        msg.includes("card_status"))
+    ) {
+      return jsonError(
+        500,
+        "D1 card_status schema is out of date (e.g. audience watchlist). Apply migrations/d1_card_status_audience_watchlist.sql to your linkedin-tracker database, then retry."
+      );
+    }
+    throw e;
   }
 
   return json({ ok: true });

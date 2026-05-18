@@ -2745,8 +2745,8 @@ That is not the business we are in.
       var icp = document.getElementById('gen-icp');
       var extra = document.getElementById('gen-extra');
       if (genStatus){
-        genStatus.textContent = '';
         genStatus.classList.remove('is-error');
+        genStatus.textContent = 'Generating…';
       }
       var payload = {
         mode: mode ? mode.value : 'daily-mix',
@@ -2767,18 +2767,22 @@ That is not the business we are in.
         })
         .then(function(result){
           if (!result.ok){
-            var msg = (result.data && result.data.error) ? result.data.error : 'Generation failed';
+            var d = result.data || {};
+            var msg = d.error || d.detail || 'Generation failed';
             if (genStatus){
               genStatus.classList.add('is-error');
-              genStatus.textContent = msg + (result.status ? ' (' + result.status + ')' : '');
+              genStatus.textContent = String(msg).slice(0, 400) + (result.status ? ' (' + result.status + ')' : '');
             }
             return;
           }
-          if (result.data && result.data.posts){
+          if (result.data && result.data.posts && result.data.posts.length){
             injectDraftRows(result.data.posts);
             if (genStatus){
               genStatus.textContent = 'Added ' + result.data.posts.length + ' draft(s) for ' + (result.data.day || '') + '.';
             }
+          } else if (genStatus) {
+            genStatus.classList.add('is-error');
+            genStatus.textContent = 'Unexpected response from server.';
           }
         })
         .catch(function(){
@@ -2792,6 +2796,8 @@ That is not the business we are in.
         });
     });
   }
+
+  function resetAllFilters(){
     filters.status = 'all';
     filters.icp = 'all';
     filters.score = 'all';
