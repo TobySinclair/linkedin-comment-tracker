@@ -6,7 +6,10 @@ import {
 
 /** Not configurable via env — change here when upgrading models. */
 const OPENAI_CHAT_MODEL = "gpt-5.5";
-const OPENAI_CHAT_TEMPERATURE = 0.8;
+/** GPT‑5.x reasoning models reject non-default temperature on chat/completions; keep at 1. */
+const OPENAI_CHAT_TEMPERATURE = 1;
+/** Room for reasoning tokens + JSON payload (see OpenAI reasoning model docs). */
+const OPENAI_MAX_COMPLETION_TOKENS = 16384;
 
 const ICPS = new Set(["compliance", "hr-risk", "l-and-d"]);
 const REGISTERS = new Set(["A", "B", "C"]);
@@ -181,8 +184,6 @@ export async function onRequest(ctx) {
   const slots = buildSlots(mode, body.count, icpFilter);
   const userMessage = buildUserMessage(slots, extraInstructions);
 
-  const safeTemp = Math.min(1, Math.max(0.2, OPENAI_CHAT_TEMPERATURE));
-
   const openaiRes = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -191,7 +192,8 @@ export async function onRequest(ctx) {
     },
     body: JSON.stringify({
       model: OPENAI_CHAT_MODEL,
-      temperature: safeTemp,
+      temperature: OPENAI_CHAT_TEMPERATURE,
+      max_completion_tokens: OPENAI_MAX_COMPLETION_TOKENS,
       response_format: { type: "json_object" },
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
@@ -202,10 +204,33 @@ export async function onRequest(ctx) {
 
   if (!openaiRes.ok) {
     const errText = await openaiRes.text();
-    return json(
-      { error: "OpenAI error", detail: errText.slice(0, 2000) },
-      502
-    );
+    let parsed = null;
+    try {
+      parsed = JSON.parse(errText);
+    } catch {
+      /* non-JSON error body */
+    }
+    const oaErr =
+      parsed && typeof parsed.error === "object" ? parsed.error : null;
+    const oaMsg =
+      oaErr && typeof oaErr.message === "string"
+        ? oaErr.message
+        : errText.slice(0, 2000);
+    const payload = {
+      error: "OpenAI error",
+      openai_http_status: openaiRes.status,
+      message: oaMsg,
+      detail: oaMsg,
+    };
+    if (oaErr && oaErr.code != null) payload.code = oaErr.code;
+    if (oaErr && oaErr.type != null) payload.type = oaErr.type;
+    const respStatus =
+      openaiRes.status >= 500
+        ? 502
+        : openaiRes.status === 429
+          ? 429
+          : 400;
+    return json(payload, respStatus);
   }
 
   const completion = await openaiRes.json();
@@ -278,7 +303,18 @@ export async function onRequest(ctx) {
           .run();
         savedId = finalId;
         break;
-      } catch {
+      } catch (e) {
+        const msg = e && e.message ? String(e.message) : "";
+        const dup =
+          /unique constraint|UNIQUE constraint failed|SQLITE_CONSTRAINT/i.test(
+            msg
+          );
+        if (!dup) {
+          return jsonError(
+            500,
+            `Could not save draft: ${msg.slice(0, 400) || "database error"}`
+          );
+        }
         finalId = `${dataId}-${attempt + 1}`;
       }
     }
