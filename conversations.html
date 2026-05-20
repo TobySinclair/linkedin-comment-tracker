@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conversations — Real Talk Studio Ops Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fafafa;
+    --surface: #ffffff;
+    --surface-soft: #f4f4f5;
+    --border: #e4e4e7;
+    --border-mid: #d4d4d8;
+    --ink: #18181b;
+    --ink-2: #3f3f46;
+    --ink-3: #71717a;
+    --ink-4: #a1a1aa;
+    --accent: #2563eb;
+    --accent-soft: #eff6ff;
+    --success: #16a34a;
+    --warn: #c2410c;
+    --todo-bg: #fff5e6;
+    --todo-text: #92400e;
+    --nudge-bg: #eff6ff;
+    --nudge-text: #1d4ed8;
+    --scheduled-bg: #dcfce7;
+    --scheduled-text: #166534;
+    --closed-bg: #f4f4f5;
+    --closed-text: #52525b;
+    --sans: "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 13.5px; line-height: 1.45; min-height: 100vh; }
+  a { color: var(--accent); }
+  .topnav {
+    height: 52px; background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 0 24px; display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 30;
+  }
+  .topnav-left { display: flex; align-items: center; gap: 24px; }
+  .logo { display: inline-flex; align-items: center; gap: 9px; font-weight: 600; font-size: 14px; }
+  .logo-mark {
+    width: 22px; height: 22px; background: var(--ink); border-radius: 5px;
+    display: flex; align-items: center; justify-content: center; color: var(--surface); font-size: 13px; font-weight: 600;
+  }
+  .app-switch { display: flex; align-items: center; gap: 2px; margin-left: 4px; padding-left: 16px; border-left: 1px solid var(--border); height: 28px; }
+  .app-switch a { font-size: 12.5px; font-weight: 500; text-decoration: none; padding: 6px 10px; border-radius: 6px; }
+  .app-switch a.current { color: var(--ink); background: var(--surface-soft); border: 1px solid var(--border); }
+  .app-switch a:not(.current) { color: var(--ink-3); border: 1px solid transparent; }
+  .app-switch a:not(.current):hover { color: var(--ink); background: var(--surface-soft); }
+  .page { max-width: 1080px; margin: 0 auto; padding: 24px 24px 80px; }
+  .page-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }
+  .page-title { font-size: 22px; font-weight: 600; margin: 0; letter-spacing: -0.02em; }
+  .page-sub { font-size: 13.5px; color: var(--ink-3); margin: 8px 0 0; max-width: 720px; }
+  .page-sub code { font-family: var(--mono); font-size: 12px; background: var(--surface-soft); padding: 1px 6px; border-radius: 3px; color: var(--ink-2); }
+  .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 0 0 16px; }
+  .chip {
+    height: 30px; padding: 0 12px; font: inherit; font-size: 12.5px; font-weight: 500;
+    border-radius: 999px; border: 1px solid var(--border); background: var(--surface); cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px; color: var(--ink-2);
+  }
+  .chip:hover { background: var(--surface-soft); }
+  .chip.active { background: var(--ink); border-color: var(--ink); color: #fff; }
+  .chip .count { font-family: var(--mono); font-size: 11px; opacity: 0.8; }
+  .summary { font-size: 12.5px; color: var(--ink-3); margin: 0 0 16px; font-family: var(--mono); }
+  .summary strong { color: var(--ink); font-weight: 600; }
+  .prospect {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    margin-bottom: 10px; overflow: hidden; transition: border-color 0.15s;
+  }
+  .prospect:hover { border-color: var(--border-mid); }
+  .prospect.hidden { display: none; }
+  .prospect-head {
+    display: flex; align-items: center; gap: 12px; padding: 12px 16px; cursor: pointer;
+  }
+  .prospect-expand {
+    width: 22px; height: 22px; border: none; background: transparent; padding: 0; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; color: var(--ink-3); flex-shrink: 0;
+  }
+  .prospect-expand svg { transition: transform 0.15s; }
+  .prospect.is-open .prospect-expand svg { transform: rotate(90deg); }
+  .prospect-avatar {
+    width: 32px; height: 32px; border-radius: 50%; color: #fff; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600;
+  }
+  .prospect-main { flex: 1; min-width: 0; }
+  .prospect-line1 { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+  .prospect-name { font-size: 14px; font-weight: 600; color: var(--ink); }
+  .prospect-domain { font-size: 12px; color: var(--ink-3); font-family: var(--mono); }
+  .prospect-line2 { font-size: 12.5px; color: var(--ink-3); margin-top: 2px; line-height: 1.4; }
+  .prospect-meta { display: flex; align-items: center; gap: 10px; flex-shrink: 0; font-family: var(--mono); font-size: 11px; color: var(--ink-3); }
+  .prospect-meta .count-pill { background: var(--surface-soft); padding: 2px 8px; border-radius: 4px; color: var(--ink-2); }
+  .status {
+    display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 4px;
+    font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; flex-shrink: 0;
+  }
+  .status.todo { background: var(--todo-bg); color: var(--todo-text); }
+  .status.nudged { background: var(--nudge-bg); color: var(--nudge-text); }
+  .status.scheduled { background: var(--scheduled-bg); color: var(--scheduled-text); }
+  .status.closed { background: var(--closed-bg); color: var(--closed-text); }
+  .stage-badge {
+    display: inline-flex; align-items: center; padding: 1px 7px; border-radius: 999px;
+    font-size: 10.5px; font-weight: 500; background: var(--accent-soft); color: var(--accent);
+  }
+  .stage-badge.cold { background: var(--surface-soft); color: var(--ink-3); }
+  .prospect-body {
+    display: none;
+    padding: 0 16px 16px 50px; border-top: 1px solid var(--border); background: var(--surface);
+  }
+  .prospect.is-open .prospect-body { display: block; }
+  .thread-list { display: flex; flex-direction: column; gap: 8px; padding-top: 12px; }
+  .thread {
+    border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px; background: var(--surface);
+  }
+  .thread-subject { font-size: 12.5px; font-weight: 500; color: var(--ink); margin-bottom: 4px; }
+  .thread-subject a { color: var(--ink); text-decoration: none; }
+  .thread-subject a:hover { color: var(--accent); }
+  .thread-snippet { font-size: 12px; color: var(--ink-3); line-height: 1.45; }
+  .thread-meta { font-size: 11px; color: var(--ink-4); margin-top: 4px; font-family: var(--mono); }
+  .actions { display: flex; flex-wrap: wrap; gap: 6px; padding: 12px 0 0; border-top: 1px dashed var(--border); margin-top: 12px; }
+  .btn-action {
+    height: 28px; padding: 0 10px; font: inherit; font-size: 12px; font-weight: 500;
+    border-radius: 5px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; color: var(--ink-2);
+  }
+  .btn-action:hover { background: var(--surface-soft); color: var(--ink); }
+  .btn-action.active { background: var(--ink); border-color: var(--ink); color: #fff; }
+  .notes-input {
+    width: 100%; margin-top: 10px; padding: 8px 10px; font: inherit; font-size: 12.5px;
+    border: 1px solid var(--border); border-radius: 5px; background: var(--surface); color: var(--ink); resize: vertical; min-height: 60px;
+  }
+  .notes-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+  .empty {
+    background: var(--surface); border: 1px dashed var(--border-mid); border-radius: 8px;
+    padding: 40px 24px; text-align: center; color: var(--ink-3);
+  }
+  .empty h3 { margin: 0 0 6px; color: var(--ink); font-size: 14px; font-weight: 600; }
+  .empty p { margin: 0; font-size: 12.5px; max-width: 480px; margin-left: auto; margin-right: auto; }
+  .empty code { font-family: var(--mono); font-size: 12px; background: var(--surface-soft); padding: 1px 6px; border-radius: 3px; color: var(--ink-2); }
+  .run-notes {
+    margin-top: 32px; padding: 14px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    font-size: 12.5px; color: var(--ink-3);
+  }
+  .run-notes h3 { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-3); margin: 0 0 8px; }
+  .run-notes ul { margin: 0; padding-left: 18px; }
+  .run-notes li { margin-bottom: 4px; line-height: 1.5; }
+  .toast {
+    position: fixed; bottom: max(20px, env(safe-area-inset-bottom, 0px)); left: 50%; transform: translateX(-50%) translateY(20px);
+    background: #18181b; color: #fff; padding: 10px 16px; border-radius: 999px; font-size: 12.5px;
+    opacity: 0; pointer-events: none; transition: opacity 0.18s, transform 0.18s; z-index: 100;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  @media (max-width: 640px) {
+    .prospect-meta { display: none; }
+    .prospect-body { padding-left: 16px; }
+  }
+</style>
+</head>
+<body>
+<nav class="topnav">
+  <div class="topnav-left">
+    <div class="logo"><div class="logo-mark">R</div>Real Talk Studio <span style="font-weight:400;color:var(--ink-3)">· Ops hub</span></div>
+    <div class="app-switch">
+      <a href="index.html">Comment Tracker</a>
+      <a href="watchlist.html">Watchlist</a>
+      <a href="inbox.html">Inbox</a>
+      <a href="conversations.html" class="current">Conversations</a>
+      <a href="posts.html">Post ideas</a>
+      <a href="okrs.html">OKRs</a>
+      <a href="contacts.html">Contacts</a>
+    </div>
+  </div>
+</nav>
+<main class="page">
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">Email conversations</h1>
+      <p class="page-sub">
+        Active sales prospects from Gmail. External senders with 2+ exchanges in the last 90 days, or threads containing sales-language signals (proposal, demo, pricing, pilot, taster, partnership, next steps, intro / discovery call). Refreshed by the <code>email-prospects-sync</code> scheduled task. Status, notes, and filter choice persist locally in your browser.
+      </p>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <button class="chip active" data-filter="all">All <span class="count" id="count-all">0</span></button>
+    <button class="chip" data-filter="todo">To do <span class="count" id="count-todo">0</span></button>
+    <button class="chip" data-filter="nudged">Nudged <span class="count" id="count-nudged">0</span></button>
+    <button class="chip" data-filter="scheduled">Scheduled <span class="count" id="count-scheduled">0</span></button>
+    <button class="chip" data-filter="closed">Closed <span class="count" id="count-closed">0</span></button>
+  </div>
+
+  <div class="summary" id="summary">No scan has run yet.</div>
+
+  <!-- PROSPECTS-INSERT-BELOW -->
+  <div id="prospects">
+    <div class="empty">
+      <h3>No conversations synced yet</h3>
+      <p>Trigger the <code>email-prospects-sync</code> scheduled task from the Scheduled Tasks panel. The first run scans the last 90 days of Gmail and populates this page. Subsequent runs replace the prospect list with the latest state.</p>
+    </div>
+  </div>
+  <!-- PROSPECTS-INSERT-ABOVE -->
+
+  <div class="run-notes" id="run-notes" hidden>
+    <h3>Last run notes</h3>
+    <ul id="run-notes-list"></ul>
+  </div>
+</main>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+  var STORAGE_KEY = "rts.conversations.state.v1";
+  var FILTER_KEY = "rts.conversations.filter.v1";
+
+  function loadState() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }
+    catch (e) { return {}; }
+  }
+  function saveState(s) { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); } catch (e) {} }
+  function loadFilter() { try { return localStorage.getItem(FILTER_KEY) || "all"; } catch (e) { return "all"; } }
+  function saveFilter(f) { try { localStorage.setItem(FILTER_KEY, f); } catch (e) {} }
+
+  function toast(msg) {
+    var t = document.getElementById("toast");
+    if (!t) return;
+    t.textContent = msg;
+    t.classList.add("show");
+    clearTimeout(toast._x);
+    toast._x = setTimeout(function () { t.classList.remove("show"); }, 1600);
+  }
+
+  function authorHue(name) {
+    var h = 0;
+    for (var i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) >>> 0;
+    return h % 360;
+  }
+  function authorInitials(name) {
+    var parts = String(name || "").trim().split(/\s+/);
+    if (!parts.length || !parts[0]) return "?";
+    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  }
+
+  var state = loadState();
+  var filter = loadFilter();
+
+  function applyState() {
+    var prospects = document.querySelectorAll("#prospects .prospect");
+    var counts = { all: 0, todo: 0, nudged: 0, scheduled: 0, closed: 0 };
+    prospects.forEach(function (p) {
+      var id = p.dataset.id;
+      var rec = state[id] || {};
+      var status = rec.status || "todo";
+      p.dataset.status = status;
+      var pill = p.querySelector(".prospect-head .status");
+      if (pill) {
+        pill.className = "status " + status;
+        pill.textContent = status.toUpperCase();
+      }
+      p.querySelectorAll(".btn-action[data-status]").forEach(function (b) {
+        b.classList.toggle("active", b.dataset.status === status);
+      });
+      var ta = p.querySelector(".notes-input");
+      if (ta && rec.notes != null) ta.value = rec.notes;
+      counts.all++;
+      counts[status] = (counts[status] || 0) + 1;
+    });
+    Object.keys(counts).forEach(function (k) {
+      var el = document.getElementById("count-" + k);
+      if (el) el.textContent = counts[k];
+    });
+    applyFilter();
+  }
+
+  function applyFilter() {
+    document.querySelectorAll(".chip").forEach(function (c) {
+      c.classList.toggle("active", c.dataset.filter === filter);
+    });
+    document.querySelectorAll("#prospects .prospect").forEach(function (p) {
+      var match = filter === "all" || p.dataset.status === filter;
+      p.classList.toggle("hidden", !match);
+    });
+  }
+
+  function bindEvents() {
+    document.querySelectorAll(".chip").forEach(function (c) {
+      c.addEventListener("click", function () {
+        filter = c.dataset.filter;
+        saveFilter(filter);
+        applyFilter();
+      });
+    });
+
+    document.addEventListener("click", function (e) {
+      if (e.target.closest(".prospect-body")) return;
+      var btn = e.target.closest(".btn-action[data-status]");
+      if (btn) {
+        e.stopPropagation();
+        var p2 = btn.closest(".prospect");
+        if (!p2) return;
+        var id = p2.dataset.id;
+        var s = btn.dataset.status;
+        state[id] = state[id] || {};
+        state[id].status = s;
+        saveState(state);
+        applyState();
+        toast("Marked " + s);
+        return;
+      }
+      var head = e.target.closest(".prospect-head");
+      if (head) {
+        var p = head.closest(".prospect");
+        if (p) p.classList.toggle("is-open");
+      }
+    });
+
+    document.addEventListener("input", function (e) {
+      var ta = e.target.closest(".notes-input");
+      if (!ta) return;
+      var p = ta.closest(".prospect");
+      if (!p) return;
+      var id = p.dataset.id;
+      state[id] = state[id] || {};
+      state[id].notes = ta.value;
+      saveState(state);
+    });
+  }
+
+  function decorate() {
+    document.querySelectorAll(".prospect-avatar[data-name]").forEach(function (a) {
+      var n = a.dataset.name || "";
+      a.style.background = "hsl(" + authorHue(n) + ",55%,42%)";
+      a.textContent = authorInitials(n);
+    });
+  }
+
+  function run() {
+    decorate();
+    bindEvents();
+    applyState();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", run);
+  } else {
+    run();
+  }
+})();
+</script>
+</body>
+</html>
