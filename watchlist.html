@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Watchlist — Real Talk Studio Ops Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fafafa;
+    --surface: #ffffff;
+    --surface-soft: #f4f4f5;
+    --border: #e4e4e7;
+    --border-mid: #d4d4d8;
+    --ink: #18181b;
+    --ink-2: #3f3f46;
+    --ink-3: #71717a;
+    --ink-4: #a1a1aa;
+    --accent: #2563eb;
+    --accent-soft: #eff6ff;
+    --success: #16a34a;
+    --todo-bg: #fff5e6;
+    --todo-text: #92400e;
+    --comment-only-bg: #eff6ff;
+    --comment-only-text: #1d4ed8;
+    --comment-connect-bg: #dcfce7;
+    --comment-connect-text: #166534;
+    --skip-bg: #f4f4f5;
+    --skip-text: #52525b;
+    --sans: "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 13.5px; line-height: 1.45; min-height: 100vh; }
+  a { color: var(--accent); }
+  .topnav {
+    height: 52px; background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 0 24px; display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 30;
+  }
+  .topnav-left { display: flex; align-items: center; gap: 24px; }
+  .logo { display: inline-flex; align-items: center; gap: 9px; font-weight: 600; font-size: 14px; }
+  .logo-mark {
+    width: 22px; height: 22px; background: var(--ink); border-radius: 5px;
+    display: flex; align-items: center; justify-content: center; color: var(--surface); font-size: 13px; font-weight: 600;
+  }
+  .app-switch { display: flex; align-items: center; gap: 2px; margin-left: 4px; padding-left: 16px; border-left: 1px solid var(--border); height: 28px; }
+  .app-switch a { font-size: 12.5px; font-weight: 500; text-decoration: none; padding: 6px 10px; border-radius: 6px; }
+  .app-switch a.current { color: var(--ink); background: var(--surface-soft); border: 1px solid var(--border); }
+  .app-switch a:not(.current) { color: var(--ink-3); border: 1px solid transparent; }
+  .app-switch a:not(.current):hover { color: var(--ink); background: var(--surface-soft); }
+  .page { max-width: 960px; margin: 0 auto; padding: 24px 24px 80px; }
+  .page-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }
+  .page-title { font-size: 22px; font-weight: 600; margin: 0; letter-spacing: -0.02em; }
+  .page-sub { font-size: 13.5px; color: var(--ink-3); margin: 8px 0 0; max-width: 640px; }
+  .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-bottom: 20px; }
+  .btn {
+    height: 32px; padding: 0 12px; font: inherit; font-size: 12.5px; font-weight: 500;
+    border-radius: 6px; border: 1px solid var(--border); background: var(--surface); cursor: pointer;
+  }
+  .btn:hover { background: var(--surface-soft); }
+  .filter-select {
+    height: 34px; padding: 0 32px 0 10px; font: inherit; font-size: 13px;
+    border: 1px solid var(--border); border-radius: 6px; background: var(--surface); cursor: pointer;
+    appearance: none; -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2371717a' d='M2.5 4.5L6 8l3.5-3.5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 10px center;
+  }
+  .summary { font-size: 13px; color: var(--ink-3); margin: 0 0 20px; }
+  .summary strong { color: var(--ink); font-weight: 600; }
+  .user-group {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    margin-bottom: 16px; overflow: hidden;
+  }
+  .user-header {
+    display: flex; align-items: center; gap: 12px; padding: 14px 16px;
+    background: var(--surface-soft); border-bottom: 1px solid var(--border);
+  }
+  .user-avatar {
+    width: 36px; height: 36px; border-radius: 50%; color: #fff; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600;
+  }
+  .user-info { flex: 1; min-width: 0; }
+  .user-name { font-size: 15px; font-weight: 600; color: var(--ink); margin: 0; }
+  .user-role { font-size: 12.5px; color: var(--ink-3); margin: 2px 0 0; line-height: 1.35; }
+  .user-meta { text-align: right; flex-shrink: 0; font-size: 12px; color: var(--ink-3); }
+  .user-meta .counts { font-family: var(--mono); font-size: 11.5px; margin-top: 4px; }
+  .user-posts { padding: 0; }
+  .card {
+    border-bottom: 1px solid var(--border); background: var(--surface);
+  }
+  .card:last-child { border-bottom: none; }
+  .card.hidden { display: none; }
+  .card.card--addressed { opacity: 0.85; }
+  .card-head {
+    display: flex; align-items: flex-start; gap: 10px; padding: 12px 16px; cursor: pointer;
+  }
+  .card-expand {
+    all: unset; display: flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px; border-radius: 6px; cursor: pointer; color: var(--ink-3); flex-shrink: 0;
+  }
+  .card-expand::before {
+    content: ""; display: block; width: 6px; height: 6px; border: solid var(--ink-3);
+    border-width: 0 2px 2px 0; transform: translateX(2px) rotate(-45deg); transition: transform 0.2s;
+  }
+  .card.is-open .card-expand::before { transform: translateY(-1px) rotate(45deg); }
+  .card-head-main { flex: 1; min-width: 0; }
+  .post-topic { font-size: 13px; color: var(--ink-2); line-height: 1.4; margin: 0; }
+  .post-meta-row { display: flex; flex-wrap: wrap; gap: 8px 12px; margin-top: 6px; font-size: 11.5px; color: var(--ink-3); font-family: var(--mono); }
+  .card-head-badges { flex-shrink: 0; text-align: right; }
+  .status {
+    display: inline-block; font-size: 10.5px; font-weight: 600; padding: 2px 7px; border-radius: 4px;
+    text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .status.todo { background: var(--todo-bg); color: var(--todo-text); }
+  .status.comment-only { background: var(--comment-only-bg); color: var(--comment-only-text); }
+  .status.comment-and-connect { background: var(--comment-connect-bg); color: var(--comment-connect-text); }
+  .status.skip { background: var(--skip-bg); color: var(--skip-text); }
+  .card-body { display: none; padding: 0 16px 16px 54px; }
+  .card.is-open .card-body { display: block; }
+  .meta { display: grid; grid-template-columns: auto 1fr; gap: 6px 16px; font-size: 13px; margin: 0 0 14px; }
+  .meta dt { color: var(--ink-3); font-weight: 500; } .meta dd { margin: 0; }
+  .comment {
+    background: var(--accent-soft); border-left: 3px solid var(--accent); border-radius: 0 6px 6px 0;
+    padding: 12px 14px; font-size: 14px; line-height: 1.6;
+  }
+  .comment.connection { margin-top: 10px; background: var(--surface-soft); border-left-color: var(--border-mid); }
+  .comment-label { font-size: 11px; font-weight: 600; color: var(--accent); text-transform: uppercase; margin-bottom: 6px; }
+  .comment.connection .comment-label { color: var(--ink-3); }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .actions .btn { height: auto; min-height: 34px; padding: 6px 12px; }
+  .actions .btn.active[data-action="comment-only"] { background: var(--comment-only-bg); color: var(--comment-only-text); border-color: #93c5fd; }
+  .actions .btn.active[data-action="comment-and-connect"] { background: var(--comment-connect-bg); color: var(--comment-connect-text); border-color: #86efac; }
+  .actions .btn.active[data-action="skip"] { background: var(--skip-bg); color: var(--skip-text); border-color: var(--border-mid); }
+  .empty { padding: 48px 20px; text-align: center; color: var(--ink-3); }
+  .empty.error { color: #b91c1c; }
+  .toast {
+    position: fixed; bottom: max(20px, env(safe-area-inset-bottom, 0px)); left: 50%; transform: translateX(-50%) translateY(20px);
+    background: #18181b; color: #fff; padding: 10px 16px; border-radius: 999px; font-size: 12.5px;
+    opacity: 0; pointer-events: none; transition: opacity 0.18s, transform 0.18s; z-index: 100;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  @media (max-width: 640px) {
+    .user-header { flex-wrap: wrap; }
+    .user-meta { text-align: left; width: 100%; padding-left: 48px; }
+    .card-body { padding-left: 16px; }
+  }
+</style>
+</head>
+<body>
+<nav class="topnav">
+  <div class="topnav-left">
+    <div class="logo"><div class="logo-mark">R</div>Real Talk Studio <span style="font-weight:400;color:var(--ink-3)">· Ops hub</span></div>
+    <div class="app-switch">
+      <a href="index.html">Comment Tracker</a>
+      <a href="watchlist.html" class="current">Watchlist</a>
+      <a href="inbox.html">Inbox</a>
+      <a href="posts.html">Post ideas</a>
+      <a href="okrs.html">OKRs</a>
+      <a href="contacts.html">Contacts</a>
+    </div>
+  </div>
+</nav>
+<main class="page">
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">Watchlist</h1>
+      <p class="page-sub">Posts from key ICP contacts you monitor. Grouped by person — work through their latest activity here. Discovery posts from everyone else stay on the Comment Tracker.</p>
+    </div>
+  </div>
+  <div class="toolbar">
+    <button type="button" class="btn" id="btn-refresh">Refresh</button>
+    <select id="filter-status" class="filter-select" aria-label="Status">
+      <option value="todo">To do</option>
+      <option value="all">All</option>
+      <option value="comment-only">Comment</option>
+      <option value="comment-and-connect">+ Connect</option>
+      <option value="skip">Skip</option>
+    </select>
+  </div>
+  <p class="summary" id="summary" aria-live="polite">Loading…</p>
+  <div id="groups"></div>
+  <div class="empty" id="empty" hidden>Loading watchlist posts…</div>
+</main>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+(function () {
+  var TRACKER_KEY = "summer";
+  var LS_STATUS = "rts-watchlist-status";
+  var STATUS_LABELS = {
+    "todo": "TODO",
+    "comment-only": "COMMENT ONLY",
+    "comment-and-connect": "COMMENT + CONNECT",
+    "skip": "SKIP"
+  };
+  var STORED_STATUSES = ["comment-only", "comment-and-connect", "skip", "done"];
+  var allCards = [];
+  var filterStatus = "todo";
+
+  function apiFetch(path, options) {
+    options = options || {};
+    var headers = new Headers(options.headers || {});
+    headers.set("X-Tracker-Key", TRACKER_KEY);
+    if (options.body && !headers.has("Content-Type")) headers.set("Content-Type", "application/json");
+    var url = path[0] === "/" ? path : "/" + path;
+    return fetch(url, { credentials: "same-origin", headers: headers, method: options.method || "GET", body: options.body });
+  }
+
+  function toast(msg) {
+    var t = document.getElementById("toast");
+    if (!t) return;
+    t.textContent = msg;
+    t.classList.add("show");
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function () { t.classList.remove("show"); }, 1400);
+  }
+
+  function stripLeadingNumber(name) {
+    return String(name).replace(/^\d+\.\s*/, "").trim();
+  }
+
+  function authorInitials(name) {
+    var s = stripLeadingNumber(String(name));
+    var p = s.split(/\s+/).filter(Boolean);
+    if (!p.length) return "?";
+    if (p.length === 1) return p[0].slice(0, 2).toUpperCase();
+    return (p[0][0] + p[p.length - 1][0]).toUpperCase();
+  }
+
+  function authorHue(name) {
+    var s = String(name || "x");
+    var h = 0;
+    for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) % 360;
+    return h;
+  }
+
+  function formatDateLabel(raw) {
+    if (!raw) return "—";
+    var m = String(raw).match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (!m) return raw;
+    var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    return parseInt(m[3], 10) + " " + months[parseInt(m[2], 10) - 1] + " " + m[1];
+  }
+
+  function getMetaValue(card, label) {
+    var dts = card.querySelectorAll(".meta dt");
+    for (var i = 0; i < dts.length; i++) {
+      if (dts[i].textContent.trim() === label) {
+        var dd = dts[i].nextElementSibling;
+        return dd ? dd.textContent.trim() : "";
+      }
+    }
+    return "";
+  }
+
+  function getLinkHrefFromCard(card) {
+    var dts = card.querySelectorAll(".meta dt");
+    for (var i = 0; i < dts.length; i++) {
+      if (dts[i].textContent.trim() === "Link") {
+        var dd = dts[i].nextElementSibling;
+        if (!dd) return "";
+        var a = dd.querySelector("a[href]");
+        if (a) return String(a.getAttribute("href") || "").trim();
+      }
+    }
+    return "";
+  }
+
+  function getPersonNameFromCard(card) {
+    var stored = card.getAttribute("data-person-name");
+    if (stored) return stored;
+    var h3 = card.querySelector(".card-head .who h3, .who h3");
+    if (h3) {
+      var name = stripLeadingNumber(h3.textContent.trim());
+      card.setAttribute("data-person-name", name);
+      return name;
+    }
+    return "";
+  }
+
+  function getTopicFromCard(card) {
+    var topicEl = card.querySelector(".card-head .who .topic, .who .topic");
+    if (topicEl) {
+      var t = topicEl.textContent.trim();
+      return t.replace(/^Watchlist\s*[—–-]\s*/i, "");
+    }
+    return getMetaValue(card, "Post topic") || card.getAttribute("data-id") || "Post";
+  }
+
+  function cardDate(card) {
+    return card.getAttribute("data-date") || "";
+  }
+
+  function extractWatchlistCardsFromHtml(html) {
+    var doc = new DOMParser().parseFromString(html, "text/html");
+    var cards = [];
+    function assignDate(card, d) {
+      if (d) card.setAttribute("data-date", d);
+      else if (!card.getAttribute("data-date")) {
+        var m = (card.getAttribute("data-id") || "").match(/^(\d{4}-\d{2}-\d{2})/);
+        if (m) card.setAttribute("data-date", m[1]);
+      }
+    }
+    doc.querySelectorAll("section.day").forEach(function (sec) {
+      var d = sec.getAttribute("data-date") || "";
+      sec.querySelectorAll('.card[data-audience="watchlist"]').forEach(function (card) {
+        assignDate(card, d);
+        cards.push(card);
+      });
+    });
+    doc.querySelectorAll('#queue-list .card[data-audience="watchlist"], .wrap .card[data-audience="watchlist"]').forEach(function (card) {
+      if (cards.indexOf(card) !== -1) return;
+      assignDate(card, "");
+      cards.push(card);
+    });
+    return cards.map(function (c) {
+      var clone = c.cloneNode(true);
+      getPersonNameFromCard(clone);
+      return clone;
+    });
+  }
+
+  function prepareCardStructure(card) {
+    if (card.querySelector(".card-body")) return;
+    var head = card.querySelector(".card-head");
+    if (!head) return;
+    var body = document.createElement("div");
+    body.className = "card-body";
+    var el = head.nextElementSibling;
+    while (el) {
+      var next = el.nextElementSibling;
+      body.appendChild(el);
+      el = next;
+    }
+    card.appendChild(body);
+  }
+
+  function buildCompactHead(card) {
+    prepareCardStructure(card);
+    var head = card.querySelector(".card-head");
+    if (!head || head.dataset.compact === "1") return;
+    var topic = getTopicFromCard(card);
+    var dateStr = formatDateLabel(cardDate(card));
+    var eng = getMetaValue(card, "Engagement");
+    var age = getMetaValue(card, "Post age");
+    var st = card.dataset.status || "todo";
+    var exp = document.createElement("button");
+    exp.type = "button";
+    exp.className = "card-expand";
+    exp.setAttribute("aria-label", "Expand details");
+    exp.setAttribute("aria-expanded", "false");
+    var main = document.createElement("div");
+    main.className = "card-head-main";
+    var p = document.createElement("p");
+    p.className = "post-topic";
+    p.textContent = topic;
+    var meta = document.createElement("div");
+    meta.className = "post-meta-row";
+    meta.textContent = [dateStr, age, eng].filter(Boolean).join(" · ");
+    main.appendChild(p);
+    main.appendChild(meta);
+    var badges = document.createElement("div");
+    badges.className = "card-head-badges";
+    var pill = document.createElement("span");
+    pill.className = "status " + st;
+    pill.textContent = STATUS_LABELS[st] || st.toUpperCase();
+    badges.appendChild(pill);
+    head.innerHTML = "";
+    head.appendChild(exp);
+    head.appendChild(main);
+    head.appendChild(badges);
+    head.dataset.compact = "1";
+  }
+
+  function setStatus(card, status) {
+    card.dataset.status = status;
+    card.classList.toggle("card--addressed", status !== "todo");
+    if (status !== "todo") card.classList.remove("is-open");
+    var pill = card.querySelector(".card-head-badges .status, .status");
+    if (pill) {
+      pill.className = "status " + status;
+      pill.textContent = STATUS_LABELS[status] || status.toUpperCase();
+    }
+    card.querySelectorAll(".actions .btn").forEach(function (btn) {
+      btn.classList.toggle("active", btn.dataset.action === status);
+    });
+  }
+
+  function setCardOpen(card, open) {
+    if (!card) return;
+    card.classList.toggle("is-open", !!open);
+    var exp = card.querySelector(".card-expand");
+    if (exp) {
+      exp.setAttribute("aria-expanded", open ? "true" : "false");
+      exp.setAttribute("aria-label", open ? "Collapse details" : "Expand details");
+    }
+  }
+
+  function groupCardsByUser(cards) {
+    var groups = Object.create(null);
+    cards.forEach(function (card) {
+      var name = getPersonNameFromCard(card) || "Unknown";
+      if (!groups[name]) groups[name] = [];
+      groups[name].push(card);
+    });
+    Object.keys(groups).forEach(function (name) {
+      groups[name].sort(function (a, b) {
+        var da = cardDate(a), db = cardDate(b);
+        if (da !== db) return da < db ? 1 : da > db ? -1 : 0;
+        return (a.dataset.id < b.dataset.id) ? -1 : (a.dataset.id > b.dataset.id) ? 1 : 0;
+      });
+    });
+    var names = Object.keys(groups);
+    names.sort(function (a, b) {
+      var da = cardDate(groups[a][0]) || "";
+      var db = cardDate(groups[b][0]) || "";
+      if (da !== db) return da < db ? 1 : da > db ? -1 : 0;
+      return a.localeCompare(b);
+    });
+    return names.map(function (name) { return { name: name, cards: groups[name] }; });
+  }
+
+  function cardMatchesFilter(card) {
+    if (filterStatus === "all") return true;
+    if (filterStatus === "todo") return card.dataset.status === "todo";
+    return card.dataset.status === filterStatus;
+  }
+
+  function renderGroups(groups) {
+    var root = document.getElementById("groups");
+    var emptyEl = document.getElementById("empty");
+    if (!root) return;
+    root.innerHTML = "";
+    var totalOpen = 0, totalPosts = allCards.length, visibleGroups = 0;
+
+    groups.forEach(function (group) {
+      var visibleCards = group.cards.filter(cardMatchesFilter);
+      if (!visibleCards.length && filterStatus !== "all") return;
+      visibleGroups++;
+      var openInGroup = group.cards.filter(function (c) { return c.dataset.status === "todo"; }).length;
+      totalOpen += openInGroup;
+
+      var role = getMetaValue(group.cards[0], "Role");
+      var link = getLinkHrefFromCard(group.cards[0]);
+      var hue = authorHue(group.name);
+
+      var section = document.createElement("section");
+      section.className = "user-group";
+      section.dataset.user = group.name;
+
+      var header = document.createElement("div");
+      header.className = "user-header";
+      header.innerHTML =
+        '<div class="user-avatar" style="background:hsl(' + hue + ',55%,42%)">' + authorInitials(group.name) + '</div>' +
+        '<div class="user-info">' +
+          '<h2 class="user-name">' + escapeHtml(group.name) + '</h2>' +
+          '<p class="user-role">' + escapeHtml(role || "—") + '</p>' +
+        '</div>' +
+        '<div class="user-meta">' +
+          (link ? '<a href="' + escapeHtml(link) + '" target="_blank" rel="noopener">View on LinkedIn</a>' : '') +
+          '<div class="counts">' + openInGroup + ' open · ' + group.cards.length + ' post' + (group.cards.length === 1 ? '' : 's') + '</div>' +
+        '</div>';
+
+      var posts = document.createElement("div");
+      posts.className = "user-posts";
+
+      group.cards.forEach(function (card) {
+        buildCompactHead(card);
+        card.classList.toggle("hidden", !cardMatchesFilter(card));
+        posts.appendChild(card);
+      });
+
+      section.appendChild(header);
+      section.appendChild(posts);
+      root.appendChild(section);
+    });
+
+    var summary = document.getElementById("summary");
+    if (summary) {
+      summary.innerHTML = '<strong>' + visibleGroups + '</strong> contact' + (visibleGroups === 1 ? '' : 's') +
+        ' · <strong>' + totalOpen + '</strong> open across <strong>' + totalPosts + '</strong> watchlist posts';
+    }
+
+    if (emptyEl) {
+      if (!allCards.length) {
+        emptyEl.hidden = false;
+        emptyEl.textContent = "No watchlist posts found in index.html.";
+        emptyEl.className = "empty";
+      } else if (!visibleGroups) {
+        emptyEl.hidden = false;
+        emptyEl.textContent = "No posts match this filter.";
+        emptyEl.className = "empty";
+      } else {
+        emptyEl.hidden = true;
+      }
+    }
+  }
+
+  function escapeHtml(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function applyStatusMapRemote(map) {
+    allCards.forEach(function (card) {
+      var id = card.dataset.id;
+      var entry = map[id];
+      var saved;
+      if (entry != null && typeof entry === "object" && entry.status != null) saved = entry.status;
+      else if (typeof entry === "string") saved = entry;
+      else saved = undefined;
+      if (saved && STORED_STATUSES.indexOf(saved) !== -1) {
+        if (saved === "done") saved = "comment-and-connect";
+        setStatus(card, saved);
+      } else {
+        setStatus(card, "todo");
+      }
+    });
+  }
+
+  function updateView() {
+    renderGroups(groupCardsByUser(allCards));
+  }
+
+  function loadWatchlist() {
+    var emptyEl = document.getElementById("empty");
+    if (emptyEl) {
+      emptyEl.hidden = false;
+      emptyEl.textContent = "Loading watchlist posts…";
+      emptyEl.className = "empty";
+    }
+    return fetch("index.html", { credentials: "same-origin" })
+      .then(function (r) {
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        return r.text();
+      })
+      .then(function (html) {
+        allCards = extractWatchlistCardsFromHtml(html);
+        return apiFetch("api/statuses", { method: "GET" })
+          .then(function (r) {
+            if (!r.ok) throw new Error("statuses " + r.status);
+            return r.json();
+          })
+          .then(function (map) {
+            applyStatusMapRemote(map || {});
+            updateView();
+          })
+          .catch(function () {
+            allCards.forEach(function (c) { setStatus(c, "todo"); });
+            updateView();
+            toast("Could not load statuses — showing TODO.");
+          });
+      })
+      .catch(function (err) {
+        if (emptyEl) {
+          emptyEl.hidden = false;
+          emptyEl.textContent = "Could not load index.html — " + err.message;
+          emptyEl.className = "empty error";
+        }
+        var summary = document.getElementById("summary");
+        if (summary) summary.textContent = "";
+      });
+  }
+
+  function getDirectoryPayloadFromCard(card) {
+    return {
+      name: getPersonNameFromCard(card) || "—",
+      job_title: getMetaValue(card, "Role") || "",
+      linkedin_url: getLinkHrefFromCard(card) || "",
+      data_id: card.getAttribute("data-id") || ""
+    };
+  }
+
+  function onActionClick(e) {
+    var btn = e.target.closest(".actions .btn");
+    if (!btn) return;
+    var card = btn.closest(".card[data-id]");
+    if (!card) return;
+    var id = card.dataset.id;
+    var action = btn.dataset.action;
+    if (action === "done") action = "comment-and-connect";
+    var prev = card.dataset.status;
+    var audience = card.getAttribute("data-audience") || "watchlist";
+
+    if (action === "reset") {
+      setStatus(card, "todo");
+      updateView();
+      apiFetch("api/statuses/" + encodeURIComponent(id), { method: "DELETE" })
+        .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+        .then(function () { toast("Reset"); updateView(); })
+        .catch(function () { setStatus(card, prev); updateView(); toast("Could not save reset"); });
+      return;
+    }
+
+    if (action === "comment-only" || action === "comment-and-connect" || action === "skip") {
+      setStatus(card, action);
+      updateView();
+      var msg = action === "comment-only" ? "Marked: comment only"
+              : action === "comment-and-connect" ? "Marked: comment + connect"
+              : "Skipped";
+      apiFetch("api/statuses/" + encodeURIComponent(id), {
+        method: "PUT",
+        body: JSON.stringify({ status: action, audience: audience || null })
+      })
+        .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+        .then(function () {
+          toast(msg);
+          updateView();
+          if (action === "comment-only" || action === "comment-and-connect") {
+            var p = getDirectoryPayloadFromCard(card);
+            apiFetch("api/directory/touch", {
+              method: "POST",
+              body: JSON.stringify({
+                touches: [{
+                  name: p.name,
+                  job_title: p.job_title,
+                  linkedin_url: p.linkedin_url,
+                  data_id: p.data_id,
+                  touched_at: Math.floor(Date.now() / 1000),
+                  source: "comment"
+                }]
+              })
+            }).catch(function () {});
+          }
+        })
+        .catch(function () { setStatus(card, prev); updateView(); toast("Could not save"); });
+    }
+  }
+
+  function onCardToggle(e) {
+    if (e.target.closest(".actions")) return;
+    var exp = e.target.closest(".card-expand");
+    var head = e.target.closest(".card-head");
+    if (!exp && !head) return;
+    var card = (exp || head).closest(".card[data-id]");
+    if (!card) return;
+    if (e.target.closest("a")) return;
+    e.preventDefault();
+    setCardOpen(card, !card.classList.contains("is-open"));
+  }
+
+  document.addEventListener("click", function (e) {
+    onActionClick(e);
+    onCardToggle(e);
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key !== "Enter" && e.key !== " ") return;
+    var b = e.target.closest(".card-expand");
+    if (!b) return;
+    e.preventDefault();
+    var c = b.closest(".card[data-id]");
+    if (c) setCardOpen(c, !c.classList.contains("is-open"));
+  });
+
+  var filterEl = document.getElementById("filter-status");
+  if (filterEl) {
+    try { filterStatus = localStorage.getItem(LS_STATUS) || "todo"; } catch (e) {}
+    filterEl.value = filterStatus;
+    filterEl.addEventListener("change", function () {
+      filterStatus = filterEl.value;
+      try { localStorage.setItem(LS_STATUS, filterStatus); } catch (e) {}
+      updateView();
+    });
+  }
+
+  var refreshBtn = document.getElementById("btn-refresh");
+  if (refreshBtn) refreshBtn.addEventListener("click", function () { loadWatchlist(); });
+
+  loadWatchlist();
+})();
+</script>
+</body>
+</html>
