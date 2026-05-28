@@ -7,7 +7,7 @@
 CREATE TABLE IF NOT EXISTS card_status (
   data_id    TEXT PRIMARY KEY,
   status     TEXT NOT NULL CHECK (status IN ('skip', 'comment-only', 'comment-and-connect')),
-  audience   TEXT CHECK (audience IS NULL OR audience IN ('chro', 'icp', 'influencer', 'watchlist')),
+  audience   TEXT CHECK (audience IS NULL OR audience IN ('chro', 'icp', 'compliance', 'influencer', 'watchlist')),
   updated_at INTEGER NOT NULL
 );
 

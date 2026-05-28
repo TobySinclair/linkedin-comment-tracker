@@ -216,6 +216,7 @@
   .badge.watchlist { background: #fefce8; color: #854d0e; border: 1px solid #fde68a; }
   .badge.chro { background: #faf5ff; color: #7e22ce; border: 1px solid #e9d5ff; }
   .badge.icp { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+  .badge.compliance { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
   .badge.influencer { background: #fff7ed; color: #9a3412; border: 1px solid #fed7aa; }
   .badge.watchlist { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; }
   .meta { display: grid; grid-template-columns: auto 1fr; gap: 6px 16px; font-size: 13.5px; margin: 12px 0 16px; }
@@ -347,7 +348,7 @@
         <select id="filter-audience" class="filter-select" aria-label="Audience">
           <option value="all">All</option>
           <option value="chro">CHRO</option>
-          <option value="icp">ICP</option>
+          <option value="compliance">Compliance</option>
           <option value="influencer">Infl.</option>
         </select>
       </div>
@@ -12707,8 +12708,8 @@
       var o = localStorage.getItem(FILTER_KEY_V2) || localStorage.getItem(FILTER_KEY);
       if (o === "all") filterState = { status: "all", date: "all", audience: "all" };
       else if (o === "todo") filterState = { status: "todo", date: "all", audience: "all" };
-      else if (o === "chro" || o === "icp" || o === "influencer") {
-        filterState = { status: "all", date: "all", audience: o };
+      else if (o === "chro" || o === "icp" || o === "compliance" || o === "influencer") {
+        filterState = { status: "all", date: "all", audience: o === "icp" ? "compliance" : o };
       } else {
         readFilterState();
       }
@@ -12772,6 +12773,21 @@
       linkedin_url: getLinkHrefFromCard(card) || "",
       data_id: card.getAttribute("data-id") || ""
     };
+  }
+  function audienceLabel(a) {
+    if (a === "influencer") return "Influencer";
+    if (a === "watchlist") return "Watchlist";
+    if (a === "compliance") return "Compliance";
+    if (a === "icp") return "Compliance";
+    if (a === "chro") return "CHRO";
+    return a ? String(a).toUpperCase() : "";
+  }
+  function audienceMatchesFilter(cardAudience, filterAudience) {
+    if (filterAudience === "all") return true;
+    if (filterAudience === "compliance") {
+      return cardAudience === "compliance" || cardAudience === "icp";
+    }
+    return cardAudience === filterAudience;
   }
   function escapeHtml(s) {
     return String(s)
@@ -12882,12 +12898,7 @@
       if (a) {
         var s = document.createElement("span");
         s.className = "badge " + a;
-        s.textContent =
-          a === "influencer"
-            ? "Influencer"
-            : a === "watchlist"
-              ? "Watchlist"
-              : a.toUpperCase();
+        s.textContent = audienceLabel(a);
         bdg.appendChild(s);
       }
     }
@@ -13095,7 +13106,7 @@
   }
   function updateFilterSelectLabels() {
     var cards = [].slice.call(document.querySelectorAll(".card[data-id]"));
-    var n = cards.length, todo = 0, cOnly = 0, cConn = 0, skipC = 0, chro = 0, icp = 0, infl = 0, wl = 0;
+    var n = cards.length, todo = 0, cOnly = 0, cConn = 0, skipC = 0, chro = 0, compliance = 0, infl = 0, wl = 0;
     var byDate = Object.create(null);
     for (var i = 0; i < cards.length; i++) {
       var card = cards[i];
@@ -13105,7 +13116,7 @@
       if (card.dataset.status === "skip") skipC++;
       var a = card.dataset.audience;
       if (a === "chro") chro++;
-      if (a === "icp") icp++;
+      if (a === "icp" || a === "compliance") compliance++;
       if (a === "influencer") infl++;
       if (a === "watchlist") wl++;
       var d = card.getAttribute("data-date");
@@ -13123,7 +13134,7 @@
     if (fa) {
       setFilterOptionText(fa, "all", "All");
       setFilterOptionText(fa, "chro", "CHRO (" + chro + ")");
-      setFilterOptionText(fa, "icp", "ICP (" + icp + ")");
+      setFilterOptionText(fa, "compliance", "Compliance (" + compliance + ")");
       setFilterOptionText(fa, "influencer", "Infl. (" + infl + ")");
     }
     var fd = document.getElementById("filter-date");
@@ -13196,7 +13207,7 @@
         if (filterState.status === "todo" && st !== "todo") show = false;
         else if (filterState.status !== "todo" && st !== filterState.status) show = false;
       }
-      if (show && filterState.audience !== "all" && card.dataset.audience !== filterState.audience) show = false;
+      if (show && filterState.audience !== "all" && !audienceMatchesFilter(card.dataset.audience, filterState.audience)) show = false;
       card.classList.toggle("hidden", !show);
     });
   }

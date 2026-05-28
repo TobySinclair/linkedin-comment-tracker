@@ -48,7 +48,7 @@ A daily job can write new day sections to `index.html` and push to `main` so Pag
 ## API
 
 - `GET /api/statuses` — JSON map of `data_id` → `status` (only cards with a stored status; `todo` is implicit when absent). Header: `X-Tracker-Key`.
-- `PUT /api/statuses/<id>` — body `{"status":"comment-only|comment-and-connect|skip|done|todo","audience":null}` — `audience` optional: `chro`, `icp`, `influencer`, `watchlist`. `todo` removes the row.
+- `PUT /api/statuses/<id>` — body `{"status":"comment-only|comment-and-connect|skip|done|todo","audience":null}` — `audience` optional: `chro`, `icp`, `compliance`, `influencer`, `watchlist`. `todo` removes the row.
 - `DELETE /api/statuses/<id>` — remove row (reset to TODO in the UI).
 
 All mutating methods require `X-Tracker-Key` or they return 401.
