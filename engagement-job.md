@@ -34,9 +34,16 @@ All shared mechanics (infra/clone/push, voice for comments + connection notes + 
 - **Output** — 8–12 candidates, ~3 per audience.
 - Time split: ~40% Audience A · ~30% Audience B · ~15% Law Firm · ~15% Influencer. Move on fast from dry searches.
 
-## Search syntax note (from the new-in-role learning)
+## Search syntax (IMPORTANT — read before searching)
 
-LinkedIn content search handles long boolean `OR` chains poorly and ampersands (`L&D`) break matching. Many searches below use `OR` — where one consistently returns junk, split it into two short quoted-phrase queries instead, and flag the weak cluster in the run notes so the corpus can be tuned over time. Use the past-week filter, latest sort.
+The corpus below was rewritten away from boolean `OR` chains because LinkedIn content search handles them poorly (they return junk) and ampersands (`L&D`) break matching entirely. Every query is now either a single specific quoted phrase or **two quoted phrases where the second anchors the domain**. Tested rules:
+
+- Two short quoted phrases works: `"Acas" "grievance"` returns real UK ER practitioners.
+- The second phrase MUST anchor the domain for polysemous terms. `"reasonable steps" "evidence"` drifts into trucking-safety / ESG; `"reasonable steps" "harassment"` stays on-topic.
+- Never use bare `OR` between unquoted words, and never use `&` (write `"learning and development"`, not `L&D`).
+- Where a single phrase is specific enough on its own (`"dignity at work"`, `"three lines of defence"`, `"training fatigue"`), use it alone.
+
+Use the past-week filter, latest sort. Geography is not filtered by search — keep only UK 500+ (regulated for Compliance); discard high-engagement foreign posts. If a query still returns junk, flag it in the run notes so the corpus can be tuned.
 
 ## Audience A — CHRO / HR buyer
 
@@ -48,113 +55,113 @@ Target the champions directly (they post far more than the CHRO). Buying trigger
 
 *Regulation & enforcement (vendor/law-firm-heavy — use sparingly for direct leads, great for Track-2 mining):*
 1. `"Worker Protection Act" "all reasonable steps"`
-2. `"non-financial misconduct" OR "NFM" OR "COCON"`
-3. `"Employment Rights Act" employer OR HR`
-4. `"EHRC" enforcement OR agreement OR uplift employer`
-5. `"tribunal" harassment OR bullying OR discrimination 2026`
+2. `"non-financial misconduct"`  ·  `"COCON"`
+3. `"Employment Rights Act" "employer"`
+4. `"EHRC" "employer"`  ·  `"EHRC" "harassment"`
+5. `"tribunal" "harassment"`  ·  `"tribunal" "bullying"`
 
 *Investigation & casework (practitioner-language, high yield):*
-6. `"grievance investigation" OR "harassment investigation"`
-7. `"workplace investigation" lessons OR interview OR handled`
-8. `"disciplinary" hearing OR investigation HR`
-9. `"employee relations" casework OR "lessons learned" OR "we learned"`
-10. `"Acas" OR "ACAS" harassment OR grievance OR "early conciliation"`
-11. `"dignity at work" policy OR breach OR culture`
-12. `"HR casework" OR "ER casework"`
+6. `"grievance investigation"`  ·  `"harassment investigation"`
+7. `"workplace investigation" "lessons"`
+8. `"disciplinary hearing"`
+9. `"employee relations" "casework"`
+10. `"Acas" "grievance"`  ·  `"Acas" "harassment"`  ·  `"early conciliation"`
+11. `"dignity at work"`
+12. `"HR casework"`  ·  `"ER casework"`
 
 *Disclosure, whistleblowing, bystander:*
-13. `"whistleblowing" disclosure response OR handling OR retaliation`
-14. `"speak up" findings OR barrier OR "speak-up culture"`
-15. `"bystander" intervention OR "stood by" workplace`
-16. `"protected disclosure" handling OR response`
+13. `"whistleblowing" "disclosure"`
+14. `"speak-up culture"`
+15. `"bystander intervention"`
+16. `"protected disclosure"`
 
 *Dissatisfaction / intent signals (rich buying moment):*
-17. `"incidents" "despite training" OR "still happening"`
-18. `"policy" "on paper" OR "vs practice" OR "in practice"`
-19. `"reasonable steps" evidence OR prove OR documented OR beyond`
-20. `"preventive duty" employer OR "reasonable steps"`
+17. `"despite the training"`  ·  `"despite training" "still happening"`
+18. `"on paper" "in practice"`
+19. `"reasonable steps" "harassment"`  ·  `"reasonable steps" "employer"` (anchor the domain — `"reasonable steps" "evidence"` drifts off-topic)
+20. `"preventative duty" "harassment"`
 
 *Cross-sector (Social Housing, Healthcare, Contact Centres):*
-21. `"psychosocial" risk workplace OR "ISO 45003" OR HSE`
-22. `"third-party harassment" OR "third party harassment" customer OR client`
-23. `"safeguarding" disclosure manager OR training`
-24. `"vulnerable tenant" OR "vulnerable customer" manager OR handling`
+21. `"psychosocial risk"`  ·  `"ISO 45003"`
+22. `"third-party harassment"`
+23. `"safeguarding" "manager"`
+24. `"vulnerable customer" "manager"`  ·  `"vulnerable tenant"`
 
 ### Path 2 — Leadership & Manager Development
 
 *Knowing-doing & readiness:*
-25. `"knowing-doing gap" OR "knowing doing gap"`
-26. `"freeze" manager OR leader conversation OR moment`
-27. `"first time" manager OR "thrown in" OR "no rehearsal"`
-28. `"accidental manager" OR "reluctant manager"`
-29. `"new manager" readiness OR onboarding OR "first 90 days"`
+25. `"knowing-doing gap"`
+26. `"froze" "conversation"`
+27. `"first-time manager"`  ·  `"thrown in at the deep end"`
+28. `"accidental manager"`  ·  `"reluctant manager"`
+29. `"new manager" "first 90 days"`
 
 *Manager scenarios:*
-30. `"difficult conversations" manager OR leader`
-31. `"crucial conversations" manager OR leader`
-32. `"tough feedback" OR "hard feedback" manager`
-33. `"performance conversation" OR "performance review" manager`
-34. `"underperformance" manager OR handling OR conversation`
-35. `"performance improvement plan" OR "PIP" manager OR HR`
-36. `"return to work" conversation manager OR absence OR "long-term sickness"`
-37. `"stay interview" OR "retention conversation" manager`
+30. `"difficult conversations" "manager"`
+31. `"crucial conversations"`
+32. `"tough feedback"`
+33. `"performance conversation"`
+34. `"underperformance" "manager"`
+35. `"performance improvement plan"`
+36. `"return to work conversation"`
+37. `"stay interview"`  ·  `"retention conversation"`
 
 *L&D jargon (highest practitioner density):*
-38. `"learning transfer" OR "training transfer" workplace OR job`
-39. `"behaviour change" leader OR manager OR L&D`
-40. `"leader as coach" OR "manager as coach"`
-41. `"70 20 10" OR "70-20-10" learning OR application`
-42. `"capability framework" OR "competency framework" manager OR leader`
-43. `"Kirkpatrick" "level 3" OR "level 4" OR behaviour`
+38. `"learning transfer"`  ·  `"training transfer"`
+39. `"behaviour change" "manager"`
+40. `"manager as coach"`
+41. `"70-20-10"`
+42. `"capability framework"`  ·  `"competency framework"`
+43. `"Kirkpatrick" "level 3"`
 44. `"learning in the flow of work"`
-45. `"CIPD" research OR report OR conference`
-46. `"Learning Technologies" OR "LPI" OR "World of Learning"`
+45. `"CIPD" "research"`
+46. `"Learning Technologies" "L&D"` → use `"Learning Technologies" "learning"`  ·  `"World of Learning"`
 
 *Programme & workshop frustration:*
-47. `"leadership programme" impact OR "didn't stick" OR transfer`
-48. `"workshop" "didn't transfer" OR "back to old habits" OR fatigue`
-49. `"peer role play" OR "peer roleplay" realistic OR limitations OR awkward`
-50. `"management training" "doesn't work" OR "falls short" OR rethink`
+47. `"leadership programme" "didn't stick"`
+48. `"back to old habits" "training"`
+49. `"peer role play"`  ·  `"role play" "awkward"`
+50. `"management training" "doesn't work"`
 
 *Frontline & manager-population:*
-51. `"line manager" capability OR development OR readiness OR gap`
-52. `"frontline manager" OR "frontline leader" development OR capability`
-53. `"people manager" training OR capability OR development`
-54. `"manager effectiveness" data OR evidence OR measure`
+51. `"line manager" "capability"`
+52. `"frontline manager" "development"`
+53. `"people manager" "development"`
+54. `"manager effectiveness"`
 
 ### Path 3 — Solution-aware (pick 4–6)
 
 Route by poster role: HR/L&D → CHRO; Compliance → Compliance; partners → Law Firm; vendors → Influencer.
-55. `"AI roleplay" OR "AI role-play" OR "AI role play"`
-56. `"roleplay" OR "role-play" L&D OR learning OR leadership`
-57. `"conversation simulation" OR "conversational simulation"`
-58. `"learning simulation" OR "behavioural simulation" OR "behavioral simulation"`
-59. `"scenario simulation" OR "scenario-based" learning OR training`
-60. `"AI coach" OR "AI coaching"`
-61. `"AI tutor" OR "AI mentor"`
-62. `"generative AI" L&D OR learning OR training`
-63. `"immersive learning" OR "immersive simulation"`
-64. `"deliberate practice" manager OR leader OR conversation`
-65. `"rehearsal" "difficult conversation" OR "tough conversation"`
-66. `"practice platform" manager OR training OR leadership`
-67. `"safe to practise" OR "safe to practice" OR "safe space to practice"`
-68. `"digital coaching" OR "coaching at scale"`
+55. `"AI roleplay"`  ·  `"AI role-play"`
+56. `"roleplay" "learning"`
+57. `"conversation simulation"`
+58. `"learning simulation"`  ·  `"behavioural simulation"`
+59. `"scenario-based learning"`
+60. `"AI coaching"`
+61. `"AI tutor"`  ·  `"AI mentor"`
+62. `"generative AI" "learning"`
+63. `"immersive learning"`
+64. `"deliberate practice" "conversation"`
+65. `"rehearse" "difficult conversation"`
+66. `"practice platform" "training"`
+67. `"safe to practise"`  ·  `"safe to practice"`
+68. `"coaching at scale"`
 
 ### Path 4 — Status-quo challenge (pick 4–6)
 
 Same routing by poster role.
-69. `"tick box" OR "tickbox" OR "tick-box" training`
-70. `"mandatory training" "doesn't work" OR ineffective OR broken OR pointless`
-71. `"compliance training" broken OR failing OR rethinking OR "not enough"`
-72. `"e-learning" "doesn't work" OR ineffective OR limitations OR alternative`
-73. `"sheep dip" OR "sheepdip" training`
-74. `"one and done" OR "one-and-done" training`
+69. `"tick box" "training"`  ·  `"tick-box training"`
+70. `"mandatory training" "doesn't work"`
+71. `"compliance training" "broken"`
+72. `"e-learning" "doesn't work"`
+73. `"sheep dip" "training"`
+74. `"one and done" "training"`
 75. `"training fatigue"`
-76. `"completion rates" meaningless OR enough OR "beyond completion"`
-77. `"certificate" "doesn't prove" OR "isn't evidence" OR competence`
-78. `"rethinking" compliance OR L&D OR "learning and development"`
-79. `"future of" compliance OR L&D OR "learning and development"`
-80. `"is training enough" OR "is e-learning enough"`
+76. `"completion rates" "meaningless"`
+77. `"doesn't prove competence"`
+78. `"rethinking compliance"`  ·  `"rethinking learning"`
+79. `"future of compliance"`  ·  `"future of learning"`
+80. `"is training enough"`  ·  `"is e-learning enough"`
 
 **(Path 5 active-buyer searches have moved to the separate active-buyer job.)**
 
@@ -163,57 +170,57 @@ Same routing by poster role.
 Time inside B: ~40% Track 1, ~60% Track 2. **Track 1 sampling: TWO from each of the six clusters = 12 searches. Prioritise Dissatisfaction and Evidence/Assurance clusters.**
 
 *Regulatory vocabulary:*
-81. `"three lines of defence" OR "three lines of defense" compliance OR risk`
-82. `"second line" assurance OR effectiveness OR testing OR challenge`
-83. `"SMCR" OR "Senior Managers Certification Regime" OR "SMF"`
-84. `"fit and proper" OR "F&P" assessment OR certification`
-85. `"SYSC" OR "senior management arrangements"`
-86. `"regulatory change" horizon OR scan OR monitoring`
-87. `"control testing" OR "controls effectiveness"`
-88. `"risk appetite" conduct OR culture OR statement`
+81. `"three lines of defence"`  ·  `"three lines of defense"`
+82. `"second line" "assurance"`
+83. `"SMCR"`  ·  `"Senior Managers Certification Regime"`
+84. `"fit and proper" "certification"`
+85. `"SYSC"`
+86. `"regulatory change" "horizon scanning"`
+87. `"control testing"`  ·  `"controls effectiveness"`
+88. `"risk appetite" "conduct"`
 
 *FCA enforcement & thematic (buying triggers):*
-89. `"FCA fine" OR "FCA enforcement" 2026`
-90. `"Dear CEO" letter FCA`
-91. `"thematic review" FCA OR findings OR lessons`
-92. `"section 166" OR "s166" OR "skilled person"`
-93. `"enforcement notice" OR "warning notice" FCA`
-94. `"final notice" FCA OR PRA`
-95. `"regulatory breach" disclosure OR reportable OR lessons`
+89. `"FCA enforcement"`  ·  `"FCA fine"`
+90. `"Dear CEO letter"`
+91. `"thematic review" "FCA"`
+92. `"section 166"`  ·  `"skilled person review"`
+93. `"warning notice" "FCA"`
+94. `"final notice" "FCA"`
+95. `"regulatory breach"`
 
 *Conduct, culture & people-risk:*
-96. `"conduct risk" culture "financial services"`
-97. `"compliance culture" OR "culture of compliance"`
-98. `"people risk" OR "behavioural risk" compliance`
-99. `"non-financial misconduct" OR "NFM" OR "COCON" OR "PS25/23"`
-100. `"bullying" OR "harassment" SMCR OR COCON OR regulated`
-101. `"conduct rules" breach OR training OR certification`
+96. `"conduct risk" "culture"`
+97. `"compliance culture"`  ·  `"culture of compliance"`
+98. `"people risk" "compliance"`  ·  `"behavioural risk"`
+99. `"non-financial misconduct"`  ·  `"PS25/23"`
+100. `"harassment" "SMCR"`
+101. `"conduct rules" "breach"`
 
 *Evidence, assurance & monitoring (direct pitch territory — prioritise):*
-102. `"evidence" "competence" compliance OR regulatory`
-103. `"compliance monitoring" OR "monitoring plan" effective OR meaningful`
-104. `"compliance testing" OR "assurance testing"`
-105. `"audit readiness" OR "FCA visit" OR "regulatory visit"`
-106. `"board reporting" compliance OR conduct OR culture`
-107. `"management information" OR "compliance MI" meaningful OR beyond`
-108. `"assurance mapping" OR "assurance framework"`
+102. `"evidence of competence"`
+103. `"compliance monitoring"`  ·  `"monitoring plan"`
+104. `"compliance testing"`  ·  `"assurance testing"`
+105. `"audit readiness"`  ·  `"FCA visit"`
+106. `"board reporting" "compliance"`
+107. `"compliance MI"`
+108. `"assurance framework"`  ·  `"assurance mapping"`
 
 *Specific risk areas (deadline-driven):*
-109. `"Consumer Duty" vulnerable customers OR outcomes OR "fair value"`
-110. `"Consumer Duty" "year 2" OR "year 3" OR review OR lessons`
-111. `"Worker Protection Act" compliance OR risk OR regulated`
-112. `"financial promotions" OR "FinProm" compliance`
-113. `"conflicts of interest" disclosure OR training OR handling`
-114. `"market abuse" OR "MAR" training OR prevention`
-115. `"operational resilience" testing OR scenario`
+109. `"Consumer Duty" "vulnerable customers"`
+110. `"Consumer Duty" "year 2"`  ·  `"Consumer Duty" "year 3"`
+111. `"Worker Protection Act" "compliance"`
+112. `"financial promotions" "compliance"`
+113. `"conflicts of interest" "training"`
+114. `"market abuse" "training"`
+115. `"operational resilience" "testing"`
 
 *Dissatisfaction / intent signals (prioritise):*
-116. `"tick box" compliance OR "compliance theatre"`
-117. `"paper compliance" OR "on paper" compliance`
-118. `"compliance fatigue" OR "compliance burden"`
-119. `"beyond training" compliance OR regulatory`
-120. `"compliance training" "not enough" OR "doesn't work"`
-121. `"completion rate" compliance OR "93%" OR "100%" compliance`
+116. `"compliance theatre"`  ·  `"tick box" "compliance"`
+117. `"paper compliance"`
+118. `"compliance fatigue"`  ·  `"compliance burden"`
+119. `"beyond training" "compliance"`
+120. `"compliance training" "not enough"`
+121. `"completion rate" "compliance"`
 
 **Track 2 — Engagement mining:** find high-engagement (20+ reactions) vendor/law-firm posts on these topics, open them, scan comments for ICP practitioners. Record the COMMENTER as the lead; their comment → Post topic; the draft reply references their comment (playbook §4 Track-2 shape). Note "Found via comment on [firm]'s post."
 
@@ -232,14 +239,14 @@ Comment tailoring: legal precision. Reference the specific case / regulator phra
 Vendors / consultants / Big 4 / publications / non-lawyer thought leaders, **30+ reactions** (50+ gold, 100+ great). Stages, not leads. Skip anything 25–29 (floor moved). Inherited A+B vendor results auto-route here if they clear 30+.
 
 **Influencer modifiers (pick 4–6):**
-122. `"research" OR "report" OR "whitepaper" compliance OR L&D OR HR 2026`
-123. `"survey" OR "poll" findings compliance OR HR OR manager`
-124. `"trends" OR "outlook" OR "predictions" compliance OR HR 2026`
-125. `"benchmark" compliance OR HR OR L&D report`
-126. `"data shows" OR "our research" compliance OR HR OR manager`
-127. `"five things" OR "three things" OR "what every" CHRO OR compliance OR HR`
-128. `"client work" OR "what we're seeing" compliance OR HR OR manager`
-129. `"case study" harassment OR compliance OR manager training`
+122. `"our research" "HR"`  ·  `"new report" "compliance"`
+123. `"survey findings" "HR"`
+124. `"2026 trends" "HR"`  ·  `"predictions" "compliance"`
+125. `"benchmark report" "HR"`
+126. `"data shows" "managers"`
+127. `"five things" "HR"`  ·  `"what every CHRO"`
+128. `"what we're seeing" "HR"`
+129. `"case study" "harassment"`
 
 **Named-account watchlist (scan last 48h at run start):** Big 4 — Deloitte People Advisory, PwC People & Organisation, KPMG People, EY People, Mercer UK, Korn Ferry, BearingPoint. Compliance/publications — UK Finance, Compliance Week, Thomson Reuters Regulatory Intelligence, City A.M. regulation, Financial News. HR/L&D bodies — CIPD, People Management, Personnel Today, HR Grapevine, HR Magazine, Training Journal, LPI, Learning Technologies. Named thought leaders — Sarah Jackman, Jo Morgan, Sue Saunders, Jessie Jones (append new 30+ faces).
 

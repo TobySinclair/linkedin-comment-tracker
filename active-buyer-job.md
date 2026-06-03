@@ -28,46 +28,46 @@ Read the shared playbook first — it holds all infra, voice, templates, slugs a
 
 ## Search — buyer-intent (sample 6–8 per run, weighted to L&D / e-learning + manager-dev)
 
-LinkedIn content search is loose; pair an intent phrase with a category term. Keep to short quoted phrases and avoid long boolean chains where you can (see syntax note at the end).
+Pair an intent phrase with a category term — two quoted phrases, no boolean `OR`, no `&` (write `"learning and development"`, not `L&D`). See the syntax note at the end. The intent phrase (`"best platform"`, `"any recommendations"`, `"looking for"`) is what makes these buyer signals — keep it as the anchor.
 
 **Buyer-intent + L&D / e-learning / course creation:**
-1. `"best platform" e-learning OR "online learning" OR training`
-2. `"best tool" training OR onboarding OR "manager training" OR L&D`
-3. `"any recommendations" e-learning OR LMS OR "course creation"`
-4. `"what would you recommend" training OR e-learning OR onboarding`
-5. `"looking for" platform e-learning OR LMS OR "course creation"`
-6. `"easily create" e-learning OR training OR courses`
-7. `"create engaging e-learning" OR "build engaging training"`
-8. `"voice-over" avatar training OR e-learning`
-9. `"AI avatar" training OR onboarding OR e-learning`
-10. `"author" e-learning OR training "any tips" OR recommendation`
+1. `"best platform" "e-learning"`  ·  `"best platform" "training"`
+2. `"best tool" "manager training"`  ·  `"best tool" "onboarding"`
+3. `"any recommendations" "e-learning"`  ·  `"any recommendations" "LMS"`
+4. `"what would you recommend" "training"`
+5. `"looking for" "e-learning platform"`  ·  `"looking for" "LMS"`
+6. `"easily create" "e-learning"`  ·  `"easily create" "courses"`
+7. `"create engaging e-learning"`  ·  `"build engaging training"`
+8. `"voice-over" "e-learning"`
+9. `"AI avatar" "training"`
+10. `"any tips" "e-learning"`
 
-**Buyer-intent + Compliance / NFM / regulated training** (runs dry most weeks — sample once a week):
-11. `"mandatory training" platform OR tool recommendation`
-12. `"compliance training" "any recommendations" OR "best" OR "looking for"`
-13. `"non-financial misconduct" training tool OR platform OR vendor`
-14. `"Consumer Duty" training tool OR vendor OR platform`
-15. `"Worker Protection Act" training tool OR documentation OR platform`
-16. `"all reasonable steps" evidence OR documentation tool OR platform`
+**Buyer-intent + Compliance / regulated training** (runs dry most weeks — sample once a week):
+11. `"mandatory training" "recommendations"`
+12. `"compliance training" "any recommendations"`  ·  `"compliance training" "looking for"`
+13. `"non-financial misconduct" "training"`
+14. `"Consumer Duty" "training platform"`
+15. `"Worker Protection Act" "training"`
+16. `"all reasonable steps" "documentation"`
 
 **Buyer-intent + Manager development / Conversation practice:**
-17. `"best" "manager training" OR "leadership training" platform`
-18. `"any recommendations" "manager training" OR "leadership programme"`
-19. `"AI roleplay" OR "conversation simulation" recommendation OR "best"`
-20. `"practice platform" recommendation OR best`
-21. `"difficult conversations" training tool OR platform recommendation`
+17. `"best" "manager training platform"`
+18. `"any recommendations" "manager training"`  ·  `"any recommendations" "leadership programme"`
+19. `"conversation simulation" "recommendation"`
+20. `"practice platform" "recommendation"`
+21. `"difficult conversations" "training platform"`
 
-**Direct competitor mentions** (sample weekly):
-22. `Synthesia OR Heygen OR Elai alternative OR vs OR comparison`
-23. `Articulate OR Rise OR Storyline alternative OR vs`
-24. `Bodyswaps OR Attensi OR Mursion alternative OR vs`
-25. `Vyond OR Powtoon alternative OR vs`
+**Direct competitor mentions** (sample weekly — pair the vendor with an intent word):
+22. `"Synthesia" "alternative"`  ·  `"Heygen" "alternative"`
+23. `"Articulate" "alternative"`  ·  `"Storyline" "alternative"`
+24. `"Bodyswaps" "alternative"`  ·  `"Attensi" "alternative"`
+25. `"Vyond" "alternative"`  ·  `"Powtoon" "alternative"`
 
 **Question-format heuristics** (only when the practitioner clusters have been thin two runs running):
-26. `"What is the best" L&D OR HR OR compliance OR training`
-27. `"Which platform" training OR e-learning OR L&D`
-28. `"Anyone using" Articulate OR Synthesia OR Vyond OR roleplay OR e-learning`
-29. `"Has anyone tried" e-learning OR training OR roleplay OR LMS`
+26. `"What is the best" "training"`
+27. `"Which platform" "e-learning"`
+28. `"Anyone using" "Articulate"`  ·  `"Anyone using" "roleplay"`
+29. `"Has anyone tried" "e-learning"`  ·  `"Has anyone tried" "roleplay"`
 
 ## Comment shape (REPLACES playbook §4 — this is the consultative shape, not acknowledge→build→question)
 
