@@ -51,14 +51,39 @@ Pick 8–10 per run, rotating titles across the week:
 11. `"Starting a new position" "Head of Leadership Development"`
 12. `"Starting a new position" "Head of Customer Outcomes"`
 
-**Broad-net sweep (run 1–2 of these per run for coverage the targeted titles miss):** maximum recall, minimum precision — they catch moves across every function and geography, so the geo + function + seniority filters below do all the work. Worth it because a UK ICP champion sometimes uses a title none of the targeted queries name.
+**Broad-net sweep (run 4–6 of these per run, rotating, for coverage the targeted titles miss):** maximum recall, minimum precision — they catch moves across every function and geography, so the geo + function + seniority filters below do all the work. Worth it because a UK ICP champion often uses a title none of the targeted queries name. Each is `"Starting a new position"` + ONE quoted term.
 
-- `"Starting a new position" "Head of"` — every Head-of move worldwide; filter hard by function, geo, seniority.
-- `"Starting a new position" "HR"` — broad HR sweep; note bare `HR` false-matches company names (e.g. "HR Green") and pulls junior roles.
-- `"Starting a new position" "People"` — catches People Director / Head of People / CPO variants.
-- `"Starting a new position" "Compliance"` — catches Head/Director of Compliance + Risk & Compliance variants.
+*People / HR (CHRO buyer):*
+- `"Starting a new position" "Head of"` — every Head-of move worldwide; filter hard.
+- `"Starting a new position" "HR"` — broad HR sweep; bare `HR` false-matches company names (e.g. "HR Green") and pulls junior roles.
+- `"Starting a new position" "Human Resources"`
+- `"Starting a new position" "People"` — People Director / Head of People / CPO.
+- `"Starting a new position" "People and Culture"`
+- `"Starting a new position" "Talent"`
 
-**Never use boolean `OR` or unquoted multi-word terms in these** — `"Head of" HR OR People OR Compliance` breaks matching entirely (returns unrelated posts). One `"Starting a new position"` phrase + one quoted term, nothing else.
+*L&D / Development (CHRO Path 2):*
+- `"Starting a new position" "Learning and Development"` (use this, not `L&D` — ampersand breaks matching)
+- `"Starting a new position" "Leadership Development"`
+- `"Starting a new position" "Manager Development"`
+- `"Starting a new position" "Organisational Development"` (also run the `Organizational` US spelling)
+- `"Starting a new position" "Talent Development"`
+- `"Starting a new position" "Capability"`
+
+*Compliance / Risk (Compliance buyer):*
+- `"Starting a new position" "Compliance"`
+- `"Starting a new position" "Risk and Compliance"`
+- `"Starting a new position" "Conduct"`
+- `"Starting a new position" "Regulatory"`
+- `"Starting a new position" "Financial Crime"`
+- `"Starting a new position" "Internal Audit"`
+- `"Starting a new position" "Customer Outcomes"`
+- `"Starting a new position" "Governance"`
+
+*Employment law (Law Firm stage):*
+- `"Starting a new position" "Employment Lawyer"`
+- `"Starting a new position" "Employment Law"`
+
+**Never use boolean `OR` or unquoted multi-word terms in these** — `"Head of" HR OR People OR Compliance` breaks matching entirely (returns unrelated posts). One `"Starting a new position"` phrase + one quoted term, nothing else. Single-word terms (Compliance, Talent, Conduct) pull the most volume but also the most junior + global noise, so lean hard on the geo + seniority filters.
 
 **Fallback phrases (use only if everything above runs thin):** `"I'm happy to share that I'm starting"` + title, or `"thrilled to announce" "Head of People"`, or `"new role as" "Head of L&D"`.
 
