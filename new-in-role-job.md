@@ -18,9 +18,23 @@ Read the shared playbook first — it holds all infra, voice, templates, slugs a
 3. This job's page = **`new-roles.html`** (playbook §1 table). Touch only this page.
 4. Read the last 14 days of `data-id` values in `new-roles.html`; skip anyone already logged.
 
-## Search — "Starting a new position" + ICP title (past week)
+## Search — "Starting a new position" + ICP title (past 24h)
 
-**Primary phrase: `"Starting a new position"`.** LinkedIn auto-stamps this on every job-change post (the generated text reads "I'm happy to share that I'm starting a new position as <Title> at <Company>"). Pairing it with an ICP title keyword is the single most reliable way to surface real moves — far better than guessing announcement wording. Use TWO short quoted phrases per query, latest sort, past-week filter. **Do not use ampersands in the encoded query** (`L&D` breaks matching — use `"Head of Learning"` instead).
+**Primary phrase: `"Starting a new position"`.** LinkedIn auto-stamps this on every job-change post (the generated text reads "I'm happy to share that I'm starting a new position as <Title> at <Company>"). Pairing it with an ICP title keyword is the single most reliable way to surface real moves — far better than guessing announcement wording. Use TWO short quoted phrases per query. **Do not use ampersands in the encoded query** (`L&D` breaks matching — use `"Head of Learning"` instead).
+
+**Filter: past 24h, sorted by latest.** The 24h window keeps each run to genuinely fresh moves and naturally prevents re-surfacing posts logged on previous days. URL template (swap the keywords, keep the faceted bracketed format exactly):
+
+```
+https://www.linkedin.com/search/results/content/?keywords=<URL-ENCODED QUERY>&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D&datePosted=%5B%22past-24h%22%5D
+```
+
+Example (`"Starting a new position" "Head of Compliance"`):
+
+```
+https://www.linkedin.com/search/results/content/?keywords=%22Starting%20a%20new%20position%22%20%22Head%20of%20Compliance%22&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D&datePosted=%5B%22past-24h%22%5D
+```
+
+**Cadence note:** the 24h window assumes the job runs about once a day. If it has been more than ~24h since the last run, swap `past-24h` for `past-week` for that one run so you don't miss moves from the gap, then rely on the playbook §2 last-14-days `data-id` dedup check to drop anything already carded.
 
 Pick 8–10 per run, rotating titles across the week:
 
