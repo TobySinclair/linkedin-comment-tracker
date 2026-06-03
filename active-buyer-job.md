@@ -26,9 +26,11 @@ Read the shared playbook first — it holds all infra, voice, templates, slugs a
 4. **Post-age tolerance = up to 14 days.** Flag the age in the run notes if older than a few days.
 5. **No comment-mining, no liker extraction.** Comment sections on these posts are vendor-heavy by design and likers are vendors pitching. Skip both — the poster is the only lead worth taking.
 
-## Search — buyer-intent (sample 6–8 per run, weighted to L&D / e-learning + manager-dev)
+## Search — buyer-intent (run the FULL list every run)
 
-Pair an intent phrase with a category term — two quoted phrases, no boolean `OR`, no `&` (write `"learning and development"`, not `L&D`). See the syntax note at the end. The intent phrase (`"best platform"`, `"any recommendations"`, `"looking for"`) is what makes these buyer signals — keep it as the anchor.
+**Run every query below on each run** — no sampling, no rotation. Buyer-intent posts are rare and high-value, and the corpus is small, so the cost of running all of it is low and missing one is expensive. The `·`-separated lines each hold 2–3 distinct queries; run every one.
+
+Pair an intent phrase with a category term — two quoted phrases, no boolean `OR`, no `&` (write `"learning and development"`, not `L&D`). See the syntax note at the end. The intent phrase (`"best platform"`, `"any recommendations"`, `"looking for"`) is what makes these buyer signals — keep it as the anchor. Pace the searches (batch 3 per navigation call) so the run doesn't trip LinkedIn's rate limiting; if results go empty across queries that normally hit, stop and note it.
 
 **Buyer-intent + L&D / e-learning / course creation:**
 1. `"best platform" "e-learning"`  ·  `"best platform" "training"`
@@ -42,7 +44,7 @@ Pair an intent phrase with a category term — two quoted phrases, no boolean `O
 9. `"AI avatar" "training"`
 10. `"any tips" "e-learning"`
 
-**Buyer-intent + Compliance / regulated training** (runs dry most weeks — sample once a week):
+**Buyer-intent + Compliance / regulated training** (often dry, but cheap to run — still run every time):
 11. `"mandatory training" "recommendations"`
 12. `"compliance training" "any recommendations"`  ·  `"compliance training" "looking for"`
 13. `"non-financial misconduct" "training"`
@@ -57,13 +59,13 @@ Pair an intent phrase with a category term — two quoted phrases, no boolean `O
 20. `"practice platform" "recommendation"`
 21. `"difficult conversations" "training platform"`
 
-**Direct competitor mentions** (sample weekly — pair the vendor with an intent word):
+**Direct competitor mentions** (pair the vendor with an intent word):
 22. `"Synthesia" "alternative"`  ·  `"Heygen" "alternative"`
 23. `"Articulate" "alternative"`  ·  `"Storyline" "alternative"`
 24. `"Bodyswaps" "alternative"`  ·  `"Attensi" "alternative"`
 25. `"Vyond" "alternative"`  ·  `"Powtoon" "alternative"`
 
-**Question-format heuristics** (only when the practitioner clusters have been thin two runs running):
+**Question-format heuristics** (broad — triage hard, but still run them):
 26. `"What is the best" "training"`
 27. `"Which platform" "e-learning"`
 28. `"Anyone using" "Articulate"`  ·  `"Anyone using" "roleplay"`
