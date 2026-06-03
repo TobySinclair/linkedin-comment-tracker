@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>New roles — Real Talk Studio Ops Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fafafa;
+    --surface: #ffffff;
+    --surface-soft: #f4f4f5;
+    --border: #e4e4e7;
+    --border-mid: #d4d4d8;
+    --ink: #18181b;
+    --ink-2: #3f3f46;
+    --ink-3: #71717a;
+    --ink-4: #a1a1aa;
+    --accent: #2563eb;
+    --accent-soft: #eff6ff;
+    --success: #16a34a;
+    --todo-bg: #fff5e6;
+    --todo-text: #92400e;
+    --comment-only-bg: #eff6ff;
+    --comment-only-text: #1d4ed8;
+    --comment-connect-bg: #dcfce7;
+    --comment-connect-text: #166534;
+    --skip-bg: #f4f4f5;
+    --skip-text: #52525b;
+    --sans: "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 13.5px; line-height: 1.45; min-height: 100vh; }
+  a { color: var(--accent); }
+  .topnav {
+    height: 52px; background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 0 24px; display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 30;
+  }
+  .topnav-left { display: flex; align-items: center; gap: 24px; }
+  .logo { display: inline-flex; align-items: center; gap: 9px; font-weight: 600; font-size: 14px; }
+  .logo-mark {
+    width: 22px; height: 22px; background: var(--ink); border-radius: 5px;
+    display: flex; align-items: center; justify-content: center; color: var(--surface); font-size: 13px; font-weight: 600;
+  }
+  .app-switch { display: flex; align-items: center; gap: 2px; margin-left: 4px; padding-left: 16px; border-left: 1px solid var(--border); height: 28px; flex-wrap: wrap; }
+  .app-switch a { font-size: 12.5px; font-weight: 500; text-decoration: none; padding: 6px 10px; border-radius: 6px; }
+  .app-switch a.current { color: var(--ink); background: var(--surface-soft); border: 1px solid var(--border); }
+  .app-switch a:not(.current) { color: var(--ink-3); border: 1px solid transparent; }
+  .app-switch a:not(.current):hover { color: var(--ink); background: var(--surface-soft); }
+  .page { max-width: 960px; margin: 0 auto; padding: 24px 24px 80px; }
+  .page-head { margin-bottom: 20px; }
+  .page-title { font-size: 22px; font-weight: 600; margin: 0; letter-spacing: -0.02em; }
+  .page-sub { font-size: 13.5px; color: var(--ink-3); margin: 8px 0 0; max-width: 640px; }
+  .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-bottom: 16px; }
+  .btn {
+    height: 32px; padding: 0 12px; font: inherit; font-size: 12.5px; font-weight: 500;
+    border-radius: 6px; border: 1px solid var(--border); background: var(--surface); cursor: pointer;
+  }
+  .btn:hover { background: var(--surface-soft); }
+  .filter-select {
+    height: 34px; padding: 0 32px 0 10px; font: inherit; font-size: 13px;
+    border: 1px solid var(--border); border-radius: 6px; background: var(--surface); cursor: pointer;
+    appearance: none; -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2371717a' d='M2.5 4.5L6 8l3.5-3.5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 10px center;
+  }
+  .summary { font-size: 13px; color: var(--ink-3); margin: 0 0 20px; }
+  .summary strong { color: var(--ink); font-weight: 600; }
+  section.day { margin-bottom: 28px; }
+  section.day h2 {
+    font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--ink-3); margin: 0 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
+  }
+  section.day.empty-day { display: none; }
+  .day-cards {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden;
+  }
+  .card { border-bottom: 1px solid var(--border); background: var(--surface); }
+  .card:last-child { border-bottom: none; }
+  .card.hidden { display: none; }
+  .card.card--addressed { opacity: 0.88; }
+  .card-head {
+    display: flex; align-items: flex-start; gap: 10px; padding: 12px 16px; cursor: pointer;
+  }
+  .card-expand {
+    all: unset; display: flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px; border-radius: 6px; cursor: pointer; color: var(--ink-3); flex-shrink: 0;
+  }
+  .card-expand::before {
+    content: ""; display: block; width: 6px; height: 6px; border: solid var(--ink-3);
+    border-width: 0 2px 2px 0; transform: translateX(2px) rotate(-45deg); transition: transform 0.2s;
+  }
+  .card.is-open .card-expand::before { transform: translateY(-1px) rotate(45deg); }
+  .card-head-main { flex: 1; min-width: 0; }
+  .card-head h3 { font-size: 15px; font-weight: 600; margin: 0; color: var(--ink); }
+  .card-head .topic { font-size: 13px; color: var(--ink-2); line-height: 1.4; margin-top: 4px; }
+  .card-head-badges { flex-shrink: 0; text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+  .badge {
+    display: inline-block; font-size: 10.5px; font-weight: 600; padding: 2px 7px; border-radius: 4px;
+    text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .badge.chro { background: #faf5ff; color: #7e22ce; border: 1px solid #e9d5ff; }
+  .badge.compliance { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+  .badge.law-firm { background: #f0f9ff; color: #0369a1; border: 1px solid #bae6fd; }
+  .badge.influencer { background: #fff7ed; color: #9a3412; border: 1px solid #fed7aa; }
+  .status {
+    display: inline-block; font-size: 10.5px; font-weight: 600; padding: 2px 7px; border-radius: 4px;
+    text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .status.todo { background: var(--todo-bg); color: var(--todo-text); }
+  .status.comment-only { background: var(--comment-only-bg); color: var(--comment-only-text); }
+  .status.comment-and-connect { background: var(--comment-connect-bg); color: var(--comment-connect-text); }
+  .status.skip { background: var(--skip-bg); color: var(--skip-text); }
+  .card-body { display: none; padding: 0 16px 16px 54px; }
+  .card.is-open .card-body { display: block; }
+  .meta { display: grid; grid-template-columns: auto 1fr; gap: 6px 16px; font-size: 13px; margin: 0 0 14px; }
+  .meta dt { color: var(--ink-3); font-weight: 500; } .meta dd { margin: 0; }
+  .comment {
+    background: var(--accent-soft); border-left: 3px solid var(--accent); border-radius: 0 6px 6px 0;
+    padding: 12px 14px; font-size: 14px; line-height: 1.6;
+  }
+  .comment.connection { margin-top: 10px; background: var(--surface-soft); border-left-color: var(--border-mid); }
+  .comment-label { font-size: 11px; font-weight: 600; color: var(--accent); text-transform: uppercase; margin-bottom: 6px; }
+  .comment.connection .comment-label { color: var(--ink-3); }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .actions .btn { height: auto; min-height: 34px; padding: 6px 12px; }
+  .actions .btn.active[data-action="comment-only"] { background: var(--comment-only-bg); color: var(--comment-only-text); border-color: #93c5fd; }
+  .actions .btn.active[data-action="comment-and-connect"] { background: var(--comment-connect-bg); color: var(--comment-connect-text); border-color: #86efac; }
+  .actions .btn.active[data-action="skip"] { background: var(--skip-bg); color: var(--skip-text); border-color: var(--border-mid); }
+  .run-notes {
+    margin-top: 12px; padding: 12px 14px; background: var(--surface-soft); border: 1px solid var(--border);
+    border-radius: 6px; font-size: 12.5px; color: var(--ink-3);
+  }
+  .run-notes h3 { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-3); margin: 0 0 8px; }
+  .run-notes ul { margin: 0; padding-left: 18px; }
+  .run-notes li { margin-bottom: 4px; line-height: 1.5; }
+  .empty {
+    padding: 48px 24px; text-align: center; color: var(--ink-3);
+    background: var(--surface); border: 1px dashed var(--border-mid); border-radius: 8px;
+  }
+  .empty h3 { margin: 0 0 8px; font-size: 15px; color: var(--ink); }
+  .empty p { margin: 0; font-size: 13px; max-width: 480px; margin-left: auto; margin-right: auto; }
+  .toast {
+    position: fixed; bottom: max(20px, env(safe-area-inset-bottom, 0px)); left: 50%; transform: translateX(-50%) translateY(20px);
+    background: #18181b; color: #fff; padding: 10px 16px; border-radius: 999px; font-size: 12.5px;
+    opacity: 0; pointer-events: none; transition: opacity 0.18s, transform 0.18s; z-index: 100;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  @media (max-width: 640px) {
+    .card-body { padding-left: 16px; }
+    .card-head-badges { display: none; }
+  }
+</style>
+</head>
+<body>
+<nav class="topnav" aria-label="Application">
+  <div class="topnav-left">
+    <div class="logo"><div class="logo-mark">R</div>Real Talk Studio <span style="font-weight:400;color:var(--ink-3)">· Ops hub</span></div>
+    <div class="app-switch">
+      <a href="index.html">Comment Tracker</a>
+      <a href="watchlist.html">Watchlist</a>
+      <a href="new-roles.html" class="current">New roles</a>
+      <a href="inbox.html">Inbox</a>
+      <a href="conversations.html">Conversations</a>
+      <a href="posts.html">Post ideas</a>
+      <a href="okrs.html">OKRs</a>
+      <a href="contacts.html">Contacts</a>
+    </div>
+  </div>
+</nav>
+<main class="page">
+  <div class="page-head">
+    <h1 class="page-title">New roles</h1>
+    <p class="page-sub">UK ICP people who have just announced a new senior role on LinkedIn. Congratulatory comments and connection notes from the daily new-in-role scan. Status is saved in Cloudflare D1 when you mark a card.</p>
+  </div>
+  <div class="toolbar">
+    <select id="filter-status" class="filter-select" aria-label="Status">
+      <option value="todo">To do</option>
+      <option value="all">All</option>
+      <option value="comment-only">Comment only</option>
+      <option value="comment-and-connect">Comment + connect</option>
+      <option value="skip">Skip</option>
+    </select>
+    <select id="filter-audience" class="filter-select" aria-label="Audience">
+      <option value="all">All audiences</option>
+      <option value="chro">CHRO</option>
+      <option value="compliance">Compliance</option>
+      <option value="law-firm">Law firm</option>
+      <option value="influencer">Influencer</option>
+    </select>
+  </div>
+  <p class="summary" id="summary" aria-live="polite">Loading…</p>
+  <div id="feed">
+    <!-- NEWEST-DAY-INSERT-BELOW -->
+  </div>
+  <div class="empty" id="empty" hidden>
+    <h3>No candidates yet</h3>
+    <p>The scheduled new-in-role scan will append day sections here after each run. Cards use the same comment / + Connect / Skip actions as the Comment Tracker.</p>
+  </div>
+</main>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+(function () {
+  var TRACKER_KEY = "summer";
+  var LS_STATUS = "rts-new-roles-status";
+  var LS_AUDIENCE = "rts-new-roles-audience";
+  var STORED_STATUSES = ["comment-only", "comment-and-connect", "skip", "done"];
+  var filterStatus = "todo";
+  var filterAudience = "all";
+  var allCards = [];
+
+  function apiFetch(path, options) {
+    options = options || {};
+    var headers = new Headers(options.headers || {});
+    headers.set("X-Tracker-Key", TRACKER_KEY);
+    if (options.body && !headers.has("Content-Type")) headers.set("Content-Type", "application/json");
+    var url = path[0] === "/" ? path : "/" + path;
+    return fetch(url, { credentials: "same-origin", headers: headers, method: options.method || "GET", body: options.body });
+  }
+
+  function toast(msg) {
+    var el = document.getElementById("toast");
+    if (!el) return;
+    el.textContent = msg;
+    el.classList.add("show");
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function () { el.classList.remove("show"); }, 2200);
+  }
+
+  function getMetaValue(card, label) {
+    var body = card.querySelector(".card-body dl.meta") || card.querySelector("dl.meta");
+    if (!body) return "";
+    var dts = body.querySelectorAll("dt");
+    for (var i = 0; i < dts.length; i++) {
+      if (dts[i].textContent.trim() === label) {
+        var dd = dts[i].nextElementSibling;
+        return dd ? dd.textContent.trim() : "";
+      }
+    }
+    return "";
+  }
+
+  function getPersonNameFromCard(card) {
+    var h = card.querySelector(".card-head h3, .who h3");
+    if (!h) return "";
+    return String(h.textContent).replace(/^\d+\.\s*/, "").trim();
+  }
+
+  function getLinkHrefFromCard(card) {
+    var a = card.querySelector('dl.meta a[href], .meta a[href]');
+    return a ? a.getAttribute("href") || "" : "";
+  }
+
+  function setStatus(card, status) {
+    card.dataset.status = status;
+    card.classList.toggle("card--addressed", status !== "todo");
+    var badge = card.querySelector(".card-head-badges .status, .badges .status");
+    if (badge) {
+      badge.className = "status " + status;
+      badge.textContent = status === "todo" ? "TODO"
+        : status === "comment-only" ? "COMMENT ONLY"
+        : status === "comment-and-connect" ? "COMMENT + CONNECT"
+        : status === "skip" ? "SKIP" : status.toUpperCase();
+    }
+    var btns = card.querySelectorAll(".actions .btn[data-action]");
+    btns.forEach(function (b) {
+      b.classList.toggle("active", b.dataset.action === status);
+    });
+  }
+
+  function setCardOpen(card, open) {
+    card.classList.toggle("is-open", open);
+    var btn = card.querySelector(".card-expand");
+    if (btn) btn.setAttribute("aria-expanded", open ? "true" : "false");
+  }
+
+  function audienceMatchesFilter(cardAudience, aud) {
+    if (aud === "all") return true;
+    if (aud === "compliance") return cardAudience === "compliance" || cardAudience === "icp";
+    return cardAudience === aud;
+  }
+
+  function updateSummary() {
+    var summary = document.getElementById("summary");
+    var empty = document.getElementById("empty");
+    var visible = 0, todo = 0, total = allCards.length;
+    allCards.forEach(function (card) {
+      var st = card.dataset.status || "todo";
+      var aud = card.dataset.audience || "";
+      var show = true;
+      if (filterStatus !== "all" && st !== filterStatus) show = false;
+      if (show && filterAudience !== "all" && !audienceMatchesFilter(aud, filterAudience)) show = false;
+      card.classList.toggle("hidden", !show);
+      if (show) {
+        visible++;
+        if (st === "todo") todo++;
+      }
+    });
+    document.querySelectorAll("section.day").forEach(function (sec) {
+      var cards = sec.querySelectorAll(".card[data-id]");
+      var anyVisible = false;
+      for (var i = 0; i < cards.length; i++) {
+        if (!cards[i].classList.contains("hidden")) { anyVisible = true; break; }
+      }
+      sec.classList.toggle("empty-day", cards.length > 0 && !anyVisible);
+    });
+    if (summary) {
+      if (!total) summary.textContent = "No scan results yet.";
+      else summary.innerHTML = "<strong>" + visible + "</strong> showing · <strong>" + todo + "</strong> to do · <strong>" + total + "</strong> total";
+    }
+    if (empty) empty.hidden = total > 0;
+  }
+
+  function applyStatusMapRemote(map) {
+    allCards.forEach(function (card) {
+      var id = card.dataset.id;
+      var entry = map[id];
+      var saved;
+      if (entry != null && typeof entry === "object" && entry.status != null) saved = entry.status;
+      else if (typeof entry === "string") saved = entry;
+      else saved = undefined;
+      if (saved && STORED_STATUSES.indexOf(saved) !== -1) {
+        if (saved === "done") saved = "comment-and-connect";
+        setStatus(card, saved);
+      } else {
+        setStatus(card, "todo");
+      }
+    });
+    updateSummary();
+  }
+
+  function collectCards() {
+    allCards = [].slice.call(document.querySelectorAll("#feed .card[data-id]"));
+    allCards.forEach(function (card) {
+      if (!card.querySelector(".card-expand")) {
+        var head = card.querySelector(".card-head");
+        if (head && !head.querySelector(".card-expand")) {
+          var btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "card-expand";
+          btn.setAttribute("aria-label", "Expand card");
+          head.insertBefore(btn, head.firstChild);
+        }
+      }
+      if (!card.querySelector(".card-body") && card.querySelector("dl.meta")) {
+        var body = document.createElement("div");
+        body.className = "card-body";
+        var nodes = [];
+        var sib = card.querySelector(".card-head");
+        sib = sib ? sib.nextElementSibling : card.firstElementChild;
+        while (sib) {
+          var next = sib.nextElementSibling;
+          if (sib.classList && (sib.classList.contains("actions") || sib.classList.contains("run-notes"))) break;
+          if (sib.tagName === "DL" || sib.classList.contains("comment") || sib.classList.contains("post-content")) {
+            nodes.push(sib);
+          }
+          sib = next;
+        }
+        nodes.forEach(function (n) { body.appendChild(n); });
+        var actions = card.querySelector(".actions");
+        if (actions) card.insertBefore(body, actions);
+        else card.appendChild(body);
+      }
+    });
+  }
+
+  function onActionClick(e) {
+    var btn = e.target.closest(".actions .btn");
+    if (!btn) return;
+    var card = btn.closest(".card[data-id]");
+    if (!card) return;
+    var id = card.dataset.id;
+    var action = btn.dataset.action;
+    if (action === "done") action = "comment-and-connect";
+    var prev = card.dataset.status;
+    var audience = card.getAttribute("data-audience") || "";
+
+    if (action === "reset") {
+      setStatus(card, "todo");
+      updateSummary();
+      apiFetch("api/statuses/" + encodeURIComponent(id), { method: "DELETE" })
+        .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+        .then(function () { toast("Reset"); updateSummary(); })
+        .catch(function () { setStatus(card, prev); updateSummary(); toast("Could not save reset"); });
+      return;
+    }
+
+    if (action === "comment-only" || action === "comment-and-connect" || action === "skip") {
+      setStatus(card, action);
+      updateSummary();
+      var msg = action === "comment-only" ? "Marked: comment only"
+              : action === "comment-and-connect" ? "Marked: comment + connect"
+              : "Skipped";
+      apiFetch("api/statuses/" + encodeURIComponent(id), {
+        method: "PUT",
+        body: JSON.stringify({ status: action, audience: audience || null })
+      })
+        .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+        .then(function () {
+          toast(msg);
+          updateSummary();
+          if (action === "comment-only" || action === "comment-and-connect") {
+            apiFetch("api/directory/touch", {
+              method: "POST",
+              body: JSON.stringify({
+                touches: [{
+                  name: getPersonNameFromCard(card),
+                  job_title: getMetaValue(card, "Role") || "",
+                  linkedin_url: getLinkHrefFromCard(card) || "",
+                  data_id: id,
+                  touched_at: Math.floor(Date.now() / 1000),
+                  source: "comment"
+                }]
+              })
+            }).catch(function () {});
+          }
+        })
+        .catch(function () { setStatus(card, prev); updateSummary(); toast("Could not save"); });
+    }
+  }
+
+  function onCardToggle(e) {
+    if (e.target.closest(".actions")) return;
+    var exp = e.target.closest(".card-expand");
+    var head = e.target.closest(".card-head");
+    if (!exp && !head) return;
+    var card = (exp || head).closest(".card[data-id]");
+    if (!card) return;
+    if (e.target.closest("a")) return;
+    e.preventDefault();
+    setCardOpen(card, !card.classList.contains("is-open"));
+  }
+
+  document.addEventListener("click", function (e) {
+    onActionClick(e);
+    onCardToggle(e);
+  });
+
+  var statusEl = document.getElementById("filter-status");
+  var audienceEl = document.getElementById("filter-audience");
+  if (statusEl) {
+    try { filterStatus = localStorage.getItem(LS_STATUS) || "todo"; } catch (e) {}
+    statusEl.value = filterStatus;
+    statusEl.addEventListener("change", function () {
+      filterStatus = statusEl.value;
+      try { localStorage.setItem(LS_STATUS, filterStatus); } catch (e) {}
+      updateSummary();
+    });
+  }
+  if (audienceEl) {
+    try { filterAudience = localStorage.getItem(LS_AUDIENCE) || "all"; } catch (e) {}
+    audienceEl.value = filterAudience;
+    audienceEl.addEventListener("change", function () {
+      filterAudience = audienceEl.value;
+      try { localStorage.setItem(LS_AUDIENCE, filterAudience); } catch (e) {}
+      updateSummary();
+    });
+  }
+
+  collectCards();
+  if (!allCards.length) updateSummary();
+
+  apiFetch("api/statuses", { method: "GET" })
+    .then(function (r) {
+      if (!r.ok) throw new Error("statuses " + r.status);
+      return r.json();
+    })
+    .then(function (map) { applyStatusMapRemote(map || {}); })
+    .catch(function () {
+      allCards.forEach(function (c) { setStatus(c, "todo"); });
+      updateSummary();
+      toast("Could not load statuses — showing TODO.");
+    });
+})();
+</script>
+</body>
+</html>
