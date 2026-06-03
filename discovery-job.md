@@ -26,15 +26,15 @@ All shared mechanics (infra/clone/push, voice for comments + connection notes, H
 4. Read the last 7 days of `data-id` values in `index.html`; do not duplicate posters or posts. Note the tone of any draft comments Toby edited in place and match it.
 5. Navigate to https://www.linkedin.com/feed/ to confirm login. Login wall → stop and surface a clear error.
 
-## Run budget
+## Run budget — run the FULL corpus every run
 
-Because liker extraction has moved to the paired job, this job can afford a wider search pass than the old monolith.
+Liker extraction has moved to the paired job, so this job is search-heavy and search is cheap. **Run every query in the corpus below on each run — all of Audience A (Paths 1–4), all of Audience B Track 1, and all the Influencer modifiers.** No sampling, no rotation. The `·`-separated lines each hold 2–3 distinct queries; run every one. That's roughly 140 queries total.
 
-- **~60 keyword searches** — ~38 across Audience A (CHRO), ~16 across Audience B Track 1 (Compliance), 6 Influencer modifiers. (Law Firm needs no own searches — it inherits.) Searching is cheap with batched navigation; the budget can flex up if clusters are productive.
+- **Pace the searches to avoid rate limiting.** Batch navigation (3 searches per `browser_batch` call) but do NOT fire hundreds of requests back-to-back. If LinkedIn starts returning empty results across queries that normally hit, or shows a security checkpoint, STOP, note it in the run notes, and push what you have — a soft block is a loud failure, not something to push through.
+- **Read every result page but be ruthless about candidates.** Running all 140 queries surfaces far more posts; the output target is unchanged — pick the **8–12 strongest** candidates (~3 per audience), not one per query. More searches means a better shortlist, not more cards.
 - **Named-account watchlists** — quick scroll of last 48h posts across the Audience C and Audience D seed accounts at the start, before keyword discovery.
 - **Comment-mining (Track 2)** — on any post clearing 50+ reactions, scan comments for ICP practitioners (3–8 posts per run).
-- **Output** — 8–12 candidates, ~3 per audience.
-- Time split: ~40% Audience A · ~30% Audience B · ~15% Law Firm · ~15% Influencer. Move on fast from dry searches.
+- Expect a longer run than the old sampled scan. That's fine — the cost is search time, not the attention-heavy liker work (which is now its own job).
 
 ## Search syntax (IMPORTANT — read before searching)
 
@@ -51,7 +51,7 @@ Use the past-week filter, latest sort. Geography is not filtered by search — k
 
 Target the champions directly (they post far more than the CHRO). Buying triggers (2026): Worker Protection Act (Oct), FCA NFM rules (Sept), whistleblowing extension (Apr), EHRC enforcement, Employment Rights Act 2025, new CHRO / new leadership programme.
 
-**Sampling: pick TWO–THREE searches from each lettered cluster per run. Paths 3 and 4 are single clusters — pick 5–6 from each. ~38 searches total. Path priority when quality is equal: Path 3/4 (intent) before Path 1/2. A query line with `·` separators holds 2–3 distinct queries — count queries, not lines.**
+**Run ALL of these every run — Paths 1, 2, 3 and 4 in full (every `·`-separated query). No sampling. Path priority when triaging which candidates to keep: Path 3/4 (intent) before Path 1/2.**
 
 ### Path 1 — HR Compliance & Risk
 
@@ -131,7 +131,7 @@ Target the champions directly (they post far more than the CHRO). Buying trigger
 53. `"people manager" "development"`
 54. `"manager effectiveness"`
 
-### Path 3 — Solution-aware (pick 4–6)
+### Path 3 — Solution-aware (run all)
 
 Route by poster role: HR/L&D → CHRO; Compliance → Compliance; partners → Law Firm; vendors → Influencer.
 55. `"AI roleplay"`  ·  `"AI role-play"`
@@ -149,7 +149,7 @@ Route by poster role: HR/L&D → CHRO; Compliance → Compliance; partners → L
 67. `"safe to practise"`  ·  `"safe to practice"`
 68. `"coaching at scale"`
 
-### Path 4 — Status-quo challenge (pick 4–6)
+### Path 4 — Status-quo challenge (run all)
 
 Same routing by poster role.
 69. `"tick box" "training"`  ·  `"tick-box training"`
@@ -169,7 +169,7 @@ Same routing by poster role.
 
 ## Audience B — Compliance (Track 1 keyword + Track 2 mining)
 
-Time inside B: ~40% Track 1, ~60% Track 2. **Track 1 sampling: TWO–THREE from each of the six clusters = ~16 searches (count queries, not `·`-separated lines). Prioritise Dissatisfaction and Evidence/Assurance clusters.**
+Time inside B: ~40% Track 1, ~60% Track 2. **Run ALL Track 1 queries every run (every `·`-separated query across all six clusters). No sampling.**
 
 *Regulatory vocabulary:*
 81. `"three lines of defence"`  ·  `"three lines of defense"`
@@ -240,7 +240,7 @@ Comment tailoring: legal precision. Reference the specific case / regulator phra
 
 Vendors / consultants / Big 4 / publications / non-lawyer thought leaders, **30+ reactions** (50+ gold, 100+ great). Stages, not leads. Skip anything 25–29 (floor moved). Inherited A+B vendor results auto-route here if they clear 30+.
 
-**Influencer modifiers (pick 4–6):**
+**Influencer modifiers (run all):**
 122. `"our research" "HR"`  ·  `"new report" "compliance"`
 123. `"survey findings" "HR"`
 124. `"2026 trends" "HR"`  ·  `"predictions" "compliance"`
