@@ -18,26 +18,34 @@ Read the shared playbook first — it holds all infra, voice, templates, slugs a
 3. This job's page = **`new-roles.html`** (playbook §1 table). Touch only this page.
 4. Read the last 14 days of `data-id` values in `new-roles.html`; skip anyone already logged.
 
-## Search — announcement language + ICP titles (past week, UK)
+## Search — "Starting a new position" + ICP title (past week)
 
-Pick 8–10 of these per run, rotating so all get hit across the week. Latest sort, past-week filter.
+**Primary phrase: `"Starting a new position"`.** LinkedIn auto-stamps this on every job-change post (the generated text reads "I'm happy to share that I'm starting a new position as <Title> at <Company>"). Pairing it with an ICP title keyword is the single most reliable way to surface real moves — far better than guessing announcement wording. Use TWO short quoted phrases per query, latest sort, past-week filter. **Do not use ampersands in the encoded query** (`L&D` breaks matching — use `"Head of Learning"` instead).
 
-1. `"delighted to join" "Head of L&D" OR "Head of Learning"`
-2. `"excited to share" OR "excited to announce" "Head of Employee Relations"`
-3. `"thrilled to" "Chief People Officer" OR "CHRO" OR "People Director"`
-4. `"starting a new" "Head of Compliance" OR "Director of Compliance"`
-5. `"joined" "as Head of" L&D OR HR OR compliance OR "Employee Relations"`
-6. `"new role" "Head of Manager Development" OR "Head of Talent"`
-7. `"my first 90 days" new role HR OR L&D OR compliance`
-8. `"promoted to" "Head of" HR OR L&D OR compliance`
-9. `"delighted to have joined" OR "pleased to share" CHRO OR "People Director" OR "Head of OD"`
-10. `"excited to be joining" "Head of Risk & Compliance" OR CCO OR "Head of Customer Outcomes"`
-11. `"new chapter" "Head of Leadership Development" OR "Head of Organisational Development"`
-12. `"taking on" "Head of People Risk" OR "Head of HR Policy"`
+Pick 8–10 per run, rotating titles across the week:
 
-Route every hit by poster role using playbook §3 (CHRO / Compliance / Law Firm / Influencer). Most fit CHRO; route Compliance titles to Compliance, partners to Law Firm. Disqualify vendors/recruiters announcing their own moves unless genuinely ICP.
+1. `"Starting a new position" "Head of Learning"`
+2. `"Starting a new position" "Head of Talent"`
+3. `"Starting a new position" "Head of Employee Relations"`
+4. `"Starting a new position" "Employee Relations"`
+5. `"Starting a new position" "Head of Compliance"`
+6. `"Starting a new position" "Director of Compliance"`
+7. `"Starting a new position" "Chief People Officer"`
+8. `"Starting a new position" "People Director"`
+9. `"Starting a new position" "Head of People"`
+10. `"Starting a new position" "Head of HR"`
+11. `"Starting a new position" "Head of Leadership Development"`
+12. `"Starting a new position" "Head of Customer Outcomes"`
 
-**Qualifying:** the post is a genuine personal move announcement, poster matches an ICP role at a 500+ UK firm (or a regulated firm for Compliance). Engagement threshold does NOT apply — a move announcement qualifies at any reaction count; the signal is the move, not the audience.
+**Fallback phrases (use only if the above run thin):** `"I'm happy to share that I'm starting"` + title, or `"thrilled to announce" "Head of People"`, or `"new role as" "Head of L&D"`.
+
+**Geography is the main filter and the search does NOT do it for you.** Content search is geo-blind — these queries surface moves worldwide (expect Serbia, Indonesia, US, Gulf alongside UK). Read each hit and keep ONLY UK 500+ firms (regulated firm for Compliance). Discard everything else even if engagement is high.
+
+**Seniority filter.** Keep champion-level and above: Head of X, Director of X, CPO/CHRO/People Director. Drop junior ICs (Adviser, Specialist, Officer, Assistant) — they're not buyers, even if UK and on-ICP-topic.
+
+Route every kept hit by poster role using playbook §3 (CHRO / Compliance / Law Firm / Influencer). Most fit CHRO; route Compliance titles to Compliance, partners to Law Firm. Disqualify vendors/recruiters announcing their own moves unless genuinely ICP.
+
+**Qualifying:** genuine personal move announcement, poster matches a champion-level-or-above ICP role at a 500+ UK firm (or a regulated firm for Compliance). Engagement threshold does NOT apply — a move qualifies at any reaction count; the signal is the move.
 
 ## Comment-shape override (REPLACES playbook §4 structure for this job)
 
