@@ -8,7 +8,14 @@ const VALID_STATUS = new Set([
   "comment-and-connect",
 ]);
 const STORED = new Set(["skip", "comment-only", "comment-and-connect"]);
-const AUDIENCE = new Set(["chro", "icp", "compliance", "influencer", "watchlist"]);
+const AUDIENCE = new Set([
+  "chro",
+  "icp",
+  "compliance",
+  "influencer",
+  "watchlist",
+  "law-firm",
+]);
 
 /**
  * PUT /api/statuses/:id
@@ -64,7 +71,7 @@ async function handlePut(ctx, dataId) {
     if (!AUDIENCE.has(a)) {
       return jsonError(
         400,
-        "audience must be chro, icp, compliance, influencer, or watchlist"
+        "audience must be chro, icp, compliance, influencer, watchlist, or law-firm"
       );
     }
     audience = a;
@@ -98,12 +105,13 @@ async function handlePut(ctx, dataId) {
       msg.includes("CHECK constraint") &&
       (audience === "watchlist" ||
         audience === "compliance" ||
+        audience === "law-firm" ||
         msg.includes("audience") ||
         msg.includes("card_status"))
     ) {
       return jsonError(
         500,
-        "D1 card_status schema is out of date (e.g. audience compliance/watchlist). Apply migrations/d1_card_status_audience_compliance.sql to your linkedin-tracker database, then retry."
+        "D1 card_status schema is out of date (e.g. audience law-firm). Apply migrations/d1_card_status_audience_law_firm.sql to your linkedin-tracker database, then retry."
       );
     }
     throw e;
