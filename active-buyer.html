@@ -197,6 +197,31 @@
   <p class="summary" id="summary" aria-live="polite">Loading…</p>
   <div id="feed">
     <!-- NEWEST-DAY-INSERT-BELOW -->
+    <section class="day" data-date="2026-06-03">
+      <h2>2026-06-03</h2>
+      <div class="run-notes">
+        <h3>Run notes &mdash; 2026-06-03</h3>
+        <ul>
+          <li><strong>Thin day &mdash; zero qualifying buyer candidates.</strong> Nine buyer-intent searches run; none surfaced a UK L&amp;D / Compliance / manager-development practitioner publicly asking for a tooling recommendation. Buyer posts are rare by design, so a blank day is within tolerance &mdash; logged here so the run is recorded.</li>
+          <li>Chrome session: logged in as Toby, no login wall.</li>
+          <li>Searches run (all content search, sorted by date, past month unless noted):
+            <ul>
+              <li><code>"best platform" "e-learning"</code> &mdash; junk. GATE/India exam-coaching marketing (GO Classes, Next Toppers). No buyer.</li>
+              <li><code>"any recommendations" "LMS"</code> &mdash; junk. All open-to-work posts (LMS implementers seeking roles).</li>
+              <li><code>"looking for" "e-learning platform"</code> &mdash; junk. Open-to-work + vendor marketing (Ei Consulting) + a jobs listing.</li>
+              <li><code>"any recommendations" "manager training"</code> &mdash; junk. All open-to-work / referral-request posts.</li>
+              <li><code>"difficult conversations" "training platform"</code> &mdash; thought-leadership + two vendor posts (Shantanu Bhatt / i-grow.co, Alexis Whitton / Black Dog Institute). Skipped per routing override 2 (vendor research/marketing posts are not buyers).</li>
+              <li><code>"compliance training" "any recommendations"</code> &mdash; junk. All open-to-work (POSH trainers, facilities, medical coding). Compliance cluster ran dry as expected.</li>
+              <li><code>"Articulate" "alternative"</code> &mdash; junk cluster. Matched the verb "articulate"/"articulation" in unrelated posts (Fed policy, leadership commentary), not the Articulate Storyline product. Flagging for corpus tuning &mdash; this competitor-mention query needs a tighter pairing (e.g. <code>"Articulate 360"</code> or <code>"Storyline"</code>) to avoid the verb collision.</li>
+              <li><code>"easily create" "courses"</code> &mdash; junk. OpenAI/Codex news reshares + CS thought-leadership.</li>
+              <li><code>"what would you recommend" "training"</code> (past week) &mdash; junk. VA-career storytelling + luxury-travel AI marketing.</li>
+            </ul>
+          </li>
+          <li><strong>Strongest buyer post:</strong> none this run.</li>
+          <li><strong>Corpus-tuning flags:</strong> (1) <code>"Articulate" "alternative"</code> consistently collides with the English verb &mdash; replace with a product-specific phrase. (2) The generic <code>"any recommendations"</code> + category-term queries are dominated by open-to-work spam (the phrase "I would appreciate any referrals, recommendations or opportunities"); a buyer-intent anchor like <code>"looking for"</code> or <code>"best platform"</code> pulled cleaner signal even though it was still empty today.</li>
+        </ul>
+      </div>
+    </section>
   </div>
   <div class="empty" id="empty" hidden>
     <h3>No candidates yet</h3>
