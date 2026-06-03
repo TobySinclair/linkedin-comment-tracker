@@ -159,6 +159,18 @@ Note on syntax: bare `"AI"` is too broad alone — always pair it with a convers
 67. `"practice platform" "training"`  ·  `"safe to practise"`  ·  `"safe to practice"`
 68. `"generative AI" "learning"`  ·  `"immersive learning"`  ·  `"coaching at scale"`  ·  `"roleplay" "learning"`
 
+*Roleplay & conversation practice — NON-tech versions (same category, same vendor-vs-buyer routing; these describe the practice method itself, which is the core value prop). Run all — bulleted, not numbered, to keep the Path 4 numbering intact:*
+- `"manager roleplay"`  ·  `"manager role play"`  ·  `"manager role-play"`
+- `"leadership roleplay"`  ·  `"roleplay exercise"`  ·  `"roleplay scenarios"`
+- `"difficult conversations roleplay"`  ·  `"difficult conversation role play"`
+- `"practice conversations"`  ·  `"practise conversations"`  ·  `"conversation practice"`
+- `"practice difficult conversations"`  ·  `"practise difficult conversations"`
+- `"rehearse conversations"`  ·  `"rehearsing difficult conversations"`
+- `"handling difficult conversations"`  ·  `"having difficult conversations"`  ·  `"navigating difficult conversations"`
+- `"difficult conversations training"`  ·  `"difficult conversations workshop"`
+- `"crucial conversations training"`  ·  `"courageous conversations"`
+- `"communication skills practice"`  ·  `"soft skills practice"`  ·  `"skills rehearsal"`
+
 ### Path 4 — Status-quo challenge (run all)
 
 Same routing by poster role.
