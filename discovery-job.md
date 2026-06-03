@@ -131,23 +131,33 @@ Target the champions directly (they post far more than the CHRO). Buying trigger
 53. `"people manager" "development"`
 54. `"manager effectiveness"`
 
-### Path 3 — Solution-aware (run all)
+### Path 3 — Category-defining / solution-aware (run all)
 
-Route by poster role: HR/L&D → CHRO; Compliance → Compliance; partners → Law Firm; vendors → Influencer.
-55. `"AI roleplay"`  ·  `"AI role-play"`
-56. `"roleplay" "learning"`
-57. `"conversation simulation"`
-58. `"learning simulation"`  ·  `"behavioural simulation"`
-59. `"scenario-based learning"`
-60. `"AI coaching"`
-61. `"AI tutor"`  ·  `"AI mentor"`
-62. `"generative AI" "learning"`
-63. `"immersive learning"`
-64. `"deliberate practice" "conversation"`
-65. `"rehearse" "difficult conversation"`
-66. `"practice platform" "training"`
-67. `"safe to practise"`  ·  `"safe to practice"`
-68. `"coaching at scale"`
+**This is Real Talk Studio's exact category — the strongest signal someone is thinking in your space, and the highest-priority cluster in Path 3.** These searches return a MIX, so filter by poster role once results come back (playbook §3 routing): a **vendor** marketing their own AI roleplay/sim product → Influencer stage (or skip if a minor account); a **practitioner** (Head of L&D / HR / Compliance) exploring or evaluating the category → CHRO or Compliance lead; a **partner** → Law Firm. If the poster is explicitly asking for a tool to buy ("anyone using…", "best AI roleplay for…"), they're an active buyer — also worth logging on the active-buyer page. These clusters are vendor-heavy, so triage hard: the leads are the practitioners and buyers, not the vendors.
+
+Note on syntax: bare `"AI"` is too broad alone — always pair it with a conversation type or skill (`"AI" "difficult conversations"`). Category names like `"AI roleplay"` are specific enough on their own.
+
+*Core category names:*
+55. `"AI roleplay"`  ·  `"AI role-play"`  ·  `"AI role play"`
+56. `"AI simulation"`  ·  `"AI simulations"`  ·  `"roleplay simulation"`
+57. `"conversation simulation"`  ·  `"conversational simulation"`
+58. `"immersive roleplay"`  ·  `"virtual roleplay"`  ·  `"digital roleplay"`
+
+*AI + conversation type (pair "AI" with the conversation):*
+59. `"AI" "difficult conversations"`  ·  `"AI" "hard conversations"`
+60. `"AI" "manager conversations"`  ·  `"AI" "crucial conversations"`
+61. `"AI" "feedback conversations"`  ·  `"AI" "performance conversations"`  ·  `"AI" "coaching conversations"`
+
+*AI + practice / skills:*
+62. `"practice with AI"`  ·  `"rehearse with AI"`
+63. `"AI" "communication skills"`  ·  `"AI" "soft skills"`  ·  `"AI" "leadership practice"`
+64. `"AI coaching"`  ·  `"AI coach"`  ·  `"AI tutor"`  ·  `"AI mentor"`
+
+*Simulation / scenario / practice platform:*
+65. `"learning simulation"`  ·  `"behavioural simulation"`  ·  `"scenario-based learning"`
+66. `"deliberate practice" "conversation"`  ·  `"rehearse" "difficult conversation"`
+67. `"practice platform" "training"`  ·  `"safe to practise"`  ·  `"safe to practice"`
+68. `"generative AI" "learning"`  ·  `"immersive learning"`  ·  `"coaching at scale"`  ·  `"roleplay" "learning"`
 
 ### Path 4 — Status-quo challenge (run all)
 
