@@ -37,7 +37,16 @@ Pick 8–10 per run, rotating titles across the week:
 11. `"Starting a new position" "Head of Leadership Development"`
 12. `"Starting a new position" "Head of Customer Outcomes"`
 
-**Fallback phrases (use only if the above run thin):** `"I'm happy to share that I'm starting"` + title, or `"thrilled to announce" "Head of People"`, or `"new role as" "Head of L&D"`.
+**Broad-net sweep (run 1–2 of these per run for coverage the targeted titles miss):** maximum recall, minimum precision — they catch moves across every function and geography, so the geo + function + seniority filters below do all the work. Worth it because a UK ICP champion sometimes uses a title none of the targeted queries name.
+
+- `"Starting a new position" "Head of"` — every Head-of move worldwide; filter hard by function, geo, seniority.
+- `"Starting a new position" "HR"` — broad HR sweep; note bare `HR` false-matches company names (e.g. "HR Green") and pulls junior roles.
+- `"Starting a new position" "People"` — catches People Director / Head of People / CPO variants.
+- `"Starting a new position" "Compliance"` — catches Head/Director of Compliance + Risk & Compliance variants.
+
+**Never use boolean `OR` or unquoted multi-word terms in these** — `"Head of" HR OR People OR Compliance` breaks matching entirely (returns unrelated posts). One `"Starting a new position"` phrase + one quoted term, nothing else.
+
+**Fallback phrases (use only if everything above runs thin):** `"I'm happy to share that I'm starting"` + title, or `"thrilled to announce" "Head of People"`, or `"new role as" "Head of L&D"`.
 
 **Geography is the main filter and the search does NOT do it for you.** Content search is geo-blind — these queries surface moves worldwide (expect Serbia, Indonesia, US, Gulf alongside UK). Read each hit and keep ONLY UK 500+ firms (regulated firm for Compliance). Discard everything else even if engagement is high.
 
