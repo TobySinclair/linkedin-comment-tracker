@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>New roles — Real Talk Studio Ops Hub</title>
+<title>Active buyer — Real Talk Studio Ops Hub</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -163,8 +163,8 @@
     <div class="app-switch">
       <a href="index.html">Comment Tracker</a>
       <a href="watchlist.html">Watchlist</a>
-      <a href="new-roles.html" class="current">New roles</a>
-      <a href="active-buyer.html">Active buyer</a>
+      <a href="new-roles.html">New roles</a>
+      <a href="active-buyer.html" class="current">Active buyer</a>
       <a href="inbox.html">Inbox</a>
       <a href="conversations.html">Conversations</a>
       <a href="posts.html">Post ideas</a>
@@ -175,8 +175,8 @@
 </nav>
 <main class="page">
   <div class="page-head">
-    <h1 class="page-title">New roles</h1>
-    <p class="page-sub">UK ICP people who have just announced a new senior role on LinkedIn. Congratulatory comments and connection notes from the daily new-in-role scan. Status is saved in Cloudflare D1 when you mark a card.</p>
+    <h1 class="page-title">Active buyer</h1>
+    <p class="page-sub">UK ICP practitioners publicly asking for L&amp;D, compliance, or manager-training tooling recommendations on LinkedIn. Consultative comments and connection notes from the daily Path 5 active-buyer scan. Status is saved in Cloudflare D1 when you mark a card.</p>
   </div>
   <div class="toolbar">
     <select id="filter-status" class="filter-select" aria-label="Status">
@@ -197,34 +197,18 @@
   <p class="summary" id="summary" aria-live="polite">Loading…</p>
   <div id="feed">
     <!-- NEWEST-DAY-INSERT-BELOW -->
-
-<section class="day" data-date="2026-06-03">
-  <h2>2026-06-03</h2>
-  <div class="run-notes">
-    <h3>Run notes &mdash; 2026-06-03</h3>
-    <ul>
-      <li>First run of the split new-in-role job &mdash; end-to-end chain test (clone &rarr; read playbook + job spec &rarr; scan LinkedIn &rarr; write &rarr; push). Chain validated.</li>
-      <li>13 announcement-language searches run across L&amp;D / People / Employee Relations / Compliance / Talent titles, past week, latest sort.</li>
-      <li>Thin UK yield. LinkedIn content search applies no geography filter, so results skew heavily US (Poseidon Aerospace, GiveDirectly, Lincoln Electric, Hartford HealthCare). None cleared the UK 500+ Tier-1 ICP bar, so no cards were written.</li>
-      <li>Strongest near-miss: Kat D., new Head of People &amp; Talent at Poseidon Aerospace (211 reactions) &mdash; a genuine move announcement, but US aerospace, out of ICP geography. Not carded.</li>
-      <li>Query-shape note for the job spec: exact long phrases (e.g. &quot;delighted to join as Head of Learning&quot;) return zero results; two short quoted phrases (a move phrase + a title, e.g. &quot;delighted to join&quot; + &quot;Head of Learning&quot;) is the reliable shape. Avoid ampersands in the encoded query (L&amp;D breaks matching).</li>
-      <li>Strategic takeaway: free content-search is geo-blind and sparse for this signal. A clean UK job-change feed really wants the Sales Nav &quot;changed jobs in 90 days&quot; filter (or an Apollo equivalent). Worth revisiting if this job stays thin across runs.</li>
-    </ul>
-  </div>
-</section>
-
   </div>
   <div class="empty" id="empty" hidden>
     <h3>No candidates yet</h3>
-    <p>The scheduled new-in-role scan will append day sections here after each run. Cards use the same comment / + Connect / Skip actions as the Comment Tracker.</p>
+    <p>The scheduled active-buyer scan will append day sections here after each run. Cards use the same comment / + Connect / Skip actions as the Comment Tracker.</p>
   </div>
 </main>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <script>
 (function () {
   var TRACKER_KEY = "summer";
-  var LS_STATUS = "rts-new-roles-status";
-  var LS_AUDIENCE = "rts-new-roles-audience";
+  var LS_STATUS = "rts-active-buyer-status";
+  var LS_AUDIENCE = "rts-active-buyer-audience";
   var STORED_STATUSES = ["comment-only", "comment-and-connect", "skip", "done"];
   var filterStatus = "todo";
   var filterAudience = "all";
