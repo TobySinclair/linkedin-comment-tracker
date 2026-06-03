@@ -1,9 +1,9 @@
-# LinkedIn Engagement Scan (keyword + comment-mining + likers)
+# LinkedIn Discovery Scan (keyword + comment-mining → candidate cards)
 
 Automated run. Toby is not present — execute autonomously, make reasonable choices, note anything unusual in the run notes.
 Do NOT post comments on LinkedIn; Toby reviews and posts manually.
 
-**Cadence:** a few times a week. This is the heavy scan (~50–75 min). Buyer-intent (Path 5) and new-in-role moves are now separate faster jobs — this job is the topic-engagement signal only.
+**Cadence:** a few times a week. This is stage 1 of a two-stage pipeline: this job DISCOVERS candidates (searches + comment-mining) and drafts their comments; the paired `liker-job.md` runs straight after and appends liker cards. Splitting them keeps each run fast and stops liker extraction (the most-skipped step) from being dropped at the end of a long run. Buyer-intent (Path 5) and new-in-role moves are separate faster jobs — this job is the topic-engagement signal only.
 
 ## Objective
 
@@ -16,7 +16,7 @@ Scan LinkedIn and produce ~8–12 candidates across **four audiences**, written 
 
 Roughly 3 per audience. Quality over quantity. Full audience definitions, thresholds and routing live in **playbook §3** — read it; don't re-derive them here.
 
-All shared mechanics (infra/clone/push, voice for comments + connection notes + liker DMs, HTML card templates, slug formats, link format) live in the **playbook**. This spec carries only what's specific to the engagement scan: the search corpus, the sampling rules, the Law Firm / Influencer routing, Track-2 comment-mining, and the Step 2.5 liker extraction.
+All shared mechanics (infra/clone/push, voice for comments + connection notes, HTML card templates, slug formats, link format) live in the **playbook**. This spec carries only what's specific to discovery: the search corpus, the sampling rules, the Law Firm / Influencer routing, and Track-2 comment-mining. Liker extraction lives in the paired `liker-job.md`, not here.
 
 ## Setup
 
@@ -28,7 +28,9 @@ All shared mechanics (infra/clone/push, voice for comments + connection notes + 
 
 ## Run budget
 
-- **~45 keyword searches** — ~30 across Audience A (CHRO), ~12 across Audience B Track 1 (Compliance), 4–6 Influencer modifiers. (Law Firm needs no own searches — it inherits.)
+Because liker extraction has moved to the paired job, this job can afford a wider search pass than the old monolith.
+
+- **~60 keyword searches** — ~38 across Audience A (CHRO), ~16 across Audience B Track 1 (Compliance), 6 Influencer modifiers. (Law Firm needs no own searches — it inherits.) Searching is cheap with batched navigation; the budget can flex up if clusters are productive.
 - **Named-account watchlists** — quick scroll of last 48h posts across the Audience C and Audience D seed accounts at the start, before keyword discovery.
 - **Comment-mining (Track 2)** — on any post clearing 50+ reactions, scan comments for ICP practitioners (3–8 posts per run).
 - **Output** — 8–12 candidates, ~3 per audience.
@@ -49,7 +51,7 @@ Use the past-week filter, latest sort. Geography is not filtered by search — k
 
 Target the champions directly (they post far more than the CHRO). Buying triggers (2026): Worker Protection Act (Oct), FCA NFM rules (Sept), whistleblowing extension (Apr), EHRC enforcement, Employment Rights Act 2025, new CHRO / new leadership programme.
 
-**Sampling: pick TWO searches from each lettered cluster per run. Paths 3 and 4 are single clusters — pick 4–6 from each. ~30 searches total. Path priority when quality is equal: Path 3/4 (intent) before Path 1/2.**
+**Sampling: pick TWO–THREE searches from each lettered cluster per run. Paths 3 and 4 are single clusters — pick 5–6 from each. ~38 searches total. Path priority when quality is equal: Path 3/4 (intent) before Path 1/2. A query line with `·` separators holds 2–3 distinct queries — count queries, not lines.**
 
 ### Path 1 — HR Compliance & Risk
 
@@ -167,7 +169,7 @@ Same routing by poster role.
 
 ## Audience B — Compliance (Track 1 keyword + Track 2 mining)
 
-Time inside B: ~40% Track 1, ~60% Track 2. **Track 1 sampling: TWO from each of the six clusters = 12 searches. Prioritise Dissatisfaction and Evidence/Assurance clusters.**
+Time inside B: ~40% Track 1, ~60% Track 2. **Track 1 sampling: TWO–THREE from each of the six clusters = ~16 searches (count queries, not `·`-separated lines). Prioritise Dissatisfaction and Evidence/Assurance clusters.**
 
 *Regulatory vocabulary:*
 81. `"three lines of defence"`  ·  `"three lines of defense"`
@@ -252,18 +254,17 @@ Vendors / consultants / Big 4 / publications / non-lawyer thought leaders, **30+
 
 **Track 2 on Influencer — do aggressively.** For ANY Influencer post with 50+ reactions, scan comments for CHRO / Compliance / Law Firm practitioners and route them. One strong Big 4 post can surface 5+ qualified practitioners.
 
-## Step 2.5 — Liker extraction (MANDATORY, ICP-only)
+## Liker extraction is NOT part of this job
 
-This is the single most commonly forgotten step and the most efficient lead source — likers have pre-qualified themselves by reacting to an ICP post. **Run it on every candidate post with 10+ reactions.** Legitimate skips: post has <10 reactions, post unreachable, or every reactor is non-ICP — each must be noted in run notes. Any other skip is a failure.
+Liker extraction (the old Step 2.5) is now a **separate paired job** — `liker-job.md`, run right after this one. It reads the candidate cards this job writes and appends liker cards to the same day section. Do NOT do liker extraction here; this job stops at candidate cards + drafts.
 
-After the day's candidates are locked but BEFORE writing HTML:
+**Handoff requirement — capture a re-reachable post reference for every candidate.** The liker job has to navigate back to each candidate's post to open its reactions modal, so each candidate card MUST carry enough to re-find the post:
 
-1. **Navigate to each candidate post.** Preferred: `https://www.linkedin.com/in/<real-slug>/recent-activity/all/` if a real slug was confirmed. Fallback: re-run the keyword search that surfaced it. If neither works, skip that one and note "liker extraction skipped — post not directly reachable."
-2. **Open the reactions modal by clicking the reaction COUNT number, never the Like button** (the Like button registers Toby as a reactor). If the modal won't open, try the three-dots overflow; do NOT click Like. If an accidental Like registers, capture the other reactors anyway and flag prominently: "needs manual unlike before public comment."
-3. **Capture each reactor:** name, full headline, degree, company. Scroll within the modal until no new entries load.
-4. **Exclude:** Toby himself; company pages (logo + "X followers", no person); obviously off-ICP roles; **Influencer-tier reactors** (vendors, consultants, recruiters, Big 4, journalists, generic thought leaders) — they are stages, not leads. Keep law-firm partners (Audience D).
-5. **Route kept reactors to one of three audiences only — CHRO / Compliance / Law Firm** (see playbook §3). Gold-standard examples: Verdun Moar (Speak Up Lead, Lloyds) and Kate Hinchy (Head of Audit — Conduct & Regulatory Compliance, Santander) → Compliance. Drop everything else. If every reactor is non-ICP, note "Liker extraction on [Poster]'s post: 0 ICP reactors out of N."
-6. **Draft one DM-style message per kept reactor** (playbook §6 liker-DM shape) and render a liker card (playbook §7 liker template). Insert liker cards after the candidate cards, numbered continuously.
+1. **Confirm the real profile slug wherever it appears in the search-result HTML** and put a `https://www.linkedin.com/in/<real-slug>/recent-activity/all/` URL in the card's Link field (playbook §9 allows this as an upgrade over the people-search URL). This is the cheap path for the liker job — prioritise capturing it.
+2. If no real slug is available, leave the people-search Link as normal but make the **Post topic** field specific enough that the liker job can identify the exact post on the person's activity feed.
+3. Record the reaction count in the **Engagement** field (you do this already) so the liker job can apply its 10+ threshold without re-judging.
+
+That's all this job owes the liker job: candidate cards with a re-reachable reference and a reaction count.
 
 ## Audience tailoring (Step 3)
 
@@ -276,8 +277,9 @@ Prioritise posts where Toby has a genuine perspective to add.
 
 ## Write & push
 
-1. Build today's `<section class="day" data-date="YYYY-MM-DD">` (playbook §7 wrapper). Candidate cards ordered **CHRO → Compliance → Law Firm → Influencer**, then **liker cards (CHRO / Compliance / Law Firm only)**. Number 1..N across the whole day; first liker is N+1.
+1. Build today's `<section class="day" data-date="YYYY-MM-DD">` (playbook §7 wrapper). **Candidate cards only**, ordered **CHRO → Compliance → Law Firm → Influencer**, numbered 1..N. No liker cards — those come from the paired liker job.
 2. Insert after `<!-- NEWEST-DAY-INSERT-BELOW -->` in `index.html`. Don't modify prior days, the head/style/script/toolbar, or any other page. If the toolbar lacks a Law Firm chip, still emit `data-audience="law-firm"` cards (they show under All) and flag in run notes.
-3. End with `<div class="run-notes">`: dry searches, automation issues, strongest picks, near-threshold flags, AND the mandatory liker-pass addendum (candidates ≥10 reactions vs skipped, modals opened, liker cards created vs reactors skipped and why — including Influencer-tier filtered out — any accidental-Like incidents).
-4. Commit + push per playbook §2 (`git config user.name "linkedin-engagement"`, `git add index.html`).
+3. End with `<div class="run-notes">`: dry searches, automation issues, strongest picks, near-threshold flags, and — for the liker job's benefit — note how many candidates cleared 10+ reactions and whether each got a confirmed profile slug or only a people-search link.
+4. Commit + push per playbook §2 (`git config user.name "linkedin-discovery"`, `git add index.html`).
 5. If push fails, surface stderr and STOP. No local fallback. If the run yields little, still write a short day section and push so the run is logged.
+6. **Then run the paired `liker-job.md`** against today's section (or trigger the liker scheduled task) to append liker cards.
