@@ -279,4 +279,4 @@ Liker extraction is a **separate paired job** — `liker-job.md`, run right afte
 3. End with `<div class="run-notes">`: which queries ran, dry/junk queries, strongest picks, near-threshold flags, and — for the liker job's benefit — note how many candidates cleared 10+ reactions and whether each got a confirmed profile slug or only a people-search link.
 4. Commit + push per playbook §2 (`git config user.name "linkedin-discovery"`, `git add index.html`).
 5. If push fails, surface stderr and STOP. No local fallback. If the run yields little, still write a short day section and push so the run is logged.
-6. **Then run the paired `liker-job.md`** against today's section to append liker cards.
+6. **Then run the paired stage-2 jobs** against today's section: `liker-job.md` (appends liker cards from reactors) and `comment-mining-job.md` (appends comment-miner cards from commenters).

@@ -195,6 +195,43 @@ Same hard rules as §4. 1–3 short sentences.
 </div>
 ```
 
+**Comment-miner card** (reply block + connection note; ICP-only — CHRO/Compliance/Law Firm. The lead is the COMMENTER, not the poster):
+
+```html
+<div class="card" data-id="<STABLE-COMMENTER-SLUG>" data-audience="<chro|compliance|law-firm>" data-status="todo">
+  <div class="card-head">
+    <div class="who">
+      <h3><N>. <Commenter name></h3>
+      <div class="topic">Comment-mined &middot; Commented on <Poster>&apos;s <short topic></div>
+    </div>
+    <div class="badges">
+      <span class="badge <chro|compliance|law-firm>"><CHRO|Compliance|Law Firm></span>
+      <span class="status todo">TODO</span>
+    </div>
+  </div>
+  <dl class="meta">
+    <dt>Role</dt><dd><Commenter headline + degree></dd>
+    <dt>Their comment</dt><dd><1-2 sentence gist of what they wrote></dd>
+    <dt>Commented on</dt><dd><Poster>&apos;s <short topic> &mdash; <a href="<url>" target="_blank" rel="noopener">link to original post</a></dd>
+    <dt>Link</dt><dd><a href="<commenter profile or search URL>" target="_blank" rel="noopener">Find on LinkedIn</a></dd>
+  </dl>
+  <div class="comment">
+    <div class="comment-label">Draft reply</div>
+    <Track-2 reply per §4>
+  </div>
+  <div class="comment connection">
+    <div class="comment-label">Connection request</div>
+    <Connection note per §5>
+  </div>
+  <div class="actions">
+    <button class="btn" data-action="comment-only">Comment only</button>
+    <button class="btn" data-action="comment-and-connect">Comment + connect</button>
+    <button class="btn" data-action="skip">Skip</button>
+    <button class="btn" data-action="reset">Reset</button>
+  </div>
+</div>
+```
+
 **Day section wrapper:**
 
 ```html
@@ -214,6 +251,7 @@ Same hard rules as §4. 1–3 short sentences.
 
 - **Candidate:** `YYYY-MM-DD-firstname-lastname-short-topic`
 - **Liker:** `YYYY-MM-DD-<run-suffix>-liker-<reactor-firstname>-<reactor-lastname>-<poster-firstname>`
+- **Comment-miner:** `YYYY-MM-DD-<run-suffix>-commenter-<commenter-firstname>-<commenter-lastname>-<poster-firstname>`
 
 Lowercase, hyphen-separated, ASCII-only, deterministic. Never include the `-watchlist-` marker (reserved for the watchlist job's namespace).
 
