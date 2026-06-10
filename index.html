@@ -376,6 +376,93 @@
   <div id="queue-list" class="queue-list"></div>
 
     <!-- NEWEST-DAY-INSERT: prepend <section class="day" data-date="YYYY-MM-DD"> with <h2> (hidden) + cards. Each card: .card-head, dl.meta, optional .post-content, .comment, .actions. Optional trailing .run-notes (hidden/stripped in UI). Page flattens into #queue-list and shows date on each row. -->
+<section class="day" data-date="2026-06-10">
+  <h2>2026-06-10</h2>
+
+  <div class="card" data-id="2026-06-10-matt-jenkin-all-reasonable-steps-policy-not-enough" data-audience="law-firm" data-status="todo">
+    <div class="card-head">
+      <div class="who">
+        <h3>1. Matt Jenkin</h3>
+        <div class="topic">Law Firm &middot; Acas polling and the all reasonable steps duty ahead of Oct 2026</div>
+      </div>
+      <div class="badges">
+        <span class="badge law-firm">Law Firm</span>
+        <span class="status todo">TODO</span>
+      </div>
+    </div>
+    <dl class="meta">
+      <dt>Role</dt><dd>Employment Partner, Herrington Carmichael LLP (UK) &mdash; Law Firm path</dd>
+      <dt>Post topic</dt><dd>Shares this week&apos;s Acas polling that around 1 in 4 workers think recent media coverage of sexual harassment has improved workplace culture, then argues that with the move to a duty to take all reasonable steps and new third-party harassment liability from October 2026, employers will need to go much further than a policy refresh. Posts a short video on what the findings mean in practice and the steps employers should take now, and invites others to say what they are seeing in their organisations.</dd>
+      <dt>Engagement</dt><dd>13 reactions &middot; 0 comments &middot; 1 repost (clears liker 10+ threshold; below Law Firm 25+ ideal &mdash; flagged, best UK employment-partner post of a thin week)</dd>
+      <dt>Post age</dt><dd>4d</dd>
+      <dt>Link</dt><dd><a href="https://www.linkedin.com/in/mattjenkin/recent-activity/all/" target="_blank" rel="noopener">Matt Jenkin &mdash; recent activity (confirmed slug)</a></dd>
+    </dl>
+    <div class="comment">
+      <div class="comment-label">Draft comment</div>
+      Sharp read. The all reasonable steps bar is really a test of whether a manager can challenge it in the room, not whether the policy exists. How are you seeing firms evidence that bit?
+    </div>
+    <div class="comment connection">
+      <div class="comment-label">Connection request</div>
+      Hi Matt, your point that employers need to go further than a policy refresh on the all reasonable steps duty struck a chord. Would love to swap notes on how firms are evidencing managers can actually handle these conversations under pressure, not just that the training happened.
+    </div>
+    <div class="actions">
+      <button class="btn" data-action="comment-only">Comment only</button>
+      <button class="btn" data-action="comment-and-connect">Comment + connect</button>
+      <button class="btn" data-action="skip">Skip</button>
+      <button class="btn" data-action="reset">Reset</button>
+    </div>
+  </div>
+
+  <div class="card" data-id="2026-06-10-francisco-baptista-ai-coaching-safety-and-stakes" data-audience="influencer" data-status="todo">
+    <div class="card-head">
+      <div class="who">
+        <h3>2. Francisco Baptista</h3>
+        <div class="topic">Influencer &middot; AI coaching works as a mirror, but behaviour change needs safety and stakes</div>
+      </div>
+      <div class="badges">
+        <span class="badge influencer">Influencer</span>
+        <span class="status todo">TODO</span>
+      </div>
+    </div>
+    <dl class="meta">
+      <dt>Role</dt><dd>Executive coach and founder, writes on AI and coaching (1st-degree connection) &mdash; Influencer</dd>
+      <dt>Post topic</dt><dd>Argues from his own practice data that AI coaching works brilliantly as a mirror, but a better mirror raises the quality of the seeing, not the odds of the doing. Says the sessions that produce real behaviour change share one ingredient no machine offers: safety and stakes at the same time. AI gives safety without stakes; the workplace gives stakes without safety; the coaching room is the only one of the three that offers both. Squarely on RTS&apos;s category thesis.</dd>
+      <dt>Engagement</dt><dd>55 reactions &middot; 30 comments &middot; 2 reposts (clears Influencer 30+ ideal; strongest category-fit post of the week)</dd>
+      <dt>Post age</dt><dd>2d</dd>
+      <dt>Link</dt><dd><a href="https://www.linkedin.com/in/franciscoserranobaptista/recent-activity/all/" target="_blank" rel="noopener">Francisco Baptista &mdash; recent activity (confirmed slug)</a></dd>
+    </dl>
+    <div class="comment">
+      <div class="comment-label">Draft comment</div>
+      Really useful framing. The safety and stakes point is the whole game, and the interesting bit is whether you can engineer real stakes inside a safe space rather than settle for a better mirror. How are you seeing that done well?
+    </div>
+    <div class="comment connection">
+      <div class="comment-label">Connection request</div>
+      Hi Francisco, your line that AI gives safety without stakes while work gives stakes without safety really stuck with me. Would love to swap notes on whether rehearsal can manufacture both at once, rather than the coaching room being the only place that does.
+    </div>
+    <div class="actions">
+      <button class="btn" data-action="comment-only">Comment only</button>
+      <button class="btn" data-action="comment-and-connect">Comment + connect</button>
+      <button class="btn" data-action="skip">Skip</button>
+      <button class="btn" data-action="reset">Reset</button>
+    </div>
+  </div>
+
+  <div class="run-notes">
+    <h3>Run notes &mdash; 2026-06-10</h3>
+    <ul>
+      <li><strong>Infra:</strong> repo clone via inlined PAT worked first try (clone path <code>/tmp/tracker-1781071717</code>). LinkedIn feed confirmed logged in as Toby Sinclair, no login wall. Inserted immediately after the day-insert marker &mdash; actual marker text in the file is <code>&lt;!-- NEWEST-DAY-INSERT: ... --&gt;</code> (not <code>&lt;!-- NEWEST-DAY-INSERT-BELOW --&gt;</code> as the SKILL.md / job spec still describe &mdash; flagged in many prior runs, still worth a SKILL.md update). Did not touch active-buyer.html, new-roles.html or watchlist.html.</li>
+      <li><strong>Thin, dedupe-heavy week.</strong> Ran ~56 queries across all four paths (Path 1 HR compliance/risk, Path 2 leadership/manager dev, Path 3 category-defining AI roleplay/coaching, Path 4 status-quo, plus the Compliance regulatory corpus and Influencer modifiers), past-week filter, relevance sort. Extraction via Chrome get_page_text (LinkedIn search DOM is now fully hashed-class, so text extraction was used instead of CSS selectors). The week is genuinely low-yield: most relevance hits were low-engagement consultants/coaches, recruiters/job ads, foreign accounts, or exact dedupes of cards already logged in the very recent runs (06-08, 06-09 am, 06-09 pm).</li>
+      <li><strong>Already-logged dedupes skipped:</strong> Maryam O. (Chief Compliance &amp; Risk Director, FCA sanctions thematic &mdash; logged 06-05), Charlene Simms (Future Talent Manager, Thales, PIP-as-development-tool &mdash; logged 06-09, same theme re-posted), Poonam Bhatt (Talent &amp; OD Leader, line-management consistency-not-capability &mdash; logged 06-09, same post). These were the strongest fresh-looking practitioner posts and all were recent duplicates.</li>
+      <li><strong>Picks (2 &mdash; quality over quantity, as the spec allows for a thin week):</strong> Matt Jenkin (Law Firm, Herrington Carmichael, 13 reactions &mdash; below the 25 ideal but flagged; substantive employer-side all-reasonable-steps post with a clean RTS angle: policy refresh vs whether managers can actually handle the conversation); Francisco Baptista (Influencer, 55 reactions + 30 comments, clears the 30 threshold, 1st-degree connection &mdash; the single best on-category post of the week, AI coaching as a mirror vs safety-and-stakes behaviour change, which is exactly RTS&apos;s thesis). Comment build kept off any RTS/Pressure Test mention per voice rules.</li>
+      <li><strong>For the liker job:</strong> Matt Jenkin (13) clears the 10+ reactions threshold and is ICP (Law Firm) &mdash; extract his reactors. Francisco Baptista (55) clears 10+ but is Influencer, and the liker template is ICP-only (CHRO/Compliance/Law Firm), so do NOT run liker extraction on him. Both carry confirmed <code>/in/&lt;slug&gt;/recent-activity/all/</code> URLs (<code>mattjenkin</code>, <code>franciscoserranobaptista</code>) so the post is re-findable.</li>
+      <li><strong>Strong-content, sub-threshold near-misses (logged, not carded):</strong> Chloe Ridley (Partner, Ridley &amp; Co &mdash; excellent NFM-sits-inside-COCON, it-is-an-SMCR-question-not-an-HR-project post, but only 1 reaction); Siobhan Mulrey (Legal Director Employment, Bevan Brittan, 5); Edward Belam (Partner, Marriott Harrison, 7 &mdash; and more political than substantive, quoting Badenoch on the ERA); Dr Nina Burrowes (sexual-harassment-prevention expert, The Consent Collective, 8); Ash Hewins (AI roleplay in pharma/medtech, 1st-degree, 1-reaction poll); Carolyn Hobdey (Fractional HRD, courageous conversations, 7). All on-message but below threshold for a worthwhile comment this week.</li>
+      <li><strong>Geography discards (UK-only rule):</strong> several higher-engagement posts dropped as non-UK &mdash; Stefanie Costi (anti-bullying lawyer, AU, 528 reactions, PIP-as-weapon), Michel Nungisa (workplace investigator, ON Canada, 76), Jason Clark (psychosocial/investigations, AU framing, 60), Nick Gallo / Ethico (speak-up culture, US, 88), Skadden (NFM podcast, US, 34), Iona Goodwin / Hall &amp; Wilcox (psychosocial risk, AU), Katie Turner-Carr (manager-layer-as-execution-system, US/SHRM, 18). Most category / AI-simulation hits were US sales-enablement vendors.</li>
+      <li><strong>Query notes:</strong> <code>"leadership programme" "didn't stick"</code> returned zero results again (over-specific phrase pairing &mdash; recurring corpus-tuning candidate). No security checkpoint or soft-block encountered; empty/weak result sets were genuinely thin rather than rate-limited. Paced ~3 searches per navigation batch throughout.</li>
+      <li><strong>Stage 2:</strong> run the paired <code>liker-job.md</code> (Matt Jenkin only &mdash; ICP, 13 reactions) and <code>comment-mining-job.md</code> against this 2026-06-10 section next.</li>
+    </ul>
+  </div>
+</section>
+
 <section class="day" data-date="2026-06-09-afternoon">
   <h2>2026-06-09 (afternoon)</h2>
 
