@@ -376,6 +376,20 @@
   <div id="queue-list" class="queue-list"></div>
 
     <!-- NEWEST-DAY-INSERT: prepend <section class="day" data-date="YYYY-MM-DD"> with <h2> (hidden) + cards. Each card: .card-head, dl.meta, optional .post-content, .comment, .actions. Optional trailing .run-notes (hidden/stripped in UI). Page flattens into #queue-list and shows date on each row. -->
+<section class="day" data-date="2026-06-16">
+  <h2>2026-06-16</h2>
+  <div class="run-notes">
+    <h3>Run notes &mdash; 2026-06-16</h3>
+    <ul>
+      <li><strong>Run aborted &mdash; Chrome not reachable (infra failure, loud).</strong> The Claude-in-Chrome extension was not connected for this scheduled run. <code>tabs_context_mcp</code> returned "Claude in Chrome is not connected" and <code>list_connected_browsers</code> returned an empty list on every attempt, across ~6 retries over roughly 50 seconds (with 8s and 15s waits between). The browser never came back, so LinkedIn could not be opened.</li>
+      <li><strong>Zero searches run.</strong> Because the browser was unreachable, none of the ~140 keyword-corpus queries were executed and no posts were surfaced. This is NOT a login wall and NOT a soft block / security checkpoint &mdash; LinkedIn was never reached at all. The blocker is purely the Chrome extension connection.</li>
+      <li><strong>No candidate cards this run.</strong> 0 candidates across all four audiences (CHRO / Compliance / Law Firm / Influencer). 0 cleared the 10+ reaction threshold; no profile slugs captured. Per the job spec, a short day section is still written and pushed so the run is logged.</li>
+      <li><strong>Infra:</strong> repo clone via inlined PAT worked first try (clone path <code>/tmp/tracker-1781596831</code>). Inserted immediately after the day-insert marker &mdash; actual marker text in the file is <code>&lt;!-- NEWEST-DAY-INSERT: ... --&gt;</code> (not <code>&lt;!-- NEWEST-DAY-INSERT-BELOW --&gt;</code> as the SKILL.md / job spec still describe &mdash; flagged in many prior runs, still worth a SKILL.md update). Did not touch active-buyer.html, new-roles.html or watchlist.html.</li>
+      <li><strong>Action for Toby:</strong> the discovery scan needs the Chrome extension signed in and connected to run. Re-running this job once Chrome is connected should restore normal yield. The paired stage-2 jobs (liker-mining, comment-mining) have nothing to act on this run since no candidate cards were written.</li>
+    </ul>
+  </div>
+</section>
+
 <section class="day" data-date="2026-06-10">
   <h2>2026-06-10</h2>
 
