@@ -376,6 +376,58 @@
   <div id="queue-list" class="queue-list"></div>
 
     <!-- NEWEST-DAY-INSERT: prepend <section class="day" data-date="YYYY-MM-DD"> with <h2> (hidden) + cards. Each card: .card-head, dl.meta, optional .post-content, .comment, .actions. Optional trailing .run-notes (hidden/stripped in UI). Page flattens into #queue-list and shows date on each row. -->
+<section class="day" data-date="2026-06-17-afternoon">
+  <h2>2026-06-17 (afternoon)</h2>
+
+  <div class="card" data-id="2026-06-17-pm-robbie-simpson-articulation-labour-perishable-skill" data-audience="chro" data-status="todo">
+    <div class="card-head">
+      <div class="who">
+        <h3>1. Robbie Simpson</h3>
+        <div class="topic">CHRO &middot; AI and the difficult conversation as a perishable skill</div>
+      </div>
+      <div class="badges">
+        <span class="badge chro">CHRO</span>
+        <span class="status todo">TODO</span>
+      </div>
+    </div>
+    <dl class="meta">
+      <dt>Role</dt><dd>Director of Talent Acquisition at Cherry Ventures, London, UK &mdash; in-house Talent leader, Talent100 2025 winner (P2 leadership / people-development path)</dd>
+      <dt>Post topic</dt><dd>Picks up a paper on AI in relationships and its idea of articulation labour: AI does the expressive work while the feeling work stays human. Argues people are now outsourcing their hardest interpersonal conversations (performance reviews, candidate rejections, feedback) to AI, the practice environment is disappearing, and difficult conversation is becoming a perishable skill where written feedback no longer matches the verbal tone.</dd>
+      <dt>Engagement</dt><dd>10 reactions &middot; 3 comments &middot; 0 reposts (clears liker 10+ threshold; CHRO bucket has no reaction floor)</dd>
+      <dt>Post age</dt><dd>1d</dd>
+      <dt>Link</dt><dd><a href="https://www.linkedin.com/in/robbiecraigsimpson/recent-activity/all/" target="_blank" rel="noopener">Robbie Simpson &mdash; recent activity (confirmed slug)</a></dd>
+    </dl>
+    <div class="comment">
+      <div class="comment-label">Draft comment</div>
+      Really sharp, this. The articulation labour point lands because the feedback muscle only ever grows when someone actually says the hard thing out loud, not when the AI says it for them. How are you seeing teams keep that muscle alive?
+    </div>
+    <div class="comment connection">
+      <div class="comment-label">Connection request</div>
+      Hi Robbie, your point about difficult conversation becoming a perishable skill once AI does the talking really stuck with me. Would love to swap notes on how talent teams keep managers practising the hard ones rather than outsourcing them.
+    </div>
+    <div class="actions">
+      <button class="btn" data-action="comment-only">Comment only</button>
+      <button class="btn" data-action="comment-and-connect">Comment + connect</button>
+      <button class="btn" data-action="skip">Skip</button>
+      <button class="btn" data-action="reset">Reset</button>
+    </div>
+  </div>
+
+  <div class="run-notes">
+    <h3>Run notes &mdash; 2026-06-17 (afternoon)</h3>
+    <ul>
+      <li><strong>Second run of the day (additive).</strong> A morning 2026-06-17 discovery run already wrote 3 candidate cards (Julie Darmudas, Adam Lunn, Stephen Waddington). This afternoon run is additive &mdash; new section <code>data-date="2026-06-17-afternoon"</code> inserted immediately after the NEWEST-DAY-INSERT marker, before the morning section. The single candidate slug carries a <code>pm-</code> infix to stay distinct from any morning slug.</li>
+      <li><strong>Infra:</strong> repo clone via inlined PAT worked first try (clone path <code>/tmp/tracker-1781685503</code>). LinkedIn feed confirmed logged in as Toby Sinclair, no login wall. All searches used the past-week filter and relevance sort. Inserted immediately after the day-insert marker &mdash; actual marker text in the file is <code>&lt;!-- NEWEST-DAY-INSERT: ... --&gt;</code> (not <code>&lt;!-- NEWEST-DAY-INSERT-BELOW --&gt;</code> as the SKILL.md / job spec still describe; flagged in many prior runs, still worth a SKILL.md update). Did not touch active-buyer.html, new-roles.html or watchlist.html. Search DOM is fully hashed-class, so triage used get_page_text; confirmed profile slugs were lifted from read_page href output on people-search results.</li>
+      <li><strong>Coverage:</strong> ran ~70 of the ~140-query corpus across all four paths plus the Compliance regulatory corpus and the Influencer modifiers. Every query returned results &mdash; no empty-result pattern, no security checkpoint, so no soft block. Fresh yield was thin: the morning run and the 2026-06-16 run had already captured the week&apos;s strongest UK ICP posts, so most relevance-sorted results this afternoon were either already logged, foreign, vendors below the Influencer 30+ bar, or job adverts.</li>
+      <li><strong>Candidates written: 1.</strong> Robbie Simpson (CHRO / Talent) &mdash; on-thesis AI-and-difficult-conversations post, London/UK confirmed via profile. For the liker job: cleared 10+ reactions (10) and has a confirmed profile slug (<code>robbiecraigsimpson</code>), so the recent-activity URL in the card is re-reachable.</li>
+      <li><strong>Dedup skips (already logged this week):</strong> Adam Harper, Zoe Hingston, Shakeel Aslam, Irene W., Michaela Hickman (all 2026-06-16); Adam Lunn (2026-06-17 morning &mdash; resurfaced under Consumer Duty year 2); Francisco Baptista (2026-06-10, resurfaced under AI coaching).</li>
+      <li><strong>Strong-content Influencers below the 30-reaction bar (not carded, logged for transparency):</strong> Michelle Parry-Slater (compliance training is tick-box, Loquias v Star case, 6); Erik Berglund (practise conversations under pressure / simulator analogy, 5); Antawan Reese (Pressure Simulator + live manager roleplay, 0); Fergal Connolly (learning transfer, training-vs-environment thought experiment, 20, 1st-degree); Philip Knox (learning transfer, 12 levers, 0); Lucy Pitt (social housing AI readiness, ~7, 1st-degree). Elton Daddow (L&amp;D measurement, 40 &mdash; clears the bar) had comments restricted to connections, so not actionable.</li>
+      <li><strong>Geography discards (high engagement, non-UK):</strong> Tamara Lutvey (Partner, Ashurst &mdash; 33 reactions, clears the law-firm 25+ bar but Australian IR/WHS cases); Francesco Mereu (VP People, Kia Europe &mdash; Frankfurt, confirmed via profile); Elaine Cercado (Singapore, 49); Manager Tools (US, 53); Esteban Ramon / John Eades / Madeline Mann (US).</li>
+      <li><strong>Law Firm bucket:</strong> no UK employment-law partner or associate cleared 25+ this run &mdash; Oscar Davies (barrister, 12), Daniel Wilde (Harding Evans, 1, and a politically sensitive sex/gender topic), Slater Heelis / Shazia Ashraf (13). Nothing carded.</li>
+      <li><strong>Query notes:</strong> no junk queries flagged. The polysemous-term pairing held up (no trucking/ESG drift). <code>"dignity at work"</code>, <code>"knowing-doing gap"</code> and <code>"courageous conversations"</code> skewed heavily foreign / motivational this week; <code>"Dear CEO letter"</code> and several Compliance queries returned almost entirely Malta (MFSA) and vendor-toolkit spam (Compliance Compass UK / Compliance Consultant UK posting near-identical Section 166 / SMCR toolkit ads).</li>
+    </ul>
+  </div>
+</section>
 <section class="day" data-date="2026-06-17">
   <h2>2026-06-17</h2>
 
