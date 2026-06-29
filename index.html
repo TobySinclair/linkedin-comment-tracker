@@ -376,6 +376,18 @@
   <div id="queue-list" class="queue-list"></div>
 
     <!-- NEWEST-DAY-INSERT: prepend <section class="day" data-date="YYYY-MM-DD"> with <h2> (hidden) + cards. Each card: .card-head, dl.meta, optional .post-content, .comment, .actions. Optional trailing .run-notes (hidden/stripped in UI). Page flattens into #queue-list and shows date on each row. -->
+<section class="day" data-date="2026-06-29">
+  <h2>2026-06-29</h2>
+  <div class="run-notes">
+    <h3>Run notes — 2026-06-29 (comment-mining pass)</h3>
+    <ul>
+      <li><strong>Empty run — no today’s candidate cards to mine.</strong> This stage-2 comment-mining job reads the candidate cards the discovery (stage-1) job writes to today’s day section, then mines their comment threads. On a fresh clone of <code>main</code>, the newest day section in <code>index.html</code> was <code>2026-06-25</code> — there was no <code>2026-06-29</code> section (nor 06-26/27/28). So the paired discovery job has not produced today’s cards, and there are no posts to re-reach. Per playbook §10 (“still write a short day section and push so the run is logged”) this no-op is logged here.</li>
+      <li><strong>No LinkedIn access performed.</strong> With zero candidate posts to re-reach, no Chrome/LinkedIn navigation was needed; no comment threads were opened, and — as always — nothing was Liked, replied to, or posted.</li>
+      <li><strong>Did not touch prior days or sibling pages.</strong> The 2026-06-25 section (4 days old) was left untouched — the job forbids editing prior-day sections and those threads are stale. active-buyer.html, new-roles.html and watchlist.html were not touched.</li>
+      <li><strong>Anomaly flagged:</strong> discovery has not run since 2026-06-25 (last repo commit was an active-buyer scan dated 2026-06-26). If a discovery run later writes a 2026-06-29 section, it will prepend above this one; re-running comment-mining at that point would pick up its cards normally. Worth checking why the stage-1 discovery job has not fired for today.</li>
+    </ul>
+  </div>
+</section>
 <section class="day" data-date="2026-06-25">
   <h2>2026-06-25</h2>
 
