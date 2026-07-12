@@ -377,6 +377,20 @@
 
     <!-- NEWEST-DAY-INSERT: prepend <section class="day" data-date="YYYY-MM-DD"> with <h2> (hidden) + cards. Each card: .card-head, dl.meta, optional .post-content, .comment, .actions. Optional trailing .run-notes (hidden/stripped in UI). Page flattens into #queue-list and shows date on each row. -->
 
+<section class="day" data-date="2026-07-12">
+  <h2>2026-07-12</h2>
+  <div class="run-notes">
+    <h3>Run notes &mdash; 2026-07-12</h3>
+    <ul>
+      <li><strong>Liker pass: no eligible candidates &mdash; legitimate empty run.</strong> Stage 2 (liker mining) reads the candidate cards the paired stage-1 discovery job writes to today&apos;s <code>index.html</code> section. There is no <code>data-date="2026-07-12"</code> section &mdash; the newest discovery section in the file is <code>2026-07-09</code>. Zero candidate cards to re-reach, so there was nothing to mine. Created this section with run-notes only so the run is logged (playbook &sect;10).</li>
+      <li><strong>Discovery has now been missing for three consecutive days &mdash; escalating.</strong> The latest <code>linkedin-discovery</code> commit on <code>main</code> is <code>2026-07-09</code> at 07:51 UTC. There is no discovery commit for 2026-07-10, 2026-07-11 or 2026-07-12, and no <code>data-date</code> section for any of those days. On 2026-07-10 both stage-2 jobs logged empty passes for the same reason; 2026-07-11 has no commits of any kind; today (2026-07-12) the only commit before this pass was <code>new-in-role scan 2026-07-12</code> at 20:22 UTC &mdash; so other scheduled jobs are firing but <code>linkedin-discovery-v2</code> is not. Toby should check whether the discovery scheduled task is still enabled/healthy; stage 2 has had nothing to work with for three days running.</li>
+      <li><strong>Did not process prior sections.</strong> Per liker-job.md this job may only touch today&apos;s section (&quot;Never touch prior days&quot;), so the 2026-07-09 section was left untouched. For completeness: its two candidates (Lori Niles-Hofmann, 38 reactions; Catherine Wilks, 35 reactions) are both <code>data-audience="influencer"</code>, which the liker job skips by design &mdash; so even a permitted back-pass would have yielded zero liker cards.</li>
+      <li><strong>LinkedIn not driven.</strong> With no candidate cards to re-reach, Chrome/LinkedIn was not opened this run &mdash; no post navigations, no reactions modals opened, no reactors captured, and the Like button was never clicked. No accidental Likes. NEVER posted, liked, replied, DM&apos;d or sent a connection request on LinkedIn.</li>
+      <li><strong>Infra.</strong> Repo clone via inlined PAT worked first try. Marker naming, as flagged in many prior runs: the actual insert marker in the file is <code>&lt;!-- NEWEST-DAY-INSERT: ... --&gt;</code>, not <code>&lt;!-- NEWEST-DAY-INSERT-BELOW --&gt;</code> as the SKILL.md / job spec still describe &mdash; still worth a SKILL.md update. Inserted this section immediately after that marker, above the 2026-07-10 section. Did not touch active-buyer.html, new-roles.html, watchlist.html or any prior day section.</li>
+    </ul>
+  </div>
+</section>
+
 <section class="day" data-date="2026-07-10">
   <h2>2026-07-10</h2>
   <div class="run-notes">
