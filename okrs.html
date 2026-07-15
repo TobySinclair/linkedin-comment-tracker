@@ -440,6 +440,32 @@
   .okr-principles { font-size: 13px; color: var(--ink-2); line-height: 1.55; margin: 0; }
   .okr-sustain { font-size: 13px; color: var(--ink-2); margin: 0; line-height: 1.5; }
   .okr-sustain strong { color: var(--ink); }
+  .okr-qtr-badge {
+    display: inline-flex; align-items: center; font-size: 10px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.06em; padding: 3px 8px; border-radius: 999px;
+    margin-left: 8px; vertical-align: middle;
+  }
+  .okr-qtr-badge.active { background: #ecfdf5; color: #166534; border: 1px solid #a7f3d0; }
+  .okr-qtr-badge.closed { background: var(--surface-soft); color: var(--ink-3); border: 1px solid var(--border); }
+  .okr-qtr-closed {
+    margin-top: 32px; border: 1px solid var(--border); border-radius: 8px;
+    background: var(--surface-soft); overflow: hidden;
+  }
+  .okr-qtr-closed summary {
+    cursor: pointer; list-style: none; padding: 14px 16px;
+    font-size: 13px; font-weight: 600; color: var(--ink-2);
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  }
+  .okr-qtr-closed summary::-webkit-details-marker { display: none; }
+  .okr-qtr-closed summary::after {
+    content: ""; width: 7px; height: 7px; border: solid var(--ink-3);
+    border-width: 0 2px 2px 0; transform: rotate(45deg); transition: transform 0.15s; flex-shrink: 0;
+  }
+  .okr-qtr-closed[open] summary::after { transform: rotate(-135deg); margin-top: 4px; }
+  .okr-qtr-closed-body { padding: 0 16px 16px; border-top: 1px solid var(--border); }
+  .okr-qtr-closed .okr-banner { margin-top: 16px; opacity: 0.92; }
+  .okr-qtr-closed .okr-kr-block { margin-top: 12px; }
+  .okr-qtr-closed .okr-history { margin-top: 16px; }
 </style>
 </head>
 <body>
@@ -463,7 +489,7 @@
   <div class="page-head">
     <div>
       <h1 class="page-title" id="page-title">OKRs</h1>
-      <p class="page-sub" id="page-sub">Q2 2026 objective, key results, and Monday check-ins. Syncs to the hub when configured.</p>
+      <p class="page-sub" id="page-sub">Q3 2026 objective, key results, and Monday check-ins. Q2 is closed — history kept below. Syncs to the hub when configured.</p>
     </div>
   </div>
   <div class="tabs" role="tablist" aria-label="OKR hub views">
@@ -490,10 +516,10 @@
 
       <div class="okr-banner">
         <div class="okr-banner-main">
-          <h2>Q2 objective</h2>
-          <p>Advance an &ldquo;employee harm&rdquo; prospect to <strong>proposal stage</strong> to validate ICP and market fit.</p>
+          <h2>Q3 objective <span class="okr-qtr-badge active">Active</span></h2>
+          <p>Activate and grow <strong>three key accounts</strong> through usage and stickiness.</p>
         </div>
-        <div class="okr-qtr-count" id="okr-qtr-count" role="group" aria-live="polite" title="Monday–Friday only; aligned with calendar Q2 (Apr–Jun)">
+        <div class="okr-qtr-count" id="okr-qtr-count" role="group" aria-live="polite" title="Monday–Friday only; aligned with calendar Q3 (Jul–Sep)">
           <div class="okr-qtr-donut">
             <svg class="okr-qtr-svg" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
               <circle class="okr-qtr-track" cx="50" cy="50" r="40" fill="none" stroke-width="8" />
@@ -509,27 +535,27 @@
 
       <div>
         <div class="section-bar" style="margin-bottom: 0">
-          <div class="section-title">Q2 key results</div>
+          <div class="section-title">Q3 key results</div>
         </div>
         <div class="okr-kr-block table" style="margin-top: 0; padding: 0">
           <div class="okr-kr-row">
             <div>
-              <p class="okr-kr-title">KR1 · New ARR customer</p>
-              <p class="okr-kr-desc">Secure one new ARR customer by end of Q2.</p>
+              <p class="okr-kr-title">KR1 · Embedded workflow</p>
+              <p class="okr-kr-desc">All three priority accounts embed Real Talk Studio into a mandatory, repeatable workflow by end of Q3.</p>
             </div>
             <div class="okr-confidence-badge" id="okr-kr-badge-1" title="Latest weekly confidence">No check-in yet</div>
           </div>
           <div class="okr-kr-row">
             <div>
-              <p class="okr-kr-title">KR2 · Renewals</p>
-              <p class="okr-kr-desc">Renew two existing clients for next year by end of Q2.</p>
+              <p class="okr-kr-title">KR2 · Multi-session usage</p>
+              <p class="okr-kr-desc">Seventy percent of users in those three accounts complete more than one session.</p>
             </div>
             <div class="okr-confidence-badge" id="okr-kr-badge-2" title="Latest weekly confidence">No check-in yet</div>
           </div>
           <div class="okr-kr-row">
             <div>
-              <p class="okr-kr-title">KR3 · Discovery conversations</p>
-              <p class="okr-kr-desc">40+ conversations with HR or Compliance decision-makers (or Finance, Legal, People Ops stakeholders) across the quarter (~3/week).</p>
+              <p class="okr-kr-title">KR3 · Advocate referrals</p>
+              <p class="okr-kr-desc">Generate twenty to thirty referrals from your advocate network in Q3.</p>
             </div>
             <div class="okr-confidence-badge" id="okr-kr-badge-3" title="Latest weekly confidence">No check-in yet</div>
           </div>
@@ -545,28 +571,28 @@
         <div class="okr-week-form" id="okr-week-form">
           <div class="okr-field">
             <label for="okr-week-start">Week of (Monday)</label>
-            <input type="date" id="okr-week-start" autocomplete="off">
+            <input type="date" id="okr-week-start" min="2026-07-01" autocomplete="off">
           </div>
 
           <div class="okr-week-row">
             <div><label class="filter-menu-label" style="display:block;margin-bottom:6px">KR1 confidence</label><input type="range" class="okr-conf-slider" id="okr-conf-1" min="0" max="10" value="5"><div class="okr-conf-val" id="okr-conf-1-lbl">5 · Medium</div></div>
             <div class="okr-field" style="margin:0">
               <label for="okr-note-1">KR1 · One sentence</label>
-              <textarea id="okr-note-1" placeholder="Progress on new ARR customer…"></textarea>
+              <textarea id="okr-note-1" placeholder="Progress on mandatory embedded workflow across the three accounts…"></textarea>
             </div>
           </div>
           <div class="okr-week-row">
             <div><label class="filter-menu-label" style="display:block;margin-bottom:6px">KR2 confidence</label><input type="range" class="okr-conf-slider" id="okr-conf-2" min="0" max="10" value="5"><div class="okr-conf-val" id="okr-conf-2-lbl">5 · Medium</div></div>
             <div class="okr-field" style="margin:0">
               <label for="okr-note-2">KR2 · One sentence</label>
-              <textarea id="okr-note-2" placeholder="Renewals pipeline…"></textarea>
+              <textarea id="okr-note-2" placeholder="Multi-session usage across priority accounts…"></textarea>
             </div>
           </div>
           <div class="okr-week-row">
             <div><label class="filter-menu-label" style="display:block;margin-bottom:6px">KR3 confidence</label><input type="range" class="okr-conf-slider" id="okr-conf-3" min="0" max="10" value="5"><div class="okr-conf-val" id="okr-conf-3-lbl">5 · Medium</div></div>
             <div class="okr-field" style="margin:0">
               <label for="okr-note-3">KR3 · One sentence</label>
-              <textarea id="okr-note-3" placeholder="Conversations this week / trajectory to 40+…"></textarea>
+              <textarea id="okr-note-3" placeholder="Referrals from advocate network this week / trajectory to 20–30…"></textarea>
             </div>
           </div>
 
@@ -609,14 +635,68 @@
 
       <div>
         <div class="section-bar" style="margin-bottom: 10px">
-          <div class="section-title">Anti-goals (Q2)</div>
+          <div class="section-title">Anti-goals (Q3)</div>
         </div>
         <ul class="okr-list">
-          <li>No chasing one-off deals under £20k, or non-ARR shapes — focus on recurring or multi-year structure. Larger one-offs (£20k+) are runway only if they don&rsquo;t derail Q2 OKRs.</li>
-          <li>No more than <strong>one day per week</strong> on product features not requested by paying customers.</li>
-          <li>Stay on <strong>Compliance + HR ICP</strong> this quarter; reassess end Q2 only if meetings, conversions, or urgency show a clear pattern despite best effort.</li>
+          <li>No spreading focus beyond the <strong>three priority accounts</strong> until embed and stickiness targets are clearly on track.</li>
+          <li>No more than <strong>one day per week</strong> on product features not requested by those accounts or existing paying customers.</li>
+          <li>No chasing referrals before accounts are actually embedded in a repeatable workflow — advocates follow usage, not the other way around.</li>
         </ul>
       </div>
+
+      <details class="okr-qtr-closed" id="okr-q2-closed">
+        <summary>Q2 2026 <span class="okr-qtr-badge closed">Closed</span></summary>
+        <div class="okr-qtr-closed-body">
+          <div class="okr-banner">
+            <div class="okr-banner-main">
+              <h2>Q2 objective</h2>
+              <p>Advance an &ldquo;employee harm&rdquo; prospect to <strong>proposal stage</strong> to validate ICP and market fit.</p>
+            </div>
+          </div>
+          <div>
+            <div class="section-bar" style="margin-bottom: 0">
+              <div class="section-title">Q2 key results</div>
+            </div>
+            <div class="okr-kr-block table" style="margin-top: 0; padding: 0">
+              <div class="okr-kr-row">
+                <div>
+                  <p class="okr-kr-title">KR1 · New ARR customer</p>
+                  <p class="okr-kr-desc">Secure one new ARR customer by end of Q2.</p>
+                </div>
+                <div class="okr-confidence-badge" id="okr-q2-kr-badge-1" title="Final Q2 confidence">No check-in yet</div>
+              </div>
+              <div class="okr-kr-row">
+                <div>
+                  <p class="okr-kr-title">KR2 · Renewals</p>
+                  <p class="okr-kr-desc">Renew two existing clients for next year by end of Q2.</p>
+                </div>
+                <div class="okr-confidence-badge" id="okr-q2-kr-badge-2" title="Final Q2 confidence">No check-in yet</div>
+              </div>
+              <div class="okr-kr-row">
+                <div>
+                  <p class="okr-kr-title">KR3 · Discovery conversations</p>
+                  <p class="okr-kr-desc">40+ conversations with HR or Compliance decision-makers (or Finance, Legal, People Ops stakeholders) across the quarter (~3/week).</p>
+                </div>
+                <div class="okr-confidence-badge" id="okr-q2-kr-badge-3" title="Final Q2 confidence">No check-in yet</div>
+              </div>
+            </div>
+          </div>
+          <div class="okr-history">
+            <div class="okr-history-head">Q2 check-ins</div>
+            <div id="okr-q2-history-body"></div>
+          </div>
+          <div style="margin-top: 16px">
+            <div class="section-bar" style="margin-bottom: 10px">
+              <div class="section-title">Anti-goals (Q2)</div>
+            </div>
+            <ul class="okr-list">
+              <li>No chasing one-off deals under £20k, or non-ARR shapes — focus on recurring or multi-year structure. Larger one-offs (£20k+) are runway only if they didn&rsquo;t derail Q2 OKRs.</li>
+              <li>No more than <strong>one day per week</strong> on product features not requested by paying customers.</li>
+              <li>Stay on <strong>Compliance + HR ICP</strong> this quarter; reassess end Q2 only if meetings, conversions, or urgency show a clear pattern despite best effort.</li>
+            </ul>
+          </div>
+        </div>
+      </details>
 
     </div>
   </div>
@@ -650,8 +730,16 @@
             <span class="okr-field-hint">Target 4–5 by end 2026</span>
           </div>
           <div class="okr-field" style="grid-column: 1 / -1">
-            <label for="okr-kpi-convos">Q2 conversations tally (HR / Compliance / stakeholders)</label>
-            <input type="number" id="okr-kpi-convos" min="0" step="1" placeholder="Running count toward 40+" autocomplete="off">
+            <label for="okr-kpi-convos">Q2 conversations tally (closed quarter)</label>
+            <input type="number" id="okr-kpi-convos" min="0" step="1" placeholder="Final count toward 40+" autocomplete="off">
+          </div>
+          <div class="okr-field">
+            <label for="okr-kpi-referrals">Q3 referrals (toward 20–30)</label>
+            <input type="number" id="okr-kpi-referrals" min="0" step="1" placeholder="Running count" autocomplete="off">
+          </div>
+          <div class="okr-field">
+            <label for="okr-kpi-embedded">Priority accounts embedded (0–3)</label>
+            <input type="number" id="okr-kpi-embedded" min="0" max="3" step="1" placeholder="0–3" autocomplete="off">
           </div>
         </div>
         <p style="margin: 14px 0 0"><button type="button" class="btn btn-primary" id="okr-kpi-save">Save KPI snapshot</button></p>
@@ -695,9 +783,18 @@
       .replace(/"/g, "&quot;");
   }
   var OKR_LS = "rts-hub-okr-v1";
+  var OKR_ACTIVE_QUARTER = "2026-Q3";
   function okrDefaultState() {
     return {
-      kpis: { mrrGbp: "", runwayGbp: "", grossMarginPct: "", recurringCustomers: "", conversationsQ2Count: "" },
+      kpis: {
+        mrrGbp: "",
+        runwayGbp: "",
+        grossMarginPct: "",
+        recurringCustomers: "",
+        conversationsQ2Count: "",
+        referralsQ3Count: "",
+        accountsEmbeddedQ3: ""
+      },
       weekly: []
     };
   }
@@ -720,7 +817,10 @@
   function okrMergeRemotePayload(o) {
     var base = okrDefaultState();
     if (!o || typeof o !== "object") return base;
-    var keys = ["mrrGbp", "runwayGbp", "grossMarginPct", "recurringCustomers", "conversationsQ2Count"];
+    var keys = [
+      "mrrGbp", "runwayGbp", "grossMarginPct", "recurringCustomers",
+      "conversationsQ2Count", "referralsQ3Count", "accountsEmbeddedQ3"
+    ];
     if (o.kpis && typeof o.kpis === "object" && !Array.isArray(o.kpis)) {
       keys.forEach(function (key) {
         if (o.kpis[key] !== undefined && o.kpis[key] !== null && o.kpis[key] !== "") {
@@ -737,7 +837,10 @@
     if (!st) return true;
     if (Array.isArray(st.weekly) && st.weekly.length > 0) return false;
     var k = st.kpis || {};
-    var keys = ["mrrGbp", "runwayGbp", "grossMarginPct", "recurringCustomers", "conversationsQ2Count"];
+    var keys = [
+      "mrrGbp", "runwayGbp", "grossMarginPct", "recurringCustomers",
+      "conversationsQ2Count", "referralsQ3Count", "accountsEmbeddedQ3"
+    ];
     for (var i = 0; i < keys.length; i++) {
       var v = k[keys[i]];
       if (v !== undefined && v !== "" && v !== null) return false;
@@ -782,11 +885,40 @@
     }
     return n;
   }
-  function okrQ2BoundsForYear(year) {
-    return {
-      start: new Date(year, 3, 1),
-      end: new Date(year, 5, 30)
-    };
+  function okrQuarterBounds(quarterId, year) {
+    if (quarterId === "2026-Q2") {
+      return { start: new Date(year, 3, 1), end: new Date(year, 5, 30) };
+    }
+    if (quarterId === "2026-Q3") {
+      return { start: new Date(year, 6, 1), end: new Date(year, 8, 30) };
+    }
+    return { start: new Date(year, 0, 1), end: new Date(year, 11, 31) };
+  }
+  function okrInferQuarterFromWeek(weekStart) {
+    if (!weekStart) return OKR_ACTIVE_QUARTER;
+    var parts = String(weekStart).split("-");
+    if (parts.length < 2) return OKR_ACTIVE_QUARTER;
+    var y = parseInt(parts[0], 10);
+    var m = parseInt(parts[1], 10);
+    if (isNaN(y) || isNaN(m)) return OKR_ACTIVE_QUARTER;
+    if (y === 2026 && m >= 4 && m <= 6) return "2026-Q2";
+    if (y === 2026 && m >= 7 && m <= 9) return "2026-Q3";
+    if (m >= 4 && m <= 6) return y + "-Q2";
+    if (m >= 7 && m <= 9) return y + "-Q3";
+    if (m >= 10 && m <= 12) return y + "-Q4";
+    return y + "-Q1";
+  }
+  function okrMigrateWeeklyQuarters(st) {
+    (st.weekly || []).forEach(function (entry) {
+      if (!entry.quarter) entry.quarter = okrInferQuarterFromWeek(entry.weekStart);
+    });
+    return st;
+  }
+  function okrWeeklyForQuarter(st, quarterId) {
+    return (st.weekly || []).filter(function (e) {
+      var q = e.quarter || okrInferQuarterFromWeek(e.weekStart);
+      return q === quarterId;
+    });
   }
   function okrUpdateQuarterCount() {
     var elWrap = document.getElementById("okr-qtr-count");
@@ -798,7 +930,8 @@
     var circ = 2 * Math.PI * ringR;
     var today = okrStartOfDay(new Date());
     var y = today.getFullYear();
-    var b = okrQ2BoundsForYear(y);
+    var b = okrQuarterBounds(OKR_ACTIVE_QUARTER, y);
+    var qLabel = "Q3";
     var total = okrCountWeekdays(b.start, b.end);
     if (total < 1) {
       elPctCenter.textContent = "—";
@@ -825,8 +958,8 @@
     var pctStr = String(pct);
     elPctCenter.textContent = pctStr + "%";
     if (elWdLbl) {
-      if (today < b.start) elWdLbl.textContent = "until Q2";
-      else if (today > b.end) elWdLbl.textContent = "Q2 complete";
+      if (today < b.start) elWdLbl.textContent = "until " + qLabel;
+      else if (today > b.end) elWdLbl.textContent = qLabel + " complete";
       else elWdLbl.textContent = String(remaining) + " wd";
     }
     if (elRing) {
@@ -836,7 +969,7 @@
     if (elWrap) {
       elWrap.setAttribute(
         "aria-label",
-        "Q2 weekdays: " + pctStr + " percent of quarter remaining, " + remaining + " weekdays left."
+        qLabel + " weekdays: " + pctStr + " percent of quarter remaining, " + remaining + " weekdays left."
       );
     }
   }
@@ -887,27 +1020,30 @@
     el = document.getElementById("okr-kpi-margin"); if (el) el.value = k.grossMarginPct !== undefined && k.grossMarginPct !== "" ? k.grossMarginPct : "";
     el = document.getElementById("okr-kpi-customers"); if (el) el.value = k.recurringCustomers !== undefined && k.recurringCustomers !== "" ? k.recurringCustomers : "";
     el = document.getElementById("okr-kpi-convos"); if (el) el.value = k.conversationsQ2Count !== undefined && k.conversationsQ2Count !== "" ? k.conversationsQ2Count : "";
+    el = document.getElementById("okr-kpi-referrals"); if (el) el.value = k.referralsQ3Count !== undefined && k.referralsQ3Count !== "" ? k.referralsQ3Count : "";
+    el = document.getElementById("okr-kpi-embedded"); if (el) el.value = k.accountsEmbeddedQ3 !== undefined && k.accountsEmbeddedQ3 !== "" ? k.accountsEmbeddedQ3 : "";
     okrRefreshMarginAlert();
     okrRefreshRunwayHint();
   }
-  function okrLatestWeekly(st) {
-    var w = (st.weekly || []).slice();
+  function okrLatestWeekly(st, quarterId) {
+    var q = quarterId || OKR_ACTIVE_QUARTER;
+    var w = okrWeeklyForQuarter(st, q).slice();
     w.sort(function (a, b) { return (b.weekStart || "").localeCompare(a.weekStart || ""); });
     return w[0] || null;
   }
-  function okrUpdateKrBadges(st) {
-    var latest = okrLatestWeekly(st);
+  function okrUpdateKrBadgesForQuarter(st, quarterId, badgePrefix) {
+    var latest = okrLatestWeekly(st, quarterId);
     for (var i = 1; i <= 3; i++) {
-      var badge = document.getElementById("okr-kr-badge-" + i);
+      var badge = document.getElementById(badgePrefix + i);
       if (!badge) continue;
       if (!latest || !latest.confidence) {
-        badge.textContent = "No check-in yet";
+        badge.textContent = quarterId === OKR_ACTIVE_QUARTER ? "No check-in yet" : "No Q2 check-in";
         badge.classList.remove("has-val", "warn");
         continue;
       }
       var c = parseInt(latest.confidence["kr" + i], 10);
       if (isNaN(c)) {
-        badge.textContent = "No check-in yet";
+        badge.textContent = quarterId === OKR_ACTIVE_QUARTER ? "No check-in yet" : "No Q2 check-in";
         badge.classList.remove("has-val", "warn");
         continue;
       }
@@ -916,14 +1052,18 @@
       badge.classList.toggle("warn", c <= 3);
     }
   }
+  function okrUpdateKrBadges(st) {
+    okrUpdateKrBadgesForQuarter(st, OKR_ACTIVE_QUARTER, "okr-kr-badge-");
+    okrUpdateKrBadgesForQuarter(st, "2026-Q2", "okr-q2-kr-badge-");
+  }
   function okrRefreshWeekSaveButtonLabel() {
     var weekInput = document.getElementById("okr-week-start");
     var btn = document.getElementById("okr-week-save");
     if (!weekInput || !btn) return;
     var ws = weekInput.value;
-    var st = okrLoadState();
+    var st = okrLoadStateNormalized();
     var exists = false;
-    (st.weekly || []).forEach(function (e) {
+    okrWeeklyForQuarter(st, OKR_ACTIVE_QUARTER).forEach(function (e) {
       if (e.weekStart === ws) exists = true;
     });
     btn.textContent = exists ? "Update check-in" : "Save weekly check-in";
@@ -935,7 +1075,7 @@
     var formEl = document.getElementById("okr-week-form");
     if (!weekInput) return;
     weekInput.value = weekStart;
-    okrLoadWeekForm(okrLoadState(), weekStart);
+    okrLoadWeekForm(okrLoadStateNormalized(), weekStart);
     okrRefreshWeekSaveButtonLabel();
     toast("Editing check-in — change fields, then save.");
     if (formEl) {
@@ -944,17 +1084,21 @@
       }, 80);
     }
   }
-  function okrRenderHistory(st) {
-    var body = document.getElementById("okr-history-body");
+  function okrRenderHistory(st, quarterId, bodyId, opts) {
+    opts = opts || {};
+    var editable = opts.editable !== false;
+    var body = document.getElementById(bodyId || "okr-history-body");
     if (!body) return;
     body.innerHTML = "";
-    var w = (st.weekly || []).slice();
+    var w = okrWeeklyForQuarter(st, quarterId).slice();
     w.sort(function (a, b) { return (b.weekStart || "").localeCompare(a.weekStart || ""); });
     if (!w.length) {
       var empty = document.createElement("div");
       empty.className = "okr-history-item";
       empty.style.color = "var(--ink-3)";
-      empty.textContent = "No check-ins yet. Save your first Monday review above.";
+      empty.textContent = quarterId === OKR_ACTIVE_QUARTER
+        ? "No check-ins yet. Save your first Monday review above."
+        : "No Q2 check-ins recorded.";
       body.appendChild(empty);
       return;
     }
@@ -967,7 +1111,7 @@
       meta.className = "okr-history-meta";
       meta.textContent = "Week of " + (entry.weekStart || "—");
       head.appendChild(meta);
-      if (entry.weekStart) {
+      if (entry.weekStart && editable) {
         var editBtn = document.createElement("button");
         editBtn.type = "button";
         editBtn.className = "btn okr-history-edit";
@@ -1005,6 +1149,14 @@
       }
       body.appendChild(row);
     });
+  }
+  function okrRefreshAllHistory(st) {
+    okrRenderHistory(st, OKR_ACTIVE_QUARTER, "okr-history-body", { editable: true });
+    okrRenderHistory(st, "2026-Q2", "okr-q2-history-body", { editable: false });
+  }
+  function okrLoadStateNormalized() {
+    var st = okrLoadState();
+    return okrMigrateWeeklyQuarters(st);
   }
   function okrLoadWeekForm(st, weekStart) {
     var found = null;
@@ -1048,11 +1200,11 @@
     var weekInput = document.getElementById("okr-week-start");
     if (!weekInput) return;
 
-    var local = okrLoadState();
+    var local = okrLoadStateNormalized();
     weekInput.value = okrMondayISOFromDate(new Date());
     okrFillKpiForm(local);
     okrUpdateKrBadges(local);
-    okrRenderHistory(local);
+    okrRefreshAllHistory(local);
     okrLoadWeekForm(local, weekInput.value);
     okrRefreshWeekSaveButtonLabel();
 
@@ -1062,7 +1214,7 @@
         return r.json();
       })
       .then(function (remoteRaw) {
-        var remote = okrMergeRemotePayload(remoteRaw);
+        var remote = okrMigrateWeeklyQuarters(okrMergeRemotePayload(remoteRaw));
         var use = remote;
         if (okrStateIsEmpty(remote) && !okrStateIsEmpty(local)) {
           use = local;
@@ -1071,7 +1223,7 @@
         okrSaveState(use);
         okrFillKpiForm(use);
         okrUpdateKrBadges(use);
-        okrRenderHistory(use);
+        okrRefreshAllHistory(use);
         okrLoadWeekForm(use, weekInput.value);
         okrRefreshWeekSaveButtonLabel();
       })
@@ -1098,7 +1250,7 @@
     }
 
     weekInput.addEventListener("change", function () {
-      var st2 = okrLoadState();
+      var st2 = okrLoadStateNormalized();
       okrLoadWeekForm(st2, weekInput.value);
       okrRefreshWeekSaveButtonLabel();
     });
@@ -1106,7 +1258,7 @@
     var saveKpi = document.getElementById("okr-kpi-save");
     if (saveKpi) {
       saveKpi.addEventListener("click", function () {
-        var st3 = okrLoadState();
+        var st3 = okrLoadStateNormalized();
         var g = function (id) {
           var e = document.getElementById(id);
           return e && e.value !== "" ? e.value : "";
@@ -1116,7 +1268,9 @@
           runwayGbp: g("okr-kpi-runway"),
           grossMarginPct: g("okr-kpi-margin"),
           recurringCustomers: g("okr-kpi-customers"),
-          conversationsQ2Count: g("okr-kpi-convos")
+          conversationsQ2Count: g("okr-kpi-convos"),
+          referralsQ3Count: g("okr-kpi-referrals"),
+          accountsEmbeddedQ3: g("okr-kpi-embedded")
         };
         okrSaveState(st3);
         okrPushRemote(st3)
@@ -1130,10 +1284,11 @@
     var saveWeek = document.getElementById("okr-week-save");
     if (saveWeek) {
       saveWeek.addEventListener("click", function () {
-        var st4 = okrLoadState();
+        var st4 = okrLoadStateNormalized();
         var ws = weekInput.value || okrMondayISOFromDate(new Date());
         var entry = {
           weekStart: ws,
+          quarter: OKR_ACTIVE_QUARTER,
           confidence: {},
           krNotes: {},
           antiGoals: (document.getElementById("okr-anti") || {}).value || "",
@@ -1158,7 +1313,7 @@
         st4.weekly = list;
         okrSaveState(st4);
         okrUpdateKrBadges(st4);
-        okrRenderHistory(st4);
+        okrRefreshAllHistory(st4);
         okrRefreshWeekSaveButtonLabel();
         var msg = replaced ? "Week updated" : "Check-in saved";
         okrPushRemote(st4)
@@ -1196,7 +1351,7 @@
       tabReset();
       if (tko) { tko.classList.add("tab-current"); tko.setAttribute("aria-selected", "true"); }
       if (pt) pt.textContent = "OKRs";
-      if (ps) ps.textContent = "Q2 2026 objective, key results, and Monday check-ins. Syncs to the hub when configured.";
+      if (ps) ps.textContent = "Q3 2026 objective, key results, and Monday check-ins. Q2 is closed — history kept below. Syncs to the hub when configured.";
       okrUpdateQuarterCount();
     }
   }
