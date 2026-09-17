@@ -376,6 +376,91 @@
   <div id="queue-list" class="queue-list"></div>
 
     <!-- NEWEST-DAY-INSERT: prepend <section class="day" data-date="YYYY-MM-DD"> with <h2> (hidden) + cards. Each card: .card-head, dl.meta, optional .post-content, .comment, .actions. Optional trailing .run-notes (hidden/stripped in UI). Page flattens into #queue-list and shows date on each row. -->
+<section class="day" data-date="2026-09-17-comment-mining">
+  <h2>2026-09-17 (comment-mining pass on the 2026-09-14 candidates)</h2>
+
+  <div class="card" data-id="2026-09-17-cm-commenter-sarah-mohammad-qureshi-makbool" data-audience="chro" data-status="todo">
+    <div class="card-head">
+      <div class="who">
+        <h3>1. Sarah Mohammad-Qureshi</h3>
+        <div class="topic">Comment-mined &middot; Commented on Makbool Javaid&apos;s Tesco slapper dismissal case note</div>
+      </div>
+      <div class="badges">
+        <span class="badge chro">CHRO</span>
+        <span class="status todo">TODO</span>
+      </div>
+    </div>
+    <dl class="meta">
+      <dt>Role</dt><dd>Head of Equality, Diversity and Inclusion at The University of Law &middot; Charity Trustee &middot; Race Equality Charter Associate &middot; Chair, GuildHE EDI Network &middot; Safe and Inclusive Campus Advisor &mdash; 2nd degree</dd>
+      <dt>Their comment</dt><dd>Pushed back on the framing in the thread, saying she was disappointed at the implication that sexual harassment would somehow be acceptable on a construction site. Top comment on the post by engagement, 21 likes and five replies hanging off it.</dd>
+      <dt>Commented on</dt><dd>Makbool Javaid&apos;s Tesco unfair dismissal case note, band of reasonable responses &mdash; <a href="https://www.linkedin.com/feed/update/urn:li:activity:7503726742138802176/" target="_blank" rel="noopener">link to original post</a></dd>
+      <dt>Link</dt><dd><a href="https://www.linkedin.com/in/sarah-mohammad-qureshi/" target="_blank" rel="noopener">Sarah on LinkedIn</a></dd>
+    </dl>
+    <div class="comment">
+      <div class="comment-label">Draft reply</div>
+      Really interesting point about the construction site framing. Once you accept that a setting makes the language normal you have lost the argument about where the standard sits, and it is line managers deciding that day to day. How are you holding one standard across yours?
+    </div>
+    <div class="comment connection">
+      <div class="comment-label">Connection request</div>
+      Hi Sarah, your point on the construction site framing under Makbool&apos;s Tesco post stuck with me. Would love to swap notes on how you get managers holding one standard rather than a setting specific one.
+    </div>
+    <div class="actions">
+      <button class="btn" data-action="comment-only">Comment only</button>
+      <button class="btn" data-action="comment-and-connect">Comment + connect</button>
+      <button class="btn" data-action="skip">Skip</button>
+      <button class="btn" data-action="reset">Reset</button>
+    </div>
+  </div>
+
+  <div class="card" data-id="2026-09-17-cm-commenter-julianne-mulholland-cochrane-makbool" data-audience="chro" data-status="todo">
+    <div class="card-head">
+      <div class="who">
+        <h3>2. Julianne Mulholland Cochrane</h3>
+        <div class="topic">Comment-mined &middot; Commented on Makbool Javaid&apos;s Tesco slapper dismissal case note</div>
+      </div>
+      <div class="badges">
+        <span class="badge chro">CHRO</span>
+        <span class="status todo">TODO</span>
+      </div>
+    </div>
+    <dl class="meta">
+      <dt>Role</dt><dd>International HR Business Partner &mdash; Bracknell, England &mdash; 2nd degree (company not named in headline)</dd>
+      <dt>Their comment</dt><dd>Took on another commenter who called the dismissal an overreaction, asking what exactly he thought a reasonable response would have been and why nearly 20 years of service should buy leeway for behaviour he had himself called unacceptable. Followed up arguing colleagues have a right to a workplace that does not tolerate it, and that the employer&apos;s reputation is in play too.</dd>
+      <dt>Commented on</dt><dd>Makbool Javaid&apos;s Tesco unfair dismissal case note, band of reasonable responses &mdash; <a href="https://www.linkedin.com/feed/update/urn:li:activity:7503726742138802176/" target="_blank" rel="noopener">link to original post</a></dd>
+      <dt>Link</dt><dd><a href="https://www.linkedin.com/in/julianne-mulholland-cochrane-25735a9/" target="_blank" rel="noopener">Julianne on LinkedIn</a></dd>
+    </dl>
+    <div class="comment">
+      <div class="comment-label">Draft reply</div>
+      Really interesting point about long service not buying leeway. The bit the policy never covers is what the manager actually says in the room when they decide this one crosses the line, and that is where the consistency goes. How are you seeing your managers handle that?
+    </div>
+    <div class="comment connection">
+      <div class="comment-label">Connection request</div>
+      Hi Julianne, your question under Makbool&apos;s Tesco post about what a reasonable response would actually have looked like landed with me. Would love to swap notes on how you keep managers consistent when they are the ones deciding where the line sits.
+    </div>
+    <div class="actions">
+      <button class="btn" data-action="comment-only">Comment only</button>
+      <button class="btn" data-action="comment-and-connect">Comment + connect</button>
+      <button class="btn" data-action="skip">Skip</button>
+      <button class="btn" data-action="reset">Reset</button>
+    </div>
+  </div>
+
+  <div class="run-notes">
+    <h3>Run notes &mdash; 2026-09-17 (comment mining)</h3>
+    <ul>
+      <li><strong>Mined the 2026-09-14 candidate section, not a same-day one &mdash; deliberate deviation, flagged.</strong> There is no <code>data-date="2026-09-17"</code> section: discovery last ran on 2026-09-14 (commit <code>310c621</code>) and has not fired since. Those ten candidate cards had never been comment-mined, because that day&apos;s comment-mining run (<code>5f7e844</code>) fired <em>before</em> discovery wrote them and logged a blocked run. Rather than log a fourth consecutive no-op while a full unmined candidate section sat on the page, this run mined the 2026-09-14 candidates and wrote the results into its own additive dated section, leaving the 2026-09-14 section itself untouched.</li>
+      <li><strong>Discovery is now three days stale and the cadence is broken.</strong> The job assumes comment mining runs the same session as discovery so threads are fresh. Mining three-day-old discovery output cost most of the run: LinkedIn only renders the five most recent items on a profile activity page and will not paginate past them, so any candidate who posts daily had pushed the target post out of reach. <strong>Action for Toby:</strong> get <code>linkedin-discovery-v2</code> back on a schedule that fires immediately before this job, or the 3+ comment threads will keep expiring before they can be mined.</li>
+      <li><strong>Posts clearing the 3+ comment floor: 5 of 10.</strong> Makbool Javaid (28 comments), Lucy Philip (19), Jonathan Saunders (18), Jen Tait (13, now 14), Chantal Cross (7). <strong>Skipped as below the floor:</strong> Matthew Barstow (2), Claire-Louise Adams (2), Oyin Sotoyinbo (0). <strong>Checked and found below the floor on re-reach:</strong> Adam Berry (discovery did not capture a comment count; the post now shows 29 reactions, 4 reposts, 0 comments) and Olubukola Leonard (comment count never captured; her recent posts run 0&ndash;4 comments and the specific third-party harassment post was no longer reachable).</li>
+      <li><strong>Threads opened: 2 of the 5 eligible.</strong> Makbool Javaid&apos;s Tesco post and Jen Tait&apos;s competency framework post were both reachable from the profile activity page, opened at their permalinks, and fully expanded (all See previous replies exhausted, all truncated comments expanded, 28 and 14 comment nodes read respectively).</li>
+      <li><strong>Three eligible posts unreachable, all for the same reason.</strong> Lucy Philip (19 comments), Jonathan Saunders (18) and Chantal Cross (7) all post at least daily, so their target posts &mdash; now 8 to 9 days old &mdash; had fallen outside the five items their activity pages will render. Show more results did not paginate further on any of the three, and keyword content search on distinctive phrases from each post returned unrelated results, as LinkedIn content search ranks week-old posts poorly. Logged as comment mining skipped, post not reachable.</li>
+      <li><strong>2 comment-miner cards from 42 comments read.</strong> Both from Makbool&apos;s thread, both routed CHRO: Sarah Mohammad-Qureshi (Head of EDI, The University of Law) and Julianne Mulholland Cochrane (International HR Business Partner, UK).</li>
+      <li><strong>Commenters excluded, and why.</strong> <em>Poster / self:</em> Makbool Javaid, Jen Tait (8 of the 14 nodes on her thread were her own replies). <em>Influencer-tier:</em> Paul Robertson-Marriott (owner of his own consultancy, interim HRD) and Chris Davis LLB Chartered FCIPD (independent employment-law commentator) &mdash; between them the two most substantive voices in the Makbool thread, but both consultants, so stages rather than leads under playbook &sect;3; also Mark Fearnley (corporate account manager, vendor), Craig Grimes (apprenticeship provider), Peter Davison (retired consultant), Martina Jordan (restorative justice practice). <em>Off-ICP roles:</em> Dan Grandfield (interim hotel GM), Alison MacLeod (Maersk growth enablement), Nichola Rock (Australian insurer legal specialist, not a UK employment firm), Joshua Ward (customer service and sales), Andrew Clarke (former Evri delivery manager), Robert McClelland (Network Rail Consulting engineering), Valerio Pompili (university technical services), Lisa Johnson (Head of Change Delivery), Neil Rogers (digital transformation), Kirste Worland (Head of IT, Barbour), Joanna Montgomery (product entrepreneur), kathy C. (retired). <em>Low substance:</em> Helen Hymers (headline gives no role or employer), Natalie Henson, Alex Brennan, and the congratulations replies across Jen Tait&apos;s thread. <strong>Jen Tait&apos;s post: 0 ICP commenters out of 14</strong> &mdash; a launch-announcement thread, so almost entirely congratulations.</li>
+      <li><strong>Read-only throughout.</strong> LinkedIn feed confirmed logged in as Toby Sinclair, no login wall and no security checkpoint at any point. Nothing was posted: no Like pressed, no Reply submitted, no connection request sent. The only clicks were Load more comments, See previous replies and the see more text expanders, plus Show more results on activity pages. One <code>browser_batch</code> failed twice with a chrome-extension frame error immediately after navigation and one JavaScript call timed out at 45s on a heavy activity page; each cleared on a re-run.</li>
+      <li><strong>Nothing else touched.</strong> No prior day section including 2026-09-14 itself, no <code>&lt;head&gt;</code> / <code>&lt;style&gt;</code> / inline <code>&lt;script&gt;</code> / <code>.toolbar</code>, and no <code>active-buyer.html</code>, <code>new-roles.html</code> or <code>watchlist.html</code>. Repo clone via the task-supplied PAT worked first try (<code>/tmp/tracker-1789627872</code>). Marker naming, as flagged in many prior runs: the actual marker text is <code>&lt;!-- NEWEST-DAY-INSERT: ... --&gt;</code>, not <code>&lt;!-- NEWEST-DAY-INSERT-BELOW --&gt;</code> as <code>playbook.md</code> &sect;2 still says &mdash; still worth fixing at source.</li>
+    </ul>
+  </div>
+</section>
+
 <section class="day" data-date="2026-09-14">
   <h2>2026-09-14</h2>
 
